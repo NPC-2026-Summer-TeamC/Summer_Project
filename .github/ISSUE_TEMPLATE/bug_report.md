@@ -23,7 +23,7 @@ assignees: ""
 <details>
 <summary>🔍 여기를 눌러서 스크린샷/로그 확인하기</summary>
 
-![이미지](link)
-<!-- link 부분을 실제 이미지 링크로 변경해주세요. -->
+Image
+<!-- 이미지를 복사(Ctrl+C)한 뒤에 Image 글자를 드래그해서 붙여넣기(Ctrl+V) 해주세요. -->
 
 </details>
