@@ -20,8 +20,8 @@
 | 스크립트(클래스) | `PascalCase` | `TileController`, `RuleValidator` |
 | 변수/함수 | `camelCase` | `currentColor`, `checkShapeValid()` |
 | Private 필드 | `_camelCase` | `_boardData` |
-| 프리팹 | `PF_기능명` | `PF_Tile`, `PF_NPC_Dialogue` |
-| 씬 파일 | `Scene_기능명` | `Scene_MainMenu`, `Scene_Stage01` |
+| 프리팹 | `기능명_PF` | `Tile_PF`, `NPC_Dialogue_PF` |
+| 씬 파일 | `기능명Scene` | `MainMenuScene`, `Stage01Scene` |
 
 ## 4. 주석 컨벤션
 
