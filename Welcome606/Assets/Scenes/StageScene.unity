@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bccd67da78e6abc4b924405ca2882ddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OnMouseDown_SwitchScene
-  sceneName: Scene_StageEntry
+  sceneName: StageEntryScene
 --- !u!212 &33582815
 SpriteRenderer:
   serializedVersion: 2

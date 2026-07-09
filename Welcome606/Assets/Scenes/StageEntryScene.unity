@@ -361,7 +361,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bccd67da78e6abc4b924405ca2882ddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OnMouseDown_SwitchScene
-  sceneName: Scene_Map02
+  sceneName: Map02Scene
 --- !u!58 &236073462
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -503,7 +503,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bccd67da78e6abc4b924405ca2882ddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OnMouseDown_SwitchScene
-  sceneName: Scene_Map04
+  sceneName: Map04Scene
 --- !u!58 &291446888
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -592,7 +592,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bccd67da78e6abc4b924405ca2882ddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OnMouseDown_SwitchScene
-  sceneName: Scene_Stage
+  sceneName: StageScene
 --- !u!114 &317202419
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -792,7 +792,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bccd67da78e6abc4b924405ca2882ddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OnMouseDown_SwitchScene
-  sceneName: Scene_Map01
+  sceneName: Map01Scene
 --- !u!58 &421994474
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1150,7 +1150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bccd67da78e6abc4b924405ca2882ddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OnMouseDown_SwitchScene
-  sceneName: Scene_Map05
+  sceneName: Map05Scene
 --- !u!58 &585333749
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1513,7 +1513,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bccd67da78e6abc4b924405ca2882ddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OnMouseDown_SwitchScene
-  sceneName: Scene_Map03
+  sceneName: Map03Scene
 --- !u!58 &1273143033
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1707,7 +1707,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bccd67da78e6abc4b924405ca2882ddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OnMouseDown_SwitchScene
-  sceneName: Scene_Stage
+  sceneName: StageScene
 --- !u!114 &1973653588
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2128,7 +2128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bccd67da78e6abc4b924405ca2882ddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OnMouseDown_SwitchScene
-  sceneName: Scene_Stage
+  sceneName: StageScene
 --- !u!114 &2132973680
 MonoBehaviour:
   m_ObjectHideFlags: 0
