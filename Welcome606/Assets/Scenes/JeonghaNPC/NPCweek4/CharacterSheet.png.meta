@@ -1,0 +1,650 @@
+fileFormatVersion: 2
+guid: abf8d83a7a9a921499885a63296018e9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5731401346558345744
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_0
+  - first:
+      213: -6875556398570008132
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_1
+  - first:
+      213: -2730704170043003381
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_2
+  - first:
+      213: -918297628473740629
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_3
+  - first:
+      213: 4306645206395353308
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_4
+  - first:
+      213: -4303648728303396675
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_5
+  - first:
+      213: 7867405434607900139
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_6
+  - first:
+      213: -3087939141186295417
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_7
+  - first:
+      213: -1481652750966027251
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_8
+  - first:
+      213: 2067275607835450556
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_9
+  - first:
+      213: 6016455698899371235
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_10
+  - first:
+      213: 1003559833529946466
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_11
+  - first:
+      213: -2745882749118372893
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_12
+  - first:
+      213: -2769811549032012108
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_13
+  - first:
+      213: 6795190601952595703
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_14
+  - first:
+      213: 1433188275335985916
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_15
+  - first:
+      213: -8792451599909508025
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_16
+  - first:
+      213: -72846097697294140
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_17
+  - first:
+      213: -3417800795588219833
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_18
+  - first:
+      213: -8019862442276138368
+    second: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_19
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_0
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 293
+        width: 45
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0124ece88270a8f40800000000000000
+      internalID: 5731401346558345744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_1
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 291
+        width: 45
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb1121e32ed1590a0800000000000000
+      internalID: -6875556398570008132
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_2
+      rect:
+        serializedVersion: 2
+        x: 296
+        y: 293
+        width: 46
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0ea8e576079a1ad0800000000000000
+      internalID: -2730704170043003381
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_3
+      rect:
+        serializedVersion: 2
+        x: 385
+        y: 294
+        width: 46
+        height: 72
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba23db81c2d8143f0800000000000000
+      internalID: -918297628473740629
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_4
+      rect:
+        serializedVersion: 2
+        x: 473
+        y: 292
+        width: 48
+        height: 74
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd875d46ff644cb30800000000000000
+      internalID: 4306645206395353308
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_5
+      rect:
+        serializedVersion: 2
+        x: 118
+        y: 206
+        width: 42
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db81a67884e5644c0800000000000000
+      internalID: -4303648728303396675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_6
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 206
+        width: 43
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be518c93f83ae2d60800000000000000
+      internalID: 7867405434607900139
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_7
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 205
+        width: 57
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 789e09136bf6525d0800000000000000
+      internalID: -3087939141186295417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_8
+      rect:
+        serializedVersion: 2
+        x: 375
+        y: 205
+        width: 57
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d0c80325cac107be0800000000000000
+      internalID: -1481652750966027251
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_9
+      rect:
+        serializedVersion: 2
+        x: 461
+        y: 205
+        width: 56
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbc9cd1663070bc10800000000000000
+      internalID: 2067275607835450556
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_10
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 115
+        width: 52
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e485c3e49ebe7350800000000000000
+      internalID: 6016455698899371235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_11
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 115
+        width: 51
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 261176cf95c5ded00800000000000000
+      internalID: 1003559833529946466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_12
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 115
+        width: 52
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e32def103aa4e9d0800000000000000
+      internalID: -2745882749118372893
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_13
+      rect:
+        serializedVersion: 2
+        x: 378
+        y: 116
+        width: 53
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b62c2d3217af89d0800000000000000
+      internalID: -2769811549032012108
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_14
+      rect:
+        serializedVersion: 2
+        x: 470
+        y: 115
+        width: 49
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fe057a99dd5d4e50800000000000000
+      internalID: 6795190601952595703
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_15
+      rect:
+        serializedVersion: 2
+        x: 126
+        y: 29
+        width: 37
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cfaf7af9425b3e310800000000000000
+      internalID: 1433188275335985916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_16
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 29
+        width: 37
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74c2492badfeaf580800000000000000
+      internalID: -8792451599909508025
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_17
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 28
+        width: 38
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c8ba7f2cd23dfef0800000000000000
+      internalID: -72846097697294140
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_18
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 28
+        width: 43
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74caae1e8488190d0800000000000000
+      internalID: -3417800795588219833
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_19
+      rect:
+        serializedVersion: 2
+        x: 474
+        y: 28
+        width: 38
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 08252ac8999b3b090800000000000000
+      internalID: -8019862442276138368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_0: 5731401346558345744
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_1: -6875556398570008132
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_10: 6016455698899371235
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_11: 1003559833529946466
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_12: -2745882749118372893
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_13: -2769811549032012108
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_14: 6795190601952595703
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_15: 1433188275335985916
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_16: -8792451599909508025
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_17: -72846097697294140
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_18: -3417800795588219833
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_19: -8019862442276138368
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_2: -2730704170043003381
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_3: -918297628473740629
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_4: 4306645206395353308
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_5: -4303648728303396675
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_6: 7867405434607900139
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_7: -3087939141186295417
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_8: -1481652750966027251
+      2d-character-sprite-sheet-in-pixel-art-rpg-maker-sprite-mv-mz-battle-sprite-removebg-preview_9: 2067275607835450556
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

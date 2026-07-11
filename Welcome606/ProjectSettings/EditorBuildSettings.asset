@@ -9,33 +9,45 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 1
+    path: Assets/Scenes/JeonghaNPC/NPCweek4/TitleWeek4.unity
+    guid: c8c63f42b8b94634b841bb42c25561e7
+  - enabled: 1
+    path: Assets/Scenes/JeonghaNPC/NPCweek4/SceneWeek4.unity
+    guid: dadca1e856ff35144b690efe40208615
+  - enabled: 1
+    path: Assets/Scenes/JeonghaNPC/NPCweek4/TitleScene.unity
+    guid: 714bea0120b2599429bf6eb7b95381f0
+  - enabled: 1
+    path: Assets/Scenes/JeonghaNPC/NPCweek4/MainWeek4.unity
+    guid: b63cf6aabdf4d964d8c9d87bbe86c387
+  - enabled: 0
     path: Assets/Scenes/MainMenuScene.unity
     guid: 71ed5a165ae78154a836421fa8951300
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Map01Scene.unity
     guid: c0bcadd01bdf86f4dbeb41b5fc975adf
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Map02Scene.unity
     guid: 3906c20a06b068249a8e002714ff219b
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Map03Scene.unity
     guid: 5a0d62fac669d4f4dbfd4f169923713a
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Map04Scene.unity
     guid: 577737cb56384bd43bc1d1fdaeff712a
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Map05Scene.unity
     guid: 08ef364cb711ad74d94ae365eb567438
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/StageEntryScene.unity
     guid: 9d2b2612f4c52b9448de0babd40cf67c
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/StageScene.unity
     guid: 50772c847204bfc4a90a72b1bd6fa5ec
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/ItemListScene.unity
     guid: 8dcfd78050e5dcc478b83dc37c888106
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/CreditsScene.unity
     guid: d417f80a3738a1f4789785203b912bd4
   m_configObjects:
