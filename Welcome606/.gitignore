@@ -106,3 +106,7 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
 .vscode/
+
+# Auto-generated UIElements schema & upgrade log
+UIElementsSchema/
+UpgradeLog.htm

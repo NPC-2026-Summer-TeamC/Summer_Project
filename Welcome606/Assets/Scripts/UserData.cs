@@ -1,16 +1,23 @@
-using System;
+ï»¿using System;
 
 [Serializable]
 public class UserData
 {
-    // Å¬¸®¾îÇÑ ½ºÅ×ÀÌÁö ¹øÈ£
-    public int clearedStage = 0;
+    // [ì±•í„°][ìŠ¤í…Œì´ì§€]
+    public bool[][] clearedStages =
+ {
+        new bool[3], // Rose1
+        new bool[3], // Rose2
+        new bool[3], // Rose3
+        new bool[3], // Rose4
+        new bool[3]  // Rose5
+    };
 
-    // »ç¿îµå ¼³Á¤
+    // ì‚¬ìš´ë“œ ì„¤ì •
     public bool bgmOn = true;
     public bool sfxOn = true;
 
-    // º¼·ı ¼³Á¤
+    // ë³¼ë¥¨ ì„¤ì •
     public float bgmVolume = 1f;
     public float sfxVolume = 1f;
 }
