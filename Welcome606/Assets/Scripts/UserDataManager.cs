@@ -57,8 +57,7 @@ public class UserDataManager : MonoBehaviour
         {
             for (int stage = 0; stage < 3; stage++)
             {
-                PlayerPrefs.SetInt(
-                    $"Cleared_{chapter}_{stage}",
+                PlayerPrefs.SetInt($"Cleared_{chapter}_{stage}",
                     userData.clearedStages[chapter][stage] ? 1 : 0);
             }
         }
@@ -70,6 +69,9 @@ public class UserDataManager : MonoBehaviour
         // 볼륨 저장
         PlayerPrefs.SetFloat("BGMVolume", userData.bgmVolume);
         PlayerPrefs.SetFloat("SFXVolume", userData.sfxVolume);
+
+        // 스크립트 속도 저장
+        PlayerPrefs.SetFloat("ScriptSpeed", userData.scriptSpeed);
 
         PlayerPrefs.Save();
 
@@ -96,6 +98,9 @@ public class UserDataManager : MonoBehaviour
         // 볼륨 불러오기
         userData.bgmVolume = PlayerPrefs.GetFloat("BGMVolume", 1f);
         userData.sfxVolume = PlayerPrefs.GetFloat("SFXVolume", 1f);
+
+        // 스크립트 속도 불러오기
+        userData.scriptSpeed = PlayerPrefs.GetFloat("ScriptSpeed", 1f);
 
         Debug.Log("UserData 불러오기 완료");
     }

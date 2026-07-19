@@ -20,4 +20,7 @@ public class UserData
     // 볼륨 설정
     public float bgmVolume = 1f;
     public float sfxVolume = 1f;
+
+    // 스크립트 속도
+    public float scriptSpeed = 1f;
 }
