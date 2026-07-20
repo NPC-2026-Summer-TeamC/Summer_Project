@@ -1,7 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class UserDataManager : MonoBehaviour
 {
+    private const int ChapterCount = 5;
+    private const int StageCount = 3;
+
     // UserDataManager 싱글톤 인스턴스
     private static UserDataManager _instance;
 
@@ -53,9 +56,9 @@ public class UserDataManager : MonoBehaviour
     public void Save()
     {
         // 챕터/스테이지 클리어 정보 저장
-        for (int chapter = 0; chapter < 5; chapter++)
+        for (int chapter = 0; chapter < ChapterCount; chapter++)
         {
-            for (int stage = 0; stage < 3; stage++)
+            for (int stage = 0; stage < StageCount; stage++)
             {
                 PlayerPrefs.SetInt($"Cleared_{chapter}_{stage}",
                     userData.clearedStages[chapter][stage] ? 1 : 0);
@@ -82,9 +85,9 @@ public class UserDataManager : MonoBehaviour
     public void Load()
     {
         // 챕터/스테이지 클리어 정보 불러오기
-        for (int chapter = 0; chapter < 5; chapter++)
+        for (int chapter = 0; chapter < ChapterCount; chapter++)
         {
-            for (int stage = 0; stage < 3; stage++)
+            for (int stage = 0; stage < StageCount; stage++)
             {
                 userData.clearedStages[chapter][stage] =
                     PlayerPrefs.GetInt($"Cleared_{chapter}_{stage}", 0) == 1;
