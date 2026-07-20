@@ -44,6 +44,9 @@ public class UserDataManager : MonoBehaviour
 
             // 저장된 데이터 불러오기
             Load();
+
+            // 기능 테스트용 코드
+            //ClearStage(0, 0);
         }
         // 이미 인스턴스가 있으면 중복 객체 제거
         else if (_instance != this)
@@ -106,6 +109,17 @@ public class UserDataManager : MonoBehaviour
         userData.scriptSpeed = PlayerPrefs.GetFloat("ScriptSpeed", 1f);
 
         Debug.Log("UserData 불러오기 완료");
+
+        /* 기능 테스트용 코드
+        Debug.Log("=== Load 결과 ===");
+        for (int chapter = 0; chapter < ChapterCount; chapter++)
+        {
+            for (int stage = 0; stage < StageCount; stage++)
+            {
+                Debug.Log($"Cleared[{chapter}][{stage}] = {userData.clearedStages[chapter][stage]}");
+            }
+        }
+        */
     }
 
     // 스테이지 클리어 처리
