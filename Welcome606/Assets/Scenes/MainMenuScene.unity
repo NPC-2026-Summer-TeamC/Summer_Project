@@ -286,11 +286,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UserDataManager
   userData:
-    clearedStage: 0
+    chapters:
+    - stages: 000000
+    - stages: 000000
+    - stages: 000000
+    - stages: 000000
+    - stages: 000000
     bgmOn: 1
     sfxOn: 1
     bgmVolume: 1
     sfxVolume: 1
+    scriptSpeed: 1
 --- !u!4 &174161640
 Transform:
   m_ObjectHideFlags: 0
