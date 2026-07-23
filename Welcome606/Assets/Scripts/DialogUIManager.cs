@@ -6,14 +6,14 @@ public class DialogUIManager : MonoBehaviour
     [SerializeField] private GameObject logModal;      // 로그창 오브젝트
     [SerializeField] private GameObject settingModal;  // 설정창 오브젝트
 
-    private void Start()
+    private void Awake()
     {
         // 씬 시작 시 모달창들은 기본적으로 비활성화
-        closeAllModals();
+        CloseAllModals();
     }
 
     // [로그] 버튼 클릭 시 호출
-    public void openLogModal()
+    public void OpenLogModal()
     {
         if (logModal != null)
         {
@@ -22,7 +22,7 @@ public class DialogUIManager : MonoBehaviour
     }
 
     // [설정] 버튼 클릭 시 호출
-    public void openSettingModal()
+    public void OpenSettingModal()
     {
         if (settingModal != null)
         {
@@ -31,7 +31,7 @@ public class DialogUIManager : MonoBehaviour
     }
 
     // 모든 모달창 닫기 (배경 터치, 닫기/확인 버튼 클릭 시 호출)
-    public void closeAllModals()
+    public void CloseAllModals()
     {
         if (logModal != null) logModal.SetActive(false);
         if (settingModal != null) settingModal.SetActive(false);
