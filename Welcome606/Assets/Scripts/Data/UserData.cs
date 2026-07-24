@@ -1,15 +1,21 @@
 using System;
 
+public static class UserDataConstants
+{
+    public const int ChapterCount = 5;
+    public const int StageCount = 3;
+}
+
 [Serializable]
 public class StageProgress
 {
-    public bool[] stages = new bool[3];
+    public bool[] stages = new bool[UserDataConstants.StageCount];
 }
 
 [Serializable]
 public class UserData
 {
-    public StageProgress[] chapters = new StageProgress[5]
+    public StageProgress[] chapters = new StageProgress[UserDataConstants.ChapterCount]
     {
         new StageProgress(),
         new StageProgress(),
@@ -18,10 +24,5 @@ public class UserData
         new StageProgress()
     };
 
-    public bool bgmOn = true;
-    public bool sfxOn = true;
-    public float bgmVolume = 1f;
-    public float sfxVolume = 1f;
-
-    public float scriptSpeed = 1f;
+    public bool[] collectedItems = new bool[UserDataConstants.ChapterCount];
 }
