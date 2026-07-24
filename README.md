@@ -17,9 +17,8 @@
 
 | 대상 | 규칙 | 예시 |
 |---|---|---|
-| 스크립트(클래스) | `PascalCase` | `TileController`, `RuleValidator` |
-| 변수/함수 | `camelCase` | `currentColor`, `checkShapeValid()` |
-| Private 필드 | `_camelCase` | `_boardData` |
+| 스크립트(클래스)/함수 | `PascalCase` | `TileController`, `RuleValidator`, `CheckShapeValid()` |
+| 변수 | `camelCase` | `currentColor` |
 | 프리팹 | `기능명_PF` | `Tile_PF`, `NPC_Dialogue_PF` |
 | 씬 파일 | `기능명Scene` | `MainMenuScene`, `Stage01Scene` |
 
@@ -103,4 +102,3 @@ docs/이름-내용        → 문서 작업용 브랜치
   - `추가 사항`은 필요할 때만 작성하고, 없으면 섹션을 삭제합니다.
 - **최소 1인의 리뷰 승인이 있어야 머지 가능**합니다.
 - 본인이 작성한 PR은 직접 머지하지 않고, 리뷰를 먼저 요청합니다.
-- PR에 달린 피드백은 확인하시면 댓글 또는 이모지를 남겨주세요.
