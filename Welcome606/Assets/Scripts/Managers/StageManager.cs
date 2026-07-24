@@ -38,6 +38,8 @@ public class StageManager : MonoBehaviour
 
         isStageCleared = true;
 
+        UserDataManager.Instance.ClearStage(currentChapter, currentStage);
+
         Debug.Log("Puzzle Clear");
     }
 
