@@ -2,11 +2,26 @@ using UnityEngine;
 
 public class StageManager : MonoBehaviour
 {
+    // 씬 범위 싱글톤
+    public static StageManager Instance { get; private set; }
+
     [Header("Stage Info")]
     [SerializeField] private int currentChapter;
     [SerializeField] private int currentStage;
 
     private bool isStageCleared;
+
+    private void Awake()
+    {
+        // 이미 StageManager가 존재하면 중복 생성 방지
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -42,7 +57,7 @@ public class StageManager : MonoBehaviour
 
         ShowClearUI();
 
-        Debug.Log("Puzzle Clear");
+        Debug.Log($"Puzzle Clear: Chapter {currentChapter}, Stage {currentStage}");
     }
 
     private void ShowClearUI()
