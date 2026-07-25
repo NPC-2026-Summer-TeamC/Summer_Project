@@ -486,6 +486,8 @@ RectTransform:
   - {fileID: 1894151415944671861}
   - {fileID: 2519102831937084971}
   - {fileID: 5506891244706844801}
+  - {fileID: 9204517639500553756}
+  - {fileID: 2382714138402751562}
   - {fileID: 6784107909749451763}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -508,7 +510,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueManager
   nameText: {fileID: 4629269574767612291}
   dialogText: {fileID: 8458761918127090583}
+  dialogCanvasGroup: {fileID: 0}
   dialogueFile: {fileID: 4900000, guid: 91257f04980f2f74c93aaf505a864841, type: 3}
+  defaultEventID: Prologue_01
+  typingSpeed: 0.05
+  autoSpeed: 3
+  isAutoPlay: 0
 --- !u!1 &4840862862226455512
 GameObject:
   m_ObjectHideFlags: 0
@@ -864,12 +871,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5506891244706844801}
+  m_Father: {fileID: 3034944619530884918}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -684, y: 454}
-  m_SizeDelta: {x: -1516.224, y: 71.8737}
+  m_AnchoredPosition: {x: -684, y: 543.84546}
+  m_SizeDelta: {x: -1655.7968, y: 71.8737}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1966027635619580898
 CanvasRenderer:
@@ -1273,11 +1280,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5506891244706844801}
+  m_Father: {fileID: 3034944619530884918}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -30, y: 28}
+  m_AnchoredPosition: {x: -30, y: -219.63452}
   m_SizeDelta: {x: 1534.3013, y: 196.7172}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2580677991660274524
@@ -1680,9 +1687,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 9204517639500553756}
-  - {fileID: 2382714138402751562}
+  m_Children: []
   m_Father: {fileID: 3034944619530884918}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
