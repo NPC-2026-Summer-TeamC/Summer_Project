@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections.Generic; // Dictionary, List 사용에 필수
 
 public class DialogueManager : MonoBehaviour
 {
@@ -10,41 +11,56 @@ public class DialogueManager : MonoBehaviour
     [Space(15)]
     [Header("데이터 설정")]
     public TextAsset dialogueFile;
+    [Tooltip("게임 시작 시 자동 실행할 EventID (예: Prologue_01)")]
+    public string defaultEventID = "Prologue_01";
     
     private DialogueParser parser;
-    private DialogueData[] dialogues;
+    private Dictionary<string, List<DialogueData>> dialogueDatabase;
+    private List<DialogueData> currentDialogueList;
     private int currentIndex = 0;
 
     private void Awake()
     {
-        parser = GetComponent<DialogueParser>();
-        if (parser == null)
-            parser = gameObject.AddComponent<DialogueParser>();
-
-        LoadDialogueData();
+        // 순수 C# 클래스이므로 new로 생성
+        parser = new DialogueParser();
+        LoadDialogueDatabase();
     }
 
-    // Update문에서 마우스를 직접 감지하던 코드를 통째로 제거했습니다.
-    // 이제 오직 투명 버튼의 OnClick 이벤트나 명시적인 함수 호출로만 대사가 넘어갑니다.
+    private void Start()
+    {
+        // 씬 시작 시 기본 EventID 대사 재생
+        if (!string.IsNullOrEmpty(defaultEventID))
+        {
+            StartDialogue(defaultEventID);
+        }
+    }
 
-    private void LoadDialogueData()
+    private void LoadDialogueDatabase()
     {
         if (dialogueFile == null) return;
+        dialogueDatabase = parser.ParseTextAsset(dialogueFile);
+    }
 
-        dialogues = parser.ParseTextAsset(dialogueFile);
-        
-        if (dialogues != null && dialogues.Length > 0)
+    // 외부(또는 내부)에서 EventID 키값으로 원하는 대화 묶음을 불러오는 핵심 함수
+    public void StartDialogue(string eventID)
+    {
+        if (dialogueDatabase != null && dialogueDatabase.ContainsKey(eventID))
         {
+            currentDialogueList = dialogueDatabase[eventID];
             currentIndex = 0;
             DisplayCurrentDialogue();
+        }
+        else
+        {
+            Debug.LogWarning($"[DialogueManager] 데이터베이스에 '{eventID}' 키값이 존재하지 않습니다. 엑셀 A열을 확인하세요.");
         }
     }
 
     private void DisplayCurrentDialogue()
     {
-        if (currentIndex < dialogues.Length)
+        if (currentDialogueList != null && currentIndex < currentDialogueList.Count)
         {
-            DialogueData currentData = dialogues[currentIndex];
+            DialogueData currentData = currentDialogueList[currentIndex];
             
             nameText.text = string.IsNullOrEmpty(currentData.characterName) ? "" : currentData.characterName;
             
@@ -63,15 +79,20 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    // 화면 클릭 시 호출되는 함수 (이 함수를 투명 버튼의 OnClick에 연결합니다)
     public void OnScreenClicked()
     {
-        if (dialogues == null) return;
+        if (currentDialogueList == null) return;
 
-        if (currentIndex < dialogues.Length - 1)
+        if (currentIndex < currentDialogueList.Count - 1)
         {
             currentIndex++;
             DisplayCurrentDialogue();
+        }
+        else
+        {
+            // 대사 종료 시 초기화
+            dialogText.text = "";
+            nameText.text = "";
         }
     }
 }
