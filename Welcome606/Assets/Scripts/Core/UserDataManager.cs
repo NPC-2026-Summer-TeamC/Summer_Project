@@ -52,12 +52,33 @@ public class UserDataManager : MonoBehaviour
 
     public void ClearStage(int chapter, int stage)
     {
-        if ((chapter >= 0 && chapter < 5) && (stage >= 0 && stage < 3)) {
+        if (chapter >= 0 && chapter < UserDataConstants.ChapterCount &&
+    stage >= 0 && stage < UserDataConstants.StageCount)
+        {
             userData.chapters[chapter].stages[stage] = true;
             Save();
         }
     }
 
+    public void CollectItem(int chapter)
+    {
+        if (chapter < 0 || chapter >= UserDataConstants.ChapterCount)
+            return;
+
+        if (userData.collectedItems[chapter])
+            return;
+
+        userData.collectedItems[chapter] = true;
+        Save();
+    }
+
+    public bool HasCollectedItem(int chapter)
+    {
+        if (chapter < 0 || chapter >= UserDataConstants.ChapterCount)
+            return false;
+
+        return userData.collectedItems[chapter];
+    }
 
     private void Awake()
     {

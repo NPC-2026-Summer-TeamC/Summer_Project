@@ -12,6 +12,9 @@ public class UserDataTest : MonoBehaviour
         UserDataManager.Instance.ClearStage(0, 0);
         UserDataManager.Instance.ClearStage(1, 2);
 
+        // 아이템 획득 테스트
+        UserDataManager.Instance.CollectItem(0);
+        UserDataManager.Instance.CollectItem(3);
         Debug.Log("=== 3단계: PlayerPrefs에 저장된 생 JSON 데이터 확인 ===");
         if (PlayerPrefs.HasKey("UserDataJson"))
         {
@@ -48,6 +51,9 @@ public class UserDataTest : MonoBehaviour
                 }
             }
         }
-        Debug.Log($"BGM: {data.bgmOn} (Vol: {data.bgmVolume}), SFX: {data.sfxOn} (Vol: {data.sfxVolume}), Speed: {data.scriptSpeed}");
+        for (int c = 0; c < data.collectedItems.Length; c++)
+        {
+            Debug.Log($"👉 [아이템 획득] Chapter {c}: {data.collectedItems[c]}");
+        }
     }
 }
