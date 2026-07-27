@@ -1,19 +1,18 @@
 # 3) 게임 기획 및 씬 플레이 루프 기획안
 
-본 문서는 스토리 기반 15개 타일 퍼즐 게임 **"606호에 어서오세요" (Welcome606)**의 핵심 기획, 씬 구조 및 플레이 루프를 정의합니다.
+본 문서는 스토리 기반 15개 타일 퍼즐 게임 **"606호에 어서오세요" (Welcome606)**의 핵심 기획, 씬 구조 및 게임 플레이 루프를 정의합니다.
 
 ---
 
 ## A. 게임 개요
 
-### 목적 및 콘셉트
-- "606호"라는 공간을 배경으로 펼쳐지는 스토리 기반 15개 타일 퍼즐 게임.
-- 5개의 맵(챕터) x 맵별 3개 스테이지 = 총 15개 퍼즐 스테이지 구성.
-- 각 맵 탐색, 대사/스토리 진행, 퍼즐 클리어, 수집 아이템 획득이 유기적으로 연동되는 핵심 플레이 루프 제공.
+- **콘셉트**: "606호"라는 미스터리 공간을 배경으로 펼쳐지는 스토리 연출 및 타일 퍼즐 게임.
+- **볼륨**: 5개 맵 (챕터 1~5) × 맵별 3개 스테이지 = **총 15개 퍼즐 스테이지**.
+- **핵심 루프**: 맵 탐색 ➔ 퍼즐 진입 & 클리어 ➔ 스토리 대사 연출 ➔ 수집 아이템 해금 ➔ 다음 맵 이동.
 
 ---
 
-## B. 핵심 게임 플레이 루프
+## B. 씬 & UI 플레이 흐름도
 
 ```txt
 [타이틀 화면 (MainMenuScene)]
@@ -35,31 +34,22 @@
 
 ---
 
-## C. 씬 및 UI 구성 상세
+## C. 씬 및 주요 UI 기능 명세
 
-### 1) 타이틀 화면 (`MainMenuScene`)
-- **시작하기**: 저장된 진행도 판별 후 최신 해금 맵/스테이지로 진입.
-- **게임 종료**: 애플리케이션 종료.
-- **환경설정**: `SettingModal_PF` 호출.
+| 구분 | 주요 기능 및 역할 | 연동 시스템 / 클래스 |
+| :--- | :--- | :--- |
+| **MainMenuScene** | Game Start (저장 데이터 기반 최근 위치 이동), 환경설정 팝업 | `UserDataManager`, `SettingModalController` |
+| **Map01~05Scene** | 맵 탐색, 맵 진행도(0/3~3/3) 표시, 맵 이동 화살표 활성화 | `MapNavigationController`, `UserDataManager` |
+| **StageEntryScene**| 챕터별 3개 스테이지 중 해금된 퍼즐 단계별 선택 | `UserDataManager.IsStageUnlocked()` |
+| **StageScene** | 15개 타일 퍼즐 판정, 챕터별 기믹 전략 연동 및 클리어 저장 | `PuzzleBoardController`, `IPuzzleRule` |
+| **DialogModal_PF**| 캐릭터 일러스트/대사 출력 (Auto/Skip/Log 및 속도 설정 탭) | `DialogManager`, `DialogUIManager` |
+| **SettingModal_PF**| BGM/SFX 볼륨 조절, **게임 진행도 초기화** (PlayerPrefs 리셋) | `UserDataManager.ResetProgress()` |
 
-### 2) 맵 화면 (`Map01Scene` ~ `Map05Scene`)
-- **맵 진행도 표시**: 맵 내 퍼즐 달성 현황(예: 0/3, 1/3, 2/3, 3/3).
-- **퍼즐 진입 오브젝트**: 클릭 시 `StageEntryScene` 진입.
-- **아이템 상호작용 오브젝트**: 해당 맵 퍼즐 3개 클리어 시 활성화, 클릭 시 `ItemList` 팝업 표시.
-- **맵 간 이동**: 퍼즐 3개 클리어 시 좌/우 화살표 버튼 활성화되어 다음 맵 이동 가능.
+---
 
-### 3) 스테이지 선택 (`StageEntryScene`)
-- 해당 챕터의 3개 스테이지 중 해금된 스테이지 선택하여 `StageScene` 진입.
+## D. 역할 기반 클래스 네이밍 가이드
 
-### 4) 퍼즐 게임 플레이 (`StageScene`)
-- 15개 타일 퍼즐 생성 및 조작.
-- 챕터별 특수 퍼즐 규칙 적용 (`IPuzzleRule`).
-- 클리어 시 `UserDataManager.ClearStage(chapter, stage)` 자동 저장 및 대사 연출 진입.
+- **System Managers**: `UserDataManager` (데이터 저장/불러오기), `DialogManager` (대사 연출 총괄), `StageManager` (스테이지 관리)
+- **Component Controllers**: `PuzzleBoardController` (퍼즐 그리드/타일 제어), `MapNavigationController` (맵 이동 화살표 제어), `SettingModalController` (환경설정 UI 제어)
+- **Services & Data Models**: `DialogueParser` (대사 CSV/JSON 파서), `UserData` (진행도 저장 데이터), `StageData` (ScriptableObject 설정)
 
-### 5) 스토리/대사 모달 (`DialogModal_PF`)
-- 캐릭터 일러스트 및 대사 텍스트 출력.
-- Auto, Skip, Previous, Log 기능 및 스크립트 전용 설정 탭 지원.
-
-### 6) 환경설정 모달 (`SettingModal_PF`)
-- 볼륨 슬라이더 (BGM, SFX).
-- **게임 진행도 초기화** 버튼: 진행도 초기화 팝업 확인 후 PlayerPrefs 삭제 및 UserData 리셋.
