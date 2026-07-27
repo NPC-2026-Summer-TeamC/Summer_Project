@@ -121,7 +121,7 @@ public class UserDataManager : MonoBehaviour
     public bool IsChapterUnlocked(int chapter)
     {
         if (chapter < 0 || chapter > UserDataConst.CHAPTER) {
-            Debug.LogError("챕터 값 오류");
+            // Debug.LogError("챕터 값 오류");
             return false;
         }
 
