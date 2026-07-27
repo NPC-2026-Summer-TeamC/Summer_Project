@@ -34,8 +34,8 @@ public class ScriptSettingController : MonoBehaviour
         if (autoSpeedSlider != null)
             autoSpeedSlider.SetValueWithoutNotify(InvertSliderValue(autoSpeedSlider, dialogueManager.autoSpeed));
 
-        if (dialogOpacitySlider != null && dialogueManager.dialogCanvasGroup != null)
-            dialogOpacitySlider.SetValueWithoutNotify(dialogueManager.dialogCanvasGroup.alpha);
+        if (dialogOpacitySlider != null && dialogueManager.dialogBackgroundImage != null)
+            dialogOpacitySlider.SetValueWithoutNotify(dialogueManager.dialogBackgroundImage.color.a);
     }
 
     // 🔴 슬라이더 왼쪽(느림)/오른쪽(빠름) 라벨 방향과 실제 값의 의미(작을수록 빠름)가 반대라서
