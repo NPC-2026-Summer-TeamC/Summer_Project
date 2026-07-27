@@ -33,7 +33,7 @@ EditorBuildSettings:
     path: Assets/Scenes/StageScene.unity
     guid: 50772c847204bfc4a90a72b1bd6fa5ec
   - enabled: 1
-    path: Assets/Scenes/ItemListScene.unity
+    path: Assets/Scenes/ItemPhotoScene.unity
     guid: 8dcfd78050e5dcc478b83dc37c888106
   - enabled: 1
     path: Assets/Scenes/CreditsScene.unity
