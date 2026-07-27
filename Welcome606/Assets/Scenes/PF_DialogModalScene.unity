@@ -767,7 +767,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 235299486576587831, guid: cf56546403595b2449c0cacfcb25e361, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000021958516
+      value: 0.000635118
       objectReference: {fileID: 0}
     - target: {fileID: 434258216045991971, guid: cf56546403595b2449c0cacfcb25e361, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1073,7 +1073,7 @@ PrefabInstance:
     - target: {fileID: 8133059116893841969, guid: 708f750eff8f31f448ab7fa2e25b2ceb, type: 3}
       propertyPath: dialogueFile
       value: 
-      objectReference: {fileID: 4900000, guid: 62e7e1da01541a74386f90d732ca8a08, type: 3}
+      objectReference: {fileID: 4900000, guid: ce93968afade72e43a9c4e9ddb4fabeb, type: 3}
     - target: {fileID: 8133059116893841969, guid: 708f750eff8f31f448ab7fa2e25b2ceb, type: 3}
       propertyPath: dialogCanvasGroup
       value: 
