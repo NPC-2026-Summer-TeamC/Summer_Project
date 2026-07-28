@@ -77,8 +77,8 @@ public class UserDataManager : MonoBehaviour
 
     public bool ClearStage(int chapter, int stage)
     {
-        if (chapter < 0 || chapter >= UserDataConst.CHAPTER ||
-            stage < 0 || stage >= UserDataConst.STAGE) {
+        if (chapter < 0 || chapter > UserDataConst.CHAPTER ||
+            stage < 0 || stage > UserDataConst.STAGE) {
             Debug.LogError("챕터 또는 스테이지 값 오류");
             return false;
         }
@@ -89,9 +89,9 @@ public class UserDataManager : MonoBehaviour
     }
 
     // 3스테이지 클리어 시 아이템 획득
-    public bool ClearChapter(int chapter)
+    public bool CollectItem(int chapter)
     {
-        if (chapter < 0 || chapter >= UserDataConst.CHAPTER) {
+        if (chapter < 0 || chapter > UserDataConst.CHAPTER) {
             Debug.LogError("챕터 값 오류");
             return false;
         }
@@ -109,7 +109,7 @@ public class UserDataManager : MonoBehaviour
 
     public bool HasCollectedItem(int chapter)
     {
-        if (chapter < 0 || chapter >= UserDataConst.CHAPTER) {
+        if (chapter < 0 || chapter > UserDataConst.CHAPTER) {
             Debug.LogError("챕터 값 오류");
             return false;
         }
