@@ -1,28 +1,16 @@
 using System;
 
-public static class UserDataConstants
+public static class UserDataConst
 {
-    public const int ChapterCount = 5;
-    public const int StageCount = 3;
-}
-
-[Serializable]
-public class StageProgress
-{
-    public bool[] stages = new bool[UserDataConstants.StageCount];
+    public const int CHAPTER = 5;
+    public const int STAGE = 3;
 }
 
 [Serializable]
 public class UserData
 {
-    public StageProgress[] chapters = new StageProgress[UserDataConstants.ChapterCount]
-    {
-        new StageProgress(),
-        new StageProgress(),
-        new StageProgress(),
-        new StageProgress(),
-        new StageProgress()
-    };
-
-    public bool[] collectedItems = new bool[UserDataConstants.ChapterCount];
+    // 챕터 & 스테이지 모두 1부터 시작
+    // 0챕터 = 메인메뉴 ~ 프롤로그, 0스테이지 = 해당 챕터의 퍼즐을 깨기 전 상태
+    public int[] chapters = new int[UserDataConst.CHAPTER + 1] { 3, 0, 0, 0, 0, 0 };
+    public bool[] collectedItems = new bool[UserDataConst.CHAPTER + 1];
 }
