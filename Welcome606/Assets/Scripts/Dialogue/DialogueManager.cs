@@ -1,34 +1,48 @@
 using UnityEngine;
 using TMPro;
-using System.Collections.Generic; // Dictionary, List 사용에 필수
+using System.Collections; // 🔴 코루틴(타이핑 효과) 사용을 위해 추가
+using System.Collections.Generic;
 
 public class DialogueManager : MonoBehaviour
 {
     [Header("UI 연결")]
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI dialogText;
-    
+    public CanvasGroup dialogCanvasGroup; // 🔴 투명도 조절을 위한 컴포넌트 추가
+
     [Space(15)]
     [Header("데이터 설정")]
     public TextAsset dialogueFile;
     [Tooltip("게임 시작 시 자동 실행할 EventID (예: Prologue_01)")]
     public string defaultEventID = "Prologue_01";
     
+    // 🔴 설정창에서 조절할 속도 변수
+    [HideInInspector] public float typingSpeed = 0.05f; 
+    [HideInInspector] public float autoSpeed = 3f;
+
+    // 🔴 자동 진행(Auto Play) 사용 여부. 설정창의 토글(스위치)이 이 값을 켜고 끔.
+    [HideInInspector] public bool isAutoPlay = false;
+
     private DialogueParser parser;
     private Dictionary<string, List<DialogueData>> dialogueDatabase;
     private List<DialogueData> currentDialogueList;
     private int currentIndex = 0;
+    
+    // 🔴 타이핑 제어용 변수
+    private Coroutine typingCoroutine;
+    private bool isTyping = false;
+
+    // 🔴 자동 진행 대기(다음 대사로 넘어가기 전 대기)용 코루틴
+    private Coroutine autoPlayCoroutine;
 
     private void Awake()
     {
-        // 순수 C# 클래스이므로 new로 생성
         parser = new DialogueParser();
         LoadDialogueDatabase();
     }
 
     private void Start()
     {
-        // 씬 시작 시 기본 EventID 대사 재생
         if (!string.IsNullOrEmpty(defaultEventID))
         {
             StartDialogue(defaultEventID);
@@ -41,7 +55,6 @@ public class DialogueManager : MonoBehaviour
         dialogueDatabase = parser.ParseTextAsset(dialogueFile);
     }
 
-    // 외부(또는 내부)에서 EventID 키값으로 원하는 대화 묶음을 불러오는 핵심 함수
     public void StartDialogue(string eventID)
     {
         if (dialogueDatabase != null && dialogueDatabase.ContainsKey(eventID))
@@ -64,9 +77,15 @@ public class DialogueManager : MonoBehaviour
             
             nameText.text = string.IsNullOrEmpty(currentData.characterName) ? "" : currentData.characterName;
             
+            // 🔴 기존 진행 중인 타이핑 멈춤
+            if (typingCoroutine != null) StopCoroutine(typingCoroutine);
+            // 🔴 새 대사가 나오기 전, 이전에 예약돼 있던 자동 진행 대기는 취소
+            if (autoPlayCoroutine != null) StopCoroutine(autoPlayCoroutine);
+
             if (!string.IsNullOrEmpty(currentData.dialogue))
             {
-                dialogText.text = currentData.dialogue;
+                // 🔴 대사일 경우 타이핑 코루틴 실행
+                typingCoroutine = StartCoroutine(TypeText(currentData.dialogue));
             }
             else if (!string.IsNullOrEmpty(currentData.soundEffect))
             {
@@ -79,9 +98,81 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
+    // 🔴 텍스트 타이핑 효과 코루틴
+    private IEnumerator TypeText(string line)
+    {
+        isTyping = true;
+        dialogText.text = "";
+
+        // 속도가 0.01 이하(즉시 출력)일 경우 타이핑 생략
+        if (typingSpeed <= 0.011f)
+        {
+            dialogText.text = line;
+            isTyping = false;
+            TryStartAutoPlay(); // 🔴 타이핑 끝났으니 자동 진행 모드면 예약
+            yield break;
+        }
+
+        foreach (char c in line.ToCharArray())
+        {
+            dialogText.text += c;
+            yield return new WaitForSeconds(typingSpeed);
+        }
+        isTyping = false;
+        TryStartAutoPlay(); // 🔴 타이핑 끝났으니 자동 진행 모드면 예약
+    }
+
+    // 🔴 타이핑이 끝난 직후 호출됨. 자동 진행 모드일 때만 실제로 대기 코루틴을 시작함.
+    private void TryStartAutoPlay()
+    {
+        if (autoPlayCoroutine != null) StopCoroutine(autoPlayCoroutine);
+
+        if (isAutoPlay)
+        {
+            autoPlayCoroutine = StartCoroutine(AutoProceed());
+        }
+    }
+
+    // 🔴 autoSpeed(초)만큼 기다렸다가 자동으로 다음 대사로 넘어감
+    private IEnumerator AutoProceed()
+    {
+        yield return new WaitForSeconds(autoSpeed);
+        OnScreenClicked();
+    }
+
+    // 🔴 자동 진행 기능을 켜고 끄는 함수. 설정창의 토글(스위치)이 이 함수를 호출함.
+    public void SetAutoPlay(bool value)
+    {
+        isAutoPlay = value;
+
+        if (!value && autoPlayCoroutine != null)
+        {
+            StopCoroutine(autoPlayCoroutine);
+            autoPlayCoroutine = null;
+        }
+    }
+
     public void OnScreenClicked()
     {
         if (currentDialogueList == null) return;
+
+        // 🔴 화면을 직접 클릭했다면, 예약돼 있던 자동 진행 대기는 일단 취소
+        // (아래에서 타이핑 상태에 따라 다시 필요하면 예약함)
+        if (autoPlayCoroutine != null)
+        {
+            StopCoroutine(autoPlayCoroutine);
+            autoPlayCoroutine = null;
+        }
+
+        // 🔴 타이핑 중 클릭 시 전체 문장 즉시 출력
+        if (isTyping)
+        {
+            if (typingCoroutine != null) StopCoroutine(typingCoroutine);
+            dialogText.text = currentDialogueList[currentIndex].dialogue;
+            isTyping = false;
+            TryStartAutoPlay(); // 🔴 즉시 출력 후에도 자동 진행 모드면 다시 예약
+            return;
+        }
 
         if (currentIndex < currentDialogueList.Count - 1)
         {
@@ -90,9 +181,17 @@ public class DialogueManager : MonoBehaviour
         }
         else
         {
-            // 대사 종료 시 초기화
             dialogText.text = "";
             nameText.text = "";
+        }
+    }
+
+    // 🔴 외부(설정창)에서 투명도를 조절할 수 있도록 열어둔 함수
+    public void SetOpacity(float alpha)
+    {
+        if (dialogCanvasGroup != null)
+        {
+            dialogCanvasGroup.alpha = alpha;
         }
     }
 }
