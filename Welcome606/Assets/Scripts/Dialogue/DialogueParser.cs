@@ -70,7 +70,6 @@ public class DialogueParser
             {
                 dialogueDict[eventID] = new List<DialogueData>();
             }
-
             dialogueDict[eventID].Add(data);
         }
 
