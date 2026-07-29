@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI; // 🔴 배경 Image 컴포넌트 조작을 위해 추가
 using TMPro;
 using System.Collections; // 🔴 코루틴(타이핑 효과) 사용을 위해 추가
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ public class DialogueManager : MonoBehaviour
     [Header("UI 연결")]
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI dialogText;
-    public CanvasGroup dialogCanvasGroup; // 🔴 투명도 조절을 위한 컴포넌트 추가
+    public Image dialogBackgroundImage; // 🔴 대화창 "배경"만 투명하게 만들기 위한 Image (CanvasGroup 대신 사용)
 
     [Space(15)]
     [Header("데이터 설정")]
@@ -152,6 +153,29 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
+    // 🔴 "이전" 버튼용 함수. currentIndex를 1 줄이고 그 대사를 다시 보여줌.
+    // 현재 이벤트의 첫 번째 대사(index 0)에서는 더 이상 갈 곳이 없으니 그냥 아무 반응 없이 막음.
+    public void PrevDialogue()
+    {
+        if (currentDialogueList == null) return;
+
+        if (currentIndex <= 0)
+        {
+            // 이 이벤트의 첫 대사임 -> 더 이전으로 못 감
+            return;
+        }
+
+        // 🔴 자동 진행 대기 중이었다면 취소 (뒤로 가는 도중에 갑자기 앞으로 넘어가면 안 되니까)
+        if (autoPlayCoroutine != null)
+        {
+            StopCoroutine(autoPlayCoroutine);
+            autoPlayCoroutine = null;
+        }
+
+        currentIndex--;
+        DisplayCurrentDialogue();
+    }
+
     public void OnScreenClicked()
     {
         if (currentDialogueList == null) return;
@@ -186,12 +210,16 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    // 🔴 외부(설정창)에서 투명도를 조절할 수 있도록 열어둔 함수
+    // 🔴 외부(설정창)에서 "배경만" 투명도를 조절할 수 있도록 열어둔 함수.
+    // CanvasGroup이 아니라 배경 Image의 색상 중 알파(투명도)만 바꿔서,
+    // 같은 부모 밑에 있는 대사 텍스트(NameText/DialogText)는 영향을 받지 않음.
     public void SetOpacity(float alpha)
     {
-        if (dialogCanvasGroup != null)
+        if (dialogBackgroundImage != null)
         {
-            dialogCanvasGroup.alpha = alpha;
+            Color color = dialogBackgroundImage.color;
+            color.a = alpha;
+            dialogBackgroundImage.color = color;
         }
     }
 }
