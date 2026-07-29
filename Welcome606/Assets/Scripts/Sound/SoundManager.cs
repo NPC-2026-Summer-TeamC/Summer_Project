@@ -47,4 +47,14 @@ public class SoundManager : MonoBehaviour
     {
         bgmSource.Stop();
     }
+
+    public void SetBGMVolume(float volume)
+    {
+        bgmSource.volume = volume;
+    }
+
+    public void SetSFXVolume(float volume)
+    {
+        sfxSource.volume = volume;
+    }
 }
