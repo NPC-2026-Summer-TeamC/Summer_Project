@@ -26,4 +26,25 @@ public class SoundManager : MonoBehaviour
         sfxSource.loop = false;
         sfxSource.playOnAwake = false;
     }
+
+    public void PlayBGM(AudioClip clip)
+    {
+        if (clip == null)
+        {
+            return;
+        }
+
+        if (bgmSource.clip == clip && bgmSource.isPlaying)
+        {
+            return;
+        }
+
+        bgmSource.clip = clip;
+        bgmSource.Play();
+    }
+
+    public void StopBGM()
+    {
+        bgmSource.Stop();
+    }
 }
