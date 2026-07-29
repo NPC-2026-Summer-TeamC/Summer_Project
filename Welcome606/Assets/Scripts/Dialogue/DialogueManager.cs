@@ -16,7 +16,11 @@ public class DialogueManager : MonoBehaviour
     public TextAsset dialogueFile;
     [Tooltip("게임 시작 시 자동 실행할 EventID (예: Prologue_01)")]
     public string defaultEventID = "Prologue_01";
-    
+
+    // 🔴 로그창 연동. 비워두면 로그 기능 없이도 정상 작동함(선택 사항).
+    [Header("로그창 연동")]
+    public LogModalController logController;
+
     // 🔴 설정창에서 조절할 속도 변수
     [HideInInspector] public float typingSpeed = 0.05f; 
     [HideInInspector] public float autoSpeed = 3f;
@@ -28,6 +32,11 @@ public class DialogueManager : MonoBehaviour
     private Dictionary<string, List<DialogueData>> dialogueDatabase;
     private List<DialogueData> currentDialogueList;
     private int currentIndex = 0;
+    private string currentEventID; // 🔴 지금 재생 중인 이벤트ID (로그 중복 판별에 사용)
+
+    // 🔴 "이벤트ID_인덱스" 조합으로 이미 로그에 남긴 대사인지 기억해두는 목록.
+    // 이전 버튼으로 되돌아갔다가 다시 앞으로 가도, 이미 본 대사는 여기 걸려서 중복으로 안 쌓임.
+    private HashSet<string> loggedDialogueKeys = new HashSet<string>();
     
     // 🔴 타이핑 제어용 변수
     private Coroutine typingCoroutine;
@@ -60,6 +69,7 @@ public class DialogueManager : MonoBehaviour
     {
         if (dialogueDatabase != null && dialogueDatabase.ContainsKey(eventID))
         {
+            currentEventID = eventID; // 🔴 로그 중복 판별에 쓰기 위해 저장
             currentDialogueList = dialogueDatabase[eventID];
             currentIndex = 0;
             DisplayCurrentDialogue();
@@ -77,7 +87,9 @@ public class DialogueManager : MonoBehaviour
             DialogueData currentData = currentDialogueList[currentIndex];
             
             nameText.text = string.IsNullOrEmpty(currentData.characterName) ? "" : currentData.characterName;
-            
+
+            TryLogDialogue(currentData); // 🔴 아직 로그에 안 남긴 대사면 로그창에 추가
+
             // 🔴 기존 진행 중인 타이핑 멈춤
             if (typingCoroutine != null) StopCoroutine(typingCoroutine);
             // 🔴 새 대사가 나오기 전, 이전에 예약돼 있던 자동 진행 대기는 취소
@@ -97,6 +109,20 @@ public class DialogueManager : MonoBehaviour
                 dialogText.text = "";
             }
         }
+    }
+
+    // 🔴 현재 대사가 처음 보는 대사면 로그창에 추가하고, 이미 본 적 있으면 건너뜀.
+    // (이전 버튼으로 되돌아갔다가 다시 앞으로 가는 경우 중복 방지)
+    private void TryLogDialogue(DialogueData data)
+    {
+        if (logController == null) return;
+        if (string.IsNullOrEmpty(data.dialogue)) return; // 실제 대사가 있는 줄만 로그에 남김 (음향효과/지문 전용 줄은 제외)
+
+        string logKey = currentEventID + "_" + currentIndex;
+        if (loggedDialogueKeys.Contains(logKey)) return; // 이미 로그에 남긴 대사 -> 중복 방지
+
+        loggedDialogueKeys.Add(logKey);
+        logController.AddLogEntry(data.characterName, data.dialogue);
     }
 
     // 🔴 텍스트 타이핑 효과 코루틴
