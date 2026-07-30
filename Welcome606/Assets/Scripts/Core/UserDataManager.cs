@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class UserDataManager : MonoBehaviour
 {
+    // 중요!! 유저 데이터(해금 진행도 등)가 변경되었을 때 발송되는 이벤트.
+    // UI 컨트롤러(예: ChapterMapController)에서 OnEnable 시점에 구독(+=)하여 RefreshUI()를 연결.
+    public event System.Action OnUserDataChanged;
+    
     // 싱글톤 객체
     private static UserDataManager instance;
     private static bool isQuitting = false;
@@ -77,14 +81,29 @@ public class UserDataManager : MonoBehaviour
 
     public bool ClearStage(int chapter, int stage)
     {
-        if (chapter < 0 || chapter > UserDataConst.CHAPTER ||
-            stage < 0 || stage > UserDataConst.STAGE) {
-            Debug.LogError("챕터 또는 스테이지 값 오류");
+        if (chapter < 1 || chapter > UserDataConst.CHAPTER || stage < 1 || stage > UserDataConst.STAGE) {
             return false;
         }
 
-        userData.chapters[chapter] = stage;
-        Save();
+        // 현재 클리어한 스테이지가 진행도 상 최대일 경우 다음 스테이지/챕터 해금
+        if (chapter == userData.maxUnlockChapter && stage == userData.maxUnlockStage) {
+            // 마지막 스테이지가 아닌 경우
+            if (stage < UserDataConst.STAGE) {
+                userData.maxUnlockStage++;
+            }
+            // 마지막 챕터가 아닌 경우
+            else if (chapter < UserDataConst.CHAPTER) {
+                userData.maxUnlockChapter++;
+                userData.maxUnlockStage = 1;
+            }
+            // 5챕터 3스테이지(마지막)를 클리어한 경우
+            else {  
+                userData.isEndingClear = true;
+            }
+            
+            Save();
+            OnUserDataChanged?.Invoke(); // UI 알림
+        }
         return true;
     }
 
@@ -120,17 +139,28 @@ public class UserDataManager : MonoBehaviour
     // 해당 챕터(맵)가 해금되어 이동 가능한지 반환합니다.
     public bool IsChapterUnlocked(int chapter)
     {
-        if (chapter < 0 || chapter > UserDataConst.CHAPTER) {
+        if (chapter < 1 || chapter > UserDataConst.CHAPTER) {
             // Debug.LogError("챕터 값 오류");
             return false;
         }
+        return chapter <= userData.maxUnlockChapter;
+    }
 
-        if (chapter == 0) {
-            // Debug.Log("메인 메뉴입니다.");
+    public bool IsStageUnlocked(int chapter, int stage)
+    {
+        if (chapter < 1 || chapter > UserDataConst.CHAPTER || stage < 1 || stage > UserDataConst.STAGE) {
+            // Debug.LogError("챕터 또는 스테이지 값 오류");
             return false;
         }
-        return (userData.chapters[chapter - 1] >= UserDataConst.STAGE);
+        if (chapter < userData.maxUnlockChapter) {  // 이전 챕터는 모두 해금
+            return true;
+        }
+        if (chapter == userData.maxUnlockChapter) { // 현재 챕터는 maxUnlockStage까지 해금
+            return stage <= userData.maxUnlockStage;
+        }
+        return false;   // 미래 챕터는 잠금
     }
+
 
     public bool CanMoveToNextChapter(int currentChapter)
     {
