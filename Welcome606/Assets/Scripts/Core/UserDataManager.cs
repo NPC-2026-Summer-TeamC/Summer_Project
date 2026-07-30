@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class UserDataManager : MonoBehaviour
 {
+    // 중요!! 유저 데이터(해금 진행도 등)가 변경되었을 때 발송되는 이벤트.
+    // UI 컨트롤러(예: ChapterMapController)에서 OnEnable 시점에 구독(+=)하여 RefreshUI()를 연결.
+    public event System.Action OnUserDataChanged;
+    
     // 싱글톤 객체
     private static UserDataManager instance;
     private static bool isQuitting = false;
@@ -75,71 +79,89 @@ public class UserDataManager : MonoBehaviour
         }
     }
 
+    public void UserDataLog()
+    {
+        Debug.Log($"Chapter=[{userData.maxUnlockChapter}], Stage=[{userData.maxUnlockStage}], " +
+            $"CollectedItem=[{userData.maxCollectionItem}], Ending=[{userData.isEndingClear}]");
+    }
+
+    public void Reset()
+    {
+        PlayerPrefs.DeleteKey("UserDataJson");
+        userData = new UserData();
+        Save();
+        OnUserDataChanged?.Invoke();
+    }
+
     public bool ClearStage(int chapter, int stage)
     {
-        if (chapter < 0 || chapter > UserDataConst.CHAPTER ||
-            stage < 0 || stage > UserDataConst.STAGE) {
-            Debug.LogError("챕터 또는 스테이지 값 오류");
+        if (chapter < 1 || chapter > UserDataConst.CHAPTER || stage < 1 || stage > UserDataConst.STAGE) {
             return false;
         }
 
-        userData.chapters[chapter] = stage;
+        // 현재 클리어한 스테이지가 진행도 상 최대가 아닌 경우 clear 판정만
+        if (chapter < userData.maxUnlockChapter) {
+            return true;
+        }
+        else if (chapter == userData.maxUnlockChapter && stage < userData.maxUnlockStage) {
+            return true;
+        }
+
+        // 해당 챕터의 마지막 스테이지가 아닌 경우 다음 스테이지 해금
+        if (stage < UserDataConst.STAGE) {
+            userData.maxUnlockStage = stage + 1;
+        }
+        // 해당 챕터의 마지막 스테이지를 클리어한 경우 (다음 챕터 1스테이지 해금)
+        else if (chapter < UserDataConst.CHAPTER) {
+            CollectItem(chapter);
+            userData.maxUnlockChapter = chapter + 1;
+            userData.maxUnlockStage = 1;
+        }
+        // 5챕터 3스테이지(마지막)를 클리어한 경우
+        else {
+            CollectItem(chapter);
+            userData.isEndingClear = true;
+        }
+
         Save();
+        OnUserDataChanged?.Invoke(); // UI 알림
         return true;
     }
 
     // 3스테이지 클리어 시 아이템 획득
     public bool CollectItem(int chapter)
     {
-        if (chapter < 0 || chapter > UserDataConst.CHAPTER) {
+        if (chapter < 1 || chapter > UserDataConst.CHAPTER) {
             Debug.LogError("챕터 값 오류");
             return false;
         }
-
-        if (userData.collectedItems[chapter]) {
-            Debug.Log("이미 획득한 아이템입니다.");
-            return false;
-        }
-
-        userData.collectedItems[chapter] = true;
+        userData.maxCollectionItem = chapter;
         Debug.Log($"{chapter}챕터의 아이템을 획득했습니다.");
-        Save();
         return true;
     }
-
-    public bool HasCollectedItem(int chapter)
-    {
-        if (chapter < 0 || chapter > UserDataConst.CHAPTER) {
-            Debug.LogError("챕터 값 오류");
-            return false;
-        }
-
-        return userData.collectedItems[chapter];
-    }
-
+    
     // 해당 챕터(맵)가 해금되어 이동 가능한지 반환합니다.
     public bool IsChapterUnlocked(int chapter)
     {
-        if (chapter < 0 || chapter > UserDataConst.CHAPTER) {
+        if (chapter < 1 || chapter > UserDataConst.CHAPTER) {
             // Debug.LogError("챕터 값 오류");
             return false;
         }
+        return chapter <= userData.maxUnlockChapter;
+    }
 
-        if (chapter == 0) {
-            // Debug.Log("메인 메뉴입니다.");
+    public bool IsStageUnlocked(int chapter, int stage)
+    {
+        if (chapter < 1 || chapter > UserDataConst.CHAPTER || stage < 1 || stage > UserDataConst.STAGE) {
+            // Debug.LogError("챕터 또는 스테이지 값 오류");
             return false;
         }
-        return (userData.chapters[chapter - 1] >= UserDataConst.STAGE);
+        if (chapter < userData.maxUnlockChapter) {  // 이전 챕터는 모두 해금
+            return true;
+        }
+        if (chapter == userData.maxUnlockChapter) { // 현재 챕터는 maxUnlockStage까지 해금
+            return stage <= userData.maxUnlockStage;
+        }
+        return false;   // 미래 챕터는 잠금
     }
-
-    public bool CanMoveToNextChapter(int currentChapter)
-    {
-        return IsChapterUnlocked(currentChapter + 1);
-    }
-
-    public bool CanMoveToPrevChapter(int currentChapter)
-    {
-        return currentChapter > 1;
-    }
-
 }
