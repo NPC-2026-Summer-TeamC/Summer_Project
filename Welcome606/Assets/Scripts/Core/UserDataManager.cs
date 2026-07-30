@@ -93,11 +93,13 @@ public class UserDataManager : MonoBehaviour
             }
             // 마지막 챕터가 아닌 경우
             else if (chapter < UserDataConst.CHAPTER) {
+                CollectItem(chapter);
                 userData.maxUnlockChapter++;
                 userData.maxUnlockStage = 1;
             }
             // 5챕터 3스테이지(마지막)를 클리어한 경우
-            else {  
+            else {
+                CollectItem(chapter);
                 userData.isEndingClear = true;
             }
             
@@ -110,32 +112,15 @@ public class UserDataManager : MonoBehaviour
     // 3스테이지 클리어 시 아이템 획득
     public bool CollectItem(int chapter)
     {
-        if (chapter < 0 || chapter > UserDataConst.CHAPTER) {
+        if (chapter < 1 || chapter > UserDataConst.CHAPTER) {
             Debug.LogError("챕터 값 오류");
             return false;
         }
-
-        if (userData.collectedItems[chapter]) {
-            Debug.Log("이미 획득한 아이템입니다.");
-            return false;
-        }
-
-        userData.collectedItems[chapter] = true;
+        userData.collectedItems = chapter;
         Debug.Log($"{chapter}챕터의 아이템을 획득했습니다.");
-        Save();
         return true;
     }
-
-    public bool HasCollectedItem(int chapter)
-    {
-        if (chapter < 0 || chapter > UserDataConst.CHAPTER) {
-            Debug.LogError("챕터 값 오류");
-            return false;
-        }
-
-        return userData.collectedItems[chapter];
-    }
-
+    
     // 해당 챕터(맵)가 해금되어 이동 가능한지 반환합니다.
     public bool IsChapterUnlocked(int chapter)
     {
@@ -160,16 +145,4 @@ public class UserDataManager : MonoBehaviour
         }
         return false;   // 미래 챕터는 잠금
     }
-
-
-    public bool CanMoveToNextChapter(int currentChapter)
-    {
-        return IsChapterUnlocked(currentChapter + 1);
-    }
-
-    public bool CanMoveToPrevChapter(int currentChapter)
-    {
-        return currentChapter > 1;
-    }
-
 }
