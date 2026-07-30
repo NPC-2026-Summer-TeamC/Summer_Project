@@ -23,13 +23,17 @@ public class MapNavigationController : MonoBehaviour
 
     private void OnEnable()
     {
-        UserDataManager.Instance.OnUserDataChanged += RefreshNavigationButtons;
+        if (UserDataManager.Instance != null) {
+            UserDataManager.Instance.OnUserDataChanged += RefreshNavigationButtons;
+        }
         RefreshNavigationButtons();
     }
 
     private void OnDisable()
     {
-        UserDataManager.Instance.OnUserDataChanged -= RefreshNavigationButtons;
+        if (UserDataManager.Instance != null) {
+            UserDataManager.Instance.OnUserDataChanged -= RefreshNavigationButtons;
+        }
     }
 
     // 현재 챕터 위치와 UserData 해금 상태를 기반으로 이전/다음 버튼 노출 갱신
@@ -40,7 +44,7 @@ public class MapNavigationController : MonoBehaviour
         prevChapterButton.gameObject.SetActive(canGoPrev);
 
         // 2. 다음 챕터 버튼: 다음 챕터가 해금되었을 때만 노출
-        bool canGoNext = UserDataManager.Instance.IsChapterUnlocked(currentChapter + 1);
+        bool canGoNext = UserDataManager.Instance != null && UserDataManager.Instance.IsChapterUnlocked(currentChapter + 1);
         nextChapterButton.gameObject.SetActive(canGoNext);
     }
 

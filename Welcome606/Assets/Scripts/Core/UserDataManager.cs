@@ -79,33 +79,52 @@ public class UserDataManager : MonoBehaviour
         }
     }
 
+    public void UserDataLog()
+    {
+        Debug.Log($"Chapter=[{userData.maxUnlockChapter}], Stage=[{userData.maxUnlockStage}], " +
+            $"CollectedItem=[{userData.maxCollectionItem}], Ending=[{userData.isEndingClear}]");
+    }
+
+    public void Reset()
+    {
+        PlayerPrefs.DeleteKey("UserDataJson");
+        userData = new UserData();
+        Save();
+        OnUserDataChanged?.Invoke();
+    }
+
     public bool ClearStage(int chapter, int stage)
     {
         if (chapter < 1 || chapter > UserDataConst.CHAPTER || stage < 1 || stage > UserDataConst.STAGE) {
             return false;
         }
 
-        // 현재 클리어한 스테이지가 진행도 상 최대일 경우 다음 스테이지/챕터 해금
-        if (chapter == userData.maxUnlockChapter && stage == userData.maxUnlockStage) {
-            // 마지막 스테이지가 아닌 경우
-            if (stage < UserDataConst.STAGE) {
-                userData.maxUnlockStage++;
-            }
-            // 마지막 챕터가 아닌 경우
-            else if (chapter < UserDataConst.CHAPTER) {
-                CollectItem(chapter);
-                userData.maxUnlockChapter++;
-                userData.maxUnlockStage = 1;
-            }
-            // 5챕터 3스테이지(마지막)를 클리어한 경우
-            else {
-                CollectItem(chapter);
-                userData.isEndingClear = true;
-            }
-            
-            Save();
-            OnUserDataChanged?.Invoke(); // UI 알림
+        // 현재 클리어한 스테이지가 진행도 상 최대가 아닌 경우 clear 판정만
+        if (chapter < userData.maxUnlockChapter) {
+            return true;
         }
+        else if (chapter == userData.maxUnlockChapter && stage < userData.maxUnlockStage) {
+            return true;
+        }
+
+        // 해당 챕터의 마지막 스테이지가 아닌 경우 다음 스테이지 해금
+        if (stage < UserDataConst.STAGE) {
+            userData.maxUnlockStage = stage + 1;
+        }
+        // 해당 챕터의 마지막 스테이지를 클리어한 경우 (다음 챕터 1스테이지 해금)
+        else if (chapter < UserDataConst.CHAPTER) {
+            CollectItem(chapter);
+            userData.maxUnlockChapter = chapter + 1;
+            userData.maxUnlockStage = 1;
+        }
+        // 5챕터 3스테이지(마지막)를 클리어한 경우
+        else {
+            CollectItem(chapter);
+            userData.isEndingClear = true;
+        }
+
+        Save();
+        OnUserDataChanged?.Invoke(); // UI 알림
         return true;
     }
 
@@ -116,7 +135,7 @@ public class UserDataManager : MonoBehaviour
             Debug.LogError("챕터 값 오류");
             return false;
         }
-        userData.collectedItems = chapter;
+        userData.maxCollectionItem = chapter;
         Debug.Log($"{chapter}챕터의 아이템을 획득했습니다.");
         return true;
     }

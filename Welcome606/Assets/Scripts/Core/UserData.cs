@@ -14,5 +14,5 @@ public class UserData
     public int maxUnlockChapter = 1;
     public int maxUnlockStage = 1;
     public bool isEndingClear = false;
-    public int maxCollectItem = 0;
+    public int maxCollectionItem = 0;
 }
