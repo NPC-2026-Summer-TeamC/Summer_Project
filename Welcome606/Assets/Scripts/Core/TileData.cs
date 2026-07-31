@@ -9,10 +9,10 @@ public enum TileType
 [Serializable]
 public class TileData
 {
-    public string TileId;
+    public string tileId;
 
-    public int X;
-    public int Y;
+    public int x;
+    public int y;
 
-    public TileType Type;
+    public TileType type;
 }

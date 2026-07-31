@@ -4,10 +4,10 @@ using UnityEngine;
 [Serializable]
 public class BoardData
 {
-    public string StageId;
-    public int Size;
+    public string stageId;
+    public int size;
 
-    public TileData[][] TileList;
+    public TileData[][] tileList;
 
-    public string[] RuleSet;
+    public string[] ruleSet;
 }
