@@ -28,4 +28,28 @@ public class DragInputManager : MonoBehaviour
 
         dragTileList.Clear();
     }
+
+    // 드래그 입력 처리
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            StartDrag();
+        }
+
+        if (isDragging)
+        {
+            UpdateDrag();
+        }
+
+        if (isDragging && Input.GetMouseButtonUp(0))
+        {
+            EndDrag();
+        }
+    }
+
+    // 드래그 진행
+    private void UpdateDrag()
+    {
+    }
 }
