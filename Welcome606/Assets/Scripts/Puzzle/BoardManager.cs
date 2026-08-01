@@ -17,7 +17,10 @@ public class BoardManager : MonoBehaviour
         {
             for (int x = 0; x < boardData.size; x++)
             {
-                runtimeStates[x, y] = new RuntimeState();
+                runtimeStates[x, y] = new RuntimeState
+                {
+                    tile = boardData.tileList[x, y]
+                };
             }
         }
     }
@@ -25,7 +28,7 @@ public class BoardManager : MonoBehaviour
     // 해당 좌표의 타일 정보 반환
     public TileData GetTile(int x, int y)
     {
-        return boardData.tileList[y][x];
+        return boardData.tileList[x, y];
     }
 
     // 해당 좌표의 런타임 상태 반환

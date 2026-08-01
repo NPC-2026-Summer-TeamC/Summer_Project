@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 [Serializable]
 public class BoardData
@@ -7,7 +6,7 @@ public class BoardData
     public string stageId;
     public int size;
 
-    public TileData[][] tileList;
+    public TileData[,] tileList;
 
     public string[] ruleSet;
 }
