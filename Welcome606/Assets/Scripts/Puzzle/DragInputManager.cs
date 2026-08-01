@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class DragInputManager : MonoBehaviour
 {
+    // TODO : RuntimeState 갱신 시 사용
     [SerializeField] private BoardManager boardManager;
 
     private bool isDragging;
@@ -11,7 +12,7 @@ public class DragInputManager : MonoBehaviour
     private string currentColor;
 
     // 드래그 시작
-    public void StartDrag()
+    private void StartDrag()
     {
         isDragging = true;
         dragTileList.Clear();
@@ -20,7 +21,7 @@ public class DragInputManager : MonoBehaviour
     }
 
     // 드래그 종료
-    public void EndDrag()
+    private void EndDrag()
     {
         isDragging = false;
 
@@ -51,5 +52,40 @@ public class DragInputManager : MonoBehaviour
     // 드래그 진행
     private void UpdateDrag()
     {
+        // 마우스 위치를 월드 좌표로 변환
+        Vector2 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        // 현재 마우스 위치의 Tile 탐색
+        RaycastHit2D hit = Physics2D.Raycast(worldPosition, Vector2.zero);
+
+        if (!hit)
+        {
+            return;
+        }
+
+        TileController tileController = hit.collider.GetComponent<TileController>();
+
+        if (tileController == null)
+        {
+            return;
+        }
+
+        SelectTile(tileController.TileData);
+    }
+
+    // 타일 선택
+    private void SelectTile(TileData tile)
+    {
+        if (tile.type == TileType.Disable)
+        {
+            return;
+        }
+
+        if (dragTileList.Contains(tile))
+        {
+            return;
+        }
+
+        dragTileList.Add(tile);
     }
 }
