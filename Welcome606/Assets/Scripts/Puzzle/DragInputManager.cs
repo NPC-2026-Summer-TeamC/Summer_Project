@@ -25,9 +25,24 @@ public class DragInputManager : MonoBehaviour
     {
         isDragging = false;
 
-        // TODO : dragTileList의 타일 색상 및 RuntimeState 갱신
+        // TODO : BagRandomizer에서 현재 색상 가져오기
+
+        foreach (TileData tile in dragTileList)
+        {
+            // TODO : RuntimeState 갱신
+        }
 
         dragTileList.Clear();
+    }
+
+    private void ApplyColor()
+    {
+        // TODO : BagRandomizer에서 현재 색상 가져오기
+
+        foreach (TileData tile in dragTileList)
+        {
+            // TODO : RuntimeState 갱신
+        }
     }
 
     // 드래그 입력 처리
