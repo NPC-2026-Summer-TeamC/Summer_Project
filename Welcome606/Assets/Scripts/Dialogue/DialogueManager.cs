@@ -1,15 +1,17 @@
 using UnityEngine;
-using UnityEngine.UI; // 🔴 배경 Image 컴포넌트 조작을 위해 추가
+using UnityEngine.UI;
 using TMPro;
-using System.Collections; // 🔴 코루틴(타이핑 효과) 사용을 위해 추가
+using System.Collections;
 using System.Collections.Generic;
 
 public class DialogueManager : MonoBehaviour
 {
+    public enum SkipMode { ReadOnly, AllText }
+
     [Header("UI 연결")]
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI dialogText;
-    public Image dialogBackgroundImage; // 🔴 대화창 "배경"만 투명하게 만들기 위한 Image (CanvasGroup 대신 사용)
+    public Image dialogBackgroundImage;
 
     [Space(15)]
     [Header("데이터 설정")]
@@ -17,38 +19,39 @@ public class DialogueManager : MonoBehaviour
     [Tooltip("게임 시작 시 자동 실행할 EventID (예: Prologue_01)")]
     public string defaultEventID = "Prologue_01";
 
-    // 🔴 로그창 연동. 비워두면 로그 기능 없이도 정상 작동함(선택 사항).
     [Header("로그창 연동")]
     public LogModalController logController;
 
-    // 🔴 설정창에서 조절할 속도 변수
-    [HideInInspector] public float typingSpeed = 0.05f; 
+    [HideInInspector] public float typingSpeed = 0.05f;
     [HideInInspector] public float autoSpeed = 3f;
-
-    // 🔴 자동 진행(Auto Play) 사용 여부. 설정창의 토글(스위치)이 이 값을 켜고 끔.
     [HideInInspector] public bool isAutoPlay = false;
+
+    // 스킵 관련 상태값
+    [HideInInspector] public SkipMode skipMode = SkipMode.ReadOnly;
+    private bool forceInstantReveal = false;
+
+    private const string ReadKeysPrefKey = "DialogueReadKeys";
+    private HashSet<string> readDialogueKeys = new HashSet<string>();
+    // 🔴 마지막으로 디스크에 저장(Save)한 이후로 새로 추가된 읽음 기록이 있는지 여부.
+    // 이게 false면 SaveReadProgress()가 불려도 불필요한 디스크 접근을 하지 않도록 함.
+    private bool hasUnsavedReadProgress = false;
 
     private DialogueParser parser;
     private Dictionary<string, List<DialogueData>> dialogueDatabase;
     private List<DialogueData> currentDialogueList;
     private int currentIndex = 0;
-    private string currentEventID; // 🔴 지금 재생 중인 이벤트ID (로그 중복 판별에 사용)
-
-    // 🔴 "이벤트ID_인덱스" 조합으로 이미 로그에 남긴 대사인지 기억해두는 목록.
-    // 이전 버튼으로 되돌아갔다가 다시 앞으로 가도, 이미 본 대사는 여기 걸려서 중복으로 안 쌓임.
+    private string currentEventID;
     private HashSet<string> loggedDialogueKeys = new HashSet<string>();
-    
-    // 🔴 타이핑 제어용 변수
+
     private Coroutine typingCoroutine;
     private bool isTyping = false;
-
-    // 🔴 자동 진행 대기(다음 대사로 넘어가기 전 대기)용 코루틴
     private Coroutine autoPlayCoroutine;
 
     private void Awake()
     {
         parser = new DialogueParser();
         LoadDialogueDatabase();
+        LoadReadKeys();
     }
 
     private void Start()
@@ -57,6 +60,18 @@ public class DialogueManager : MonoBehaviour
         {
             StartDialogue(defaultEventID);
         }
+    }
+
+    // 🔴 앱이 백그라운드로 전환될 때(일시정지) 저장 - 모바일에서 특히 중요
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus) SaveReadProgress();
+    }
+
+    // 🔴 앱이 종료될 때 저장
+    private void OnApplicationQuit()
+    {
+        SaveReadProgress();
     }
 
     private void LoadDialogueDatabase()
@@ -69,7 +84,7 @@ public class DialogueManager : MonoBehaviour
     {
         if (dialogueDatabase != null && dialogueDatabase.ContainsKey(eventID))
         {
-            currentEventID = eventID; // 🔴 로그 중복 판별에 쓰기 위해 저장
+            currentEventID = eventID;
             currentDialogueList = dialogueDatabase[eventID];
             currentIndex = 0;
             DisplayCurrentDialogue();
@@ -85,19 +100,17 @@ public class DialogueManager : MonoBehaviour
         if (currentDialogueList != null && currentIndex < currentDialogueList.Count)
         {
             DialogueData currentData = currentDialogueList[currentIndex];
-            
+
             nameText.text = string.IsNullOrEmpty(currentData.characterName) ? "" : currentData.characterName;
 
-            TryLogDialogue(currentData); // 🔴 아직 로그에 안 남긴 대사면 로그창에 추가
+            TryLogDialogue(currentData);
+            MarkAsRead(currentEventID + "_" + currentIndex);
 
-            // 🔴 기존 진행 중인 타이핑 멈춤
             if (typingCoroutine != null) StopCoroutine(typingCoroutine);
-            // 🔴 새 대사가 나오기 전, 이전에 예약돼 있던 자동 진행 대기는 취소
             if (autoPlayCoroutine != null) StopCoroutine(autoPlayCoroutine);
 
             if (!string.IsNullOrEmpty(currentData.dialogue))
             {
-                // 🔴 대사일 경우 타이핑 코루틴 실행
                 typingCoroutine = StartCoroutine(TypeText(currentData.dialogue));
             }
             else if (!string.IsNullOrEmpty(currentData.soundEffect))
@@ -111,32 +124,75 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    // 🔴 현재 대사가 처음 보는 대사면 로그창에 추가하고, 이미 본 적 있으면 건너뜀.
-    // (이전 버튼으로 되돌아갔다가 다시 앞으로 가는 경우 중복 방지)
+    // 🔴 대화 종료 처리(텍스트 비우기)를 한 곳에서 관리 + 이 시점에 읽음 기록을 디스크에 저장
+    private void EndDialogueDisplay()
+    {
+        dialogText.text = "";
+        nameText.text = "";
+        SaveReadProgress(); // 🔴 대화가 끝나는 시점 = 디스크 저장 트리거 포인트
+    }
+
     private void TryLogDialogue(DialogueData data)
     {
         if (logController == null) return;
-        if (string.IsNullOrEmpty(data.dialogue)) return; // 실제 대사가 있는 줄만 로그에 남김 (음향효과/지문 전용 줄은 제외)
+        if (string.IsNullOrEmpty(data.dialogue)) return;
 
         string logKey = currentEventID + "_" + currentIndex;
-        if (loggedDialogueKeys.Contains(logKey)) return; // 이미 로그에 남긴 대사 -> 중복 방지
+        if (loggedDialogueKeys.Contains(logKey)) return;
 
         loggedDialogueKeys.Add(logKey);
         logController.AddLogEntry(data.characterName, data.dialogue);
     }
 
-    // 🔴 텍스트 타이핑 효과 코루틴
+    private void LoadReadKeys()
+    {
+        string saved = PlayerPrefs.GetString(ReadKeysPrefKey, "");
+        if (string.IsNullOrEmpty(saved)) return;
+
+        string[] keys = saved.Split(',');
+        foreach (string key in keys)
+        {
+            if (!string.IsNullOrEmpty(key)) readDialogueKeys.Add(key);
+        }
+    }
+
+    // 🔴 "읽었다"는 사실은 메모리(HashSet)에만 즉시 반영. 디스크 저장(Save)은 여기서 하지 않음.
+    // PlayerPrefs.SetString 자체는 메모리 상의 PlayerPrefs 캐시에 쓰는 거라 비교적 가벼움 -
+    // 비용이 큰 건 실제 디스크에 내려쓰는 Save() 쪽이라, 그걸 매번 호출하지 않도록 분리함.
+    private void MarkAsRead(string key)
+    {
+        if (readDialogueKeys.Contains(key)) return;
+
+        readDialogueKeys.Add(key);
+        PlayerPrefs.SetString(ReadKeysPrefKey, string.Join(",", readDialogueKeys));
+        hasUnsavedReadProgress = true;
+    }
+
+    // 🔴 실제 디스크 저장(PlayerPrefs.Save())은 이 함수를 통해서만, 특정 트리거 시점에만 호출함.
+    // (대화 종료 / 씬 전환 / 앱 일시정지 / 앱 종료)
+    public void SaveReadProgress()
+    {
+        if (!hasUnsavedReadProgress) return; // 저장할 새 내용이 없으면 디스크 접근 자체를 생략
+
+        PlayerPrefs.Save();
+        hasUnsavedReadProgress = false;
+    }
+
+    private bool IsAlreadyRead(string eventID, int index)
+    {
+        return readDialogueKeys.Contains(eventID + "_" + index);
+    }
+
     private IEnumerator TypeText(string line)
     {
         isTyping = true;
         dialogText.text = "";
 
-        // 속도가 0.01 이하(즉시 출력)일 경우 타이핑 생략
-        if (typingSpeed <= 0.011f)
+        if (typingSpeed <= 0.011f || forceInstantReveal)
         {
             dialogText.text = line;
             isTyping = false;
-            TryStartAutoPlay(); // 🔴 타이핑 끝났으니 자동 진행 모드면 예약
+            TryStartAutoPlay();
             yield break;
         }
 
@@ -146,10 +202,9 @@ public class DialogueManager : MonoBehaviour
             yield return new WaitForSeconds(typingSpeed);
         }
         isTyping = false;
-        TryStartAutoPlay(); // 🔴 타이핑 끝났으니 자동 진행 모드면 예약
+        TryStartAutoPlay();
     }
 
-    // 🔴 타이핑이 끝난 직후 호출됨. 자동 진행 모드일 때만 실제로 대기 코루틴을 시작함.
     private void TryStartAutoPlay()
     {
         if (autoPlayCoroutine != null) StopCoroutine(autoPlayCoroutine);
@@ -160,14 +215,12 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    // 🔴 autoSpeed(초)만큼 기다렸다가 자동으로 다음 대사로 넘어감
     private IEnumerator AutoProceed()
     {
         yield return new WaitForSeconds(autoSpeed);
         OnScreenClicked();
     }
 
-    // 🔴 자동 진행 기능을 켜고 끄는 함수. 설정창의 토글(스위치)이 이 함수를 호출함.
     public void SetAutoPlay(bool value)
     {
         isAutoPlay = value;
@@ -179,19 +232,20 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    // 🔴 "이전" 버튼용 함수. currentIndex를 1 줄이고 그 대사를 다시 보여줌.
-    // 현재 이벤트의 첫 번째 대사(index 0)에서는 더 이상 갈 곳이 없으니 그냥 아무 반응 없이 막음.
+    public void SetSkipMode(SkipMode mode)
+    {
+        skipMode = mode;
+    }
+
     public void PrevDialogue()
     {
         if (currentDialogueList == null) return;
 
         if (currentIndex <= 0)
         {
-            // 이 이벤트의 첫 대사임 -> 더 이전으로 못 감
             return;
         }
 
-        // 🔴 자동 진행 대기 중이었다면 취소 (뒤로 가는 도중에 갑자기 앞으로 넘어가면 안 되니까)
         if (autoPlayCoroutine != null)
         {
             StopCoroutine(autoPlayCoroutine);
@@ -206,21 +260,18 @@ public class DialogueManager : MonoBehaviour
     {
         if (currentDialogueList == null) return;
 
-        // 🔴 화면을 직접 클릭했다면, 예약돼 있던 자동 진행 대기는 일단 취소
-        // (아래에서 타이핑 상태에 따라 다시 필요하면 예약함)
         if (autoPlayCoroutine != null)
         {
             StopCoroutine(autoPlayCoroutine);
             autoPlayCoroutine = null;
         }
 
-        // 🔴 타이핑 중 클릭 시 전체 문장 즉시 출력
         if (isTyping)
         {
             if (typingCoroutine != null) StopCoroutine(typingCoroutine);
             dialogText.text = currentDialogueList[currentIndex].dialogue;
             isTyping = false;
-            TryStartAutoPlay(); // 🔴 즉시 출력 후에도 자동 진행 모드면 다시 예약
+            TryStartAutoPlay();
             return;
         }
 
@@ -231,14 +282,10 @@ public class DialogueManager : MonoBehaviour
         }
         else
         {
-            dialogText.text = "";
-            nameText.text = "";
+            EndDialogueDisplay(); // 🔴 대화 종료 지점 -> 여기서 읽음 기록 디스크 저장
         }
     }
 
-    // 🔴 외부(설정창)에서 "배경만" 투명도를 조절할 수 있도록 열어둔 함수.
-    // CanvasGroup이 아니라 배경 Image의 색상 중 알파(투명도)만 바꿔서,
-    // 같은 부모 밑에 있는 대사 텍스트(NameText/DialogText)는 영향을 받지 않음.
     public void SetOpacity(float alpha)
     {
         if (dialogBackgroundImage != null)
@@ -246,6 +293,72 @@ public class DialogueManager : MonoBehaviour
             Color color = dialogBackgroundImage.color;
             color.a = alpha;
             dialogBackgroundImage.color = color;
+        }
+    }
+
+    // 단발성 스킵 버튼 클릭 시 호출되는 함수
+    public void ExecuteSkip()
+    {
+        if (currentDialogueList == null) return;
+
+        // 1. 진행 중인 오토플레이 정지
+        if (autoPlayCoroutine != null)
+        {
+            StopCoroutine(autoPlayCoroutine);
+            autoPlayCoroutine = null;
+        }
+
+        // 2. 타이핑 중이었다면 대사를 즉시 띄우고 상태 해제 (이번 클릭은 여기서 끝)
+        if (isTyping)
+        {
+            if (typingCoroutine != null) StopCoroutine(typingCoroutine);
+            dialogText.text = currentDialogueList[currentIndex].dialogue;
+            isTyping = false;
+            return;
+        }
+
+        // 마지막 대사였다면 대화창 비우기 + 저장
+        if (currentIndex >= currentDialogueList.Count - 1)
+        {
+            EndDialogueDisplay();
+            return;
+        }
+
+        // 3. 설정된 스킵 모드에 따라 분기
+        if (skipMode == SkipMode.ReadOnly)
+        {
+            // 🔴 [읽은 텍스트만] 모드: 이미 읽은 대사는 쭉 건너뛰고, 처음 보는 대사에서 멈춤
+            while (currentIndex < currentDialogueList.Count - 1)
+            {
+                if (IsAlreadyRead(currentEventID, currentIndex + 1))
+                {
+                    // 다음 대사가 이미 읽은 대사면 즉시 띄우고 계속 다음 줄로 루프
+                    currentIndex++;
+                    forceInstantReveal = true;
+                    DisplayCurrentDialogue();
+                    forceInstantReveal = false;
+                }
+                else
+                {
+                    // 다음 대사가 안 읽은 대사면 거기까지만 가고 멈춤 (정상 타이핑)
+                    currentIndex++;
+                    DisplayCurrentDialogue();
+                    break;
+                }
+            }
+        }
+        else if (skipMode == SkipMode.AllText)
+        {
+            // 🔴 [모든 텍스트] 모드: 읽음 여부와 관계없이 끝까지 전부 진행한 뒤 대화 종료 처리
+            while (currentIndex < currentDialogueList.Count - 1)
+            {
+                currentIndex++;
+                forceInstantReveal = true;
+                DisplayCurrentDialogue();
+                forceInstantReveal = false;
+            }
+
+            EndDialogueDisplay(); // 끝까지 다 진행했으니 대화 종료 처리
         }
     }
 }
