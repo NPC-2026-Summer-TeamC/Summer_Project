@@ -22,7 +22,7 @@ public class DialogueManager : MonoBehaviour
     [Header("로그창 연동")]
     public LogModalController logController;
 
-    [HideInInspector] public float typingSpeed = 0.05f; 
+    [HideInInspector] public float typingSpeed = 0.05f;
     [HideInInspector] public float autoSpeed = 3f;
     [HideInInspector] public bool isAutoPlay = false;
 
@@ -32,14 +32,17 @@ public class DialogueManager : MonoBehaviour
 
     private const string ReadKeysPrefKey = "DialogueReadKeys";
     private HashSet<string> readDialogueKeys = new HashSet<string>();
+    // 🔴 마지막으로 디스크에 저장(Save)한 이후로 새로 추가된 읽음 기록이 있는지 여부.
+    // 이게 false면 SaveReadProgress()가 불려도 불필요한 디스크 접근을 하지 않도록 함.
+    private bool hasUnsavedReadProgress = false;
 
     private DialogueParser parser;
     private Dictionary<string, List<DialogueData>> dialogueDatabase;
     private List<DialogueData> currentDialogueList;
     private int currentIndex = 0;
-    private string currentEventID; 
+    private string currentEventID;
     private HashSet<string> loggedDialogueKeys = new HashSet<string>();
-    
+
     private Coroutine typingCoroutine;
     private bool isTyping = false;
     private Coroutine autoPlayCoroutine;
@@ -48,7 +51,7 @@ public class DialogueManager : MonoBehaviour
     {
         parser = new DialogueParser();
         LoadDialogueDatabase();
-        LoadReadKeys(); 
+        LoadReadKeys();
     }
 
     private void Start()
@@ -57,6 +60,18 @@ public class DialogueManager : MonoBehaviour
         {
             StartDialogue(defaultEventID);
         }
+    }
+
+    // 🔴 앱이 백그라운드로 전환될 때(일시정지) 저장 - 모바일에서 특히 중요
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus) SaveReadProgress();
+    }
+
+    // 🔴 앱이 종료될 때 저장
+    private void OnApplicationQuit()
+    {
+        SaveReadProgress();
     }
 
     private void LoadDialogueDatabase()
@@ -69,7 +84,7 @@ public class DialogueManager : MonoBehaviour
     {
         if (dialogueDatabase != null && dialogueDatabase.ContainsKey(eventID))
         {
-            currentEventID = eventID; 
+            currentEventID = eventID;
             currentDialogueList = dialogueDatabase[eventID];
             currentIndex = 0;
             DisplayCurrentDialogue();
@@ -85,11 +100,11 @@ public class DialogueManager : MonoBehaviour
         if (currentDialogueList != null && currentIndex < currentDialogueList.Count)
         {
             DialogueData currentData = currentDialogueList[currentIndex];
-            
+
             nameText.text = string.IsNullOrEmpty(currentData.characterName) ? "" : currentData.characterName;
 
-            TryLogDialogue(currentData); 
-            MarkAsRead(currentEventID + "_" + currentIndex); 
+            TryLogDialogue(currentData);
+            MarkAsRead(currentEventID + "_" + currentIndex);
 
             if (typingCoroutine != null) StopCoroutine(typingCoroutine);
             if (autoPlayCoroutine != null) StopCoroutine(autoPlayCoroutine);
@@ -109,13 +124,21 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
+    // 🔴 대화 종료 처리(텍스트 비우기)를 한 곳에서 관리 + 이 시점에 읽음 기록을 디스크에 저장
+    private void EndDialogueDisplay()
+    {
+        dialogText.text = "";
+        nameText.text = "";
+        SaveReadProgress(); // 🔴 대화가 끝나는 시점 = 디스크 저장 트리거 포인트
+    }
+
     private void TryLogDialogue(DialogueData data)
     {
         if (logController == null) return;
-        if (string.IsNullOrEmpty(data.dialogue)) return; 
+        if (string.IsNullOrEmpty(data.dialogue)) return;
 
         string logKey = currentEventID + "_" + currentIndex;
-        if (loggedDialogueKeys.Contains(logKey)) return; 
+        if (loggedDialogueKeys.Contains(logKey)) return;
 
         loggedDialogueKeys.Add(logKey);
         logController.AddLogEntry(data.characterName, data.dialogue);
@@ -133,13 +156,26 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
+    // 🔴 "읽었다"는 사실은 메모리(HashSet)에만 즉시 반영. 디스크 저장(Save)은 여기서 하지 않음.
+    // PlayerPrefs.SetString 자체는 메모리 상의 PlayerPrefs 캐시에 쓰는 거라 비교적 가벼움 -
+    // 비용이 큰 건 실제 디스크에 내려쓰는 Save() 쪽이라, 그걸 매번 호출하지 않도록 분리함.
     private void MarkAsRead(string key)
     {
         if (readDialogueKeys.Contains(key)) return;
 
         readDialogueKeys.Add(key);
         PlayerPrefs.SetString(ReadKeysPrefKey, string.Join(",", readDialogueKeys));
+        hasUnsavedReadProgress = true;
+    }
+
+    // 🔴 실제 디스크 저장(PlayerPrefs.Save())은 이 함수를 통해서만, 특정 트리거 시점에만 호출함.
+    // (대화 종료 / 씬 전환 / 앱 일시정지 / 앱 종료)
+    public void SaveReadProgress()
+    {
+        if (!hasUnsavedReadProgress) return; // 저장할 새 내용이 없으면 디스크 접근 자체를 생략
+
         PlayerPrefs.Save();
+        hasUnsavedReadProgress = false;
     }
 
     private bool IsAlreadyRead(string eventID, int index)
@@ -156,7 +192,7 @@ public class DialogueManager : MonoBehaviour
         {
             dialogText.text = line;
             isTyping = false;
-            TryStartAutoPlay(); 
+            TryStartAutoPlay();
             yield break;
         }
 
@@ -166,7 +202,7 @@ public class DialogueManager : MonoBehaviour
             yield return new WaitForSeconds(typingSpeed);
         }
         isTyping = false;
-        TryStartAutoPlay(); 
+        TryStartAutoPlay();
     }
 
     private void TryStartAutoPlay()
@@ -235,7 +271,7 @@ public class DialogueManager : MonoBehaviour
             if (typingCoroutine != null) StopCoroutine(typingCoroutine);
             dialogText.text = currentDialogueList[currentIndex].dialogue;
             isTyping = false;
-            TryStartAutoPlay(); 
+            TryStartAutoPlay();
             return;
         }
 
@@ -246,8 +282,7 @@ public class DialogueManager : MonoBehaviour
         }
         else
         {
-            dialogText.text = "";
-            nameText.text = "";
+            EndDialogueDisplay(); // 🔴 대화 종료 지점 -> 여기서 읽음 기록 디스크 저장
         }
     }
 
@@ -279,41 +314,25 @@ public class DialogueManager : MonoBehaviour
             if (typingCoroutine != null) StopCoroutine(typingCoroutine);
             dialogText.text = currentDialogueList[currentIndex].dialogue;
             isTyping = false;
-            return; 
+            return;
         }
 
-        // 마지막 대사였다면 대화창 비우기
+        // 마지막 대사였다면 대화창 비우기 + 저장
         if (currentIndex >= currentDialogueList.Count - 1)
         {
-            dialogText.text = "";
-            nameText.text = "";
+            EndDialogueDisplay();
             return;
         }
 
         // 3. 설정된 스킵 모드에 따라 분기
         if (skipMode == SkipMode.ReadOnly)
         {
-            // [읽은 텍스트만] 모드 (수정됨)
-            // 쭈르륵 건너뛰지 않고, 딱 한 줄만 다음 대사로 넘어감.
-            // 이미 읽은 텍스트면 즉시 출력하고, 안 읽은 텍스트면 정상 타이핑 효과 작동.
-            currentIndex++;
-            if (IsAlreadyRead(currentEventID, currentIndex))
-            {
-                forceInstantReveal = true;
-            }
-            
-            DisplayCurrentDialogue();
-            forceInstantReveal = false;
-        }
-        else if (skipMode == SkipMode.AllText)
-        {
-            // [모든 텍스트] 모드 
-            // 예전 '읽은 텍스트만' 로직 차용: 이미 읽은 대사들은 쭈르륵 건너뛰고, 처음 보는 대사에서 멈춤
+            // 🔴 [읽은 텍스트만] 모드: 이미 읽은 대사는 쭉 건너뛰고, 처음 보는 대사에서 멈춤
             while (currentIndex < currentDialogueList.Count - 1)
             {
                 if (IsAlreadyRead(currentEventID, currentIndex + 1))
                 {
-                    // 다음 대사가 읽은 대사면 즉시 띄우고 계속 다음 줄로 루프
+                    // 다음 대사가 이미 읽은 대사면 즉시 띄우고 계속 다음 줄로 루프
                     currentIndex++;
                     forceInstantReveal = true;
                     DisplayCurrentDialogue();
@@ -327,6 +346,19 @@ public class DialogueManager : MonoBehaviour
                     break;
                 }
             }
+        }
+        else if (skipMode == SkipMode.AllText)
+        {
+            // 🔴 [모든 텍스트] 모드: 읽음 여부와 관계없이 끝까지 전부 진행한 뒤 대화 종료 처리
+            while (currentIndex < currentDialogueList.Count - 1)
+            {
+                currentIndex++;
+                forceInstantReveal = true;
+                DisplayCurrentDialogue();
+                forceInstantReveal = false;
+            }
+
+            EndDialogueDisplay(); // 끝까지 다 진행했으니 대화 종료 처리
         }
     }
 }
