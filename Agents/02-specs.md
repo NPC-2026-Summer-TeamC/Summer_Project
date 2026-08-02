@@ -26,20 +26,20 @@
   - `ClearStage(chapter, stage)`: 특정 챕터/스테이지 클리어 여부 반영 및 자동 저장.
   - `CollectItem(chapter)` & `HasCollectedItem(chapter)`: 수집품 획득 상태 반영.
   - 앱 일시정지(`OnApplicationPause`) 및 종료(`OnApplicationQuit`) 시 자동 저장 연동.
-- ⏳ **리팩토링 계획 (브랜치 `map-unlock`)**:
-  - `maxUnlockChapter`, `maxUnlockStage` 2개 진행 변수 체계로 간소화.
-  - UI 실시간 알림을 위한 `event Action OnUserDataChanged` 발송 로직 도입.
 
-### 2) Scene & Context Management — [⏳ 진행 예정 (브랜치 `scene-flow`)]
-- **용어 정의**: **챕터 = 맵** (Map01~05), **스테이지 = 실제 퍼즐 단계** (맵별 1~3번 퍼즐).
-- `GameManager` 싱글톤: 최상위 씬 전이 컨텍스트(`selectedChapter`, `selectedStage`) 유지.
-- `SceneFlowManager`: Overlay Canvas (`CanvasGroup`) 기반 페이드 비동기 씬 전이 및 광클 입력 차단 (`blocksRaycasts = true`).
-- `MapNavigationController`: 유저 진행도(`IsChapterUnlocked`) 기반 이전/다음 맵 씬 이동 화살표 제어.
-- `StageSelectController`: 현재 맵 내 1~3번 스테이지 진입 버튼 해금/숨김(`SetActive`) 및 퍼즐 씬 진입.
+### 2) Puzzle System & Tile Coloring — [⏳ 진행 중 (#67, #73, #75)]
+- `BoardManager`, `BoardData`, `TileData`, `RuntimeState`: 퍼즐 보드 생성 및 좌표 기반 타일 조회 판정 (`#67`).
+- `DragInputManager`: 드래그 시작/진행/종료 감지, `dragTileList` 중복 선택 방지 및 타일 색칠/상태 갱신 (`#73`).
+- Bag Randomizer: 16개 색상 무작위 셔플 bag 생성 및 색상 공급/리필 연동 (`#75`).
 
-### 3) Puzzle Strategy Pattern (`PuzzleBoardController`) — [⏳ 진행 예정]
-- `PuzzleBoardController`는 슬라이딩 퍼즐 그리드 생성 및 타일 이동 판정 담당.
-- `StageData` (ScriptableObject) 퍼즐 설정 로드 및 `IPuzzleRule` 전략 인터페이스를 통한 챕터별 기믹 연동.
+### 3) Dialogue & Story Presentation — [⏳ 진행 중 (#68, #71)]
+- `DialogueParser` & `DialogueData`: CSV 기반 대사 로드 및 데이터 바인딩.
+- `DialogueManager` & `ScriptSettingController`: 타이핑 연출, Auto/Skip (읽은 텍스트만 / 모든 텍스트) 제어 (`#68`).
+- `LogModalController`: 지난 대사 기록 조회.
+- UI 아트 연동: `DialogModal_PF.prefab` 대사창 아트 적용 및 레이아웃 연동 패스 (`#70`, `#71`).
+
+### 4) Sound Management (`SoundManager`) — [⏳ 진행 중 (#65)]
+- BGM 및 SFX 사운드 리소스 연결, 피치 및 볼륨 조절 싱글톤 연동.
 
 ---
 
@@ -51,10 +51,9 @@
 
 | 역할 분류 | 클래스 명명 접미사 | 주요 책임 및 특징 | 프로젝트 예시 |
 | :--- | :--- | :--- | :--- |
-| **Manager** | `*Manager` | 전역 도메인/시스템 총괄 싱글톤 | `UserDataManager` [완료], `DialogUIManager` [완료], `GameManager` [예정] |
-| **Controller** | `*Controller` | 개별 GameObject 행동/입력 제어 (`MonoBehaviour`) | `MapNavigationController` [예정], `StageSelectController` [예정] |
+| **Manager** | `*Manager` | 전역 도메인/시스템 총괄 싱글톤 | `UserDataManager` [완료], `BoardManager` [진행중], `SoundManager` [진행중] |
+| **Controller** | `*Controller` | 개별 GameObject 행동/입력 제어 (`MonoBehaviour`) | `MapNavigationController` [완료], `ScriptSettingController` [진행중] |
 | **Director** | `*Director` | 상위 흐름 및 연출 지휘 | `CutsceneDirector` [예정] |
-| **Service / Parser**| `*Service` / `*Parser` | Pure C# 비-MonoBehaviour 로직/파싱 | `DialogueParser` [예정], `SaveService` [예정] |
-| **Data / Config**| `*Data` / `*Config` | 데이터 직렬화 모델 & ScriptableObject | `UserData` [완료], `StageData` [예정] |
+| **Service / Parser**| `*Service` / `*Parser` | Pure C# 비-MonoBehaviour 로직/파싱 | `DialogueParser` [완료], `SaveService` [예정] |
+| **Data / Config**| `*Data` / `*Config` | 데이터 직렬화 모델 & ScriptableObject | `UserData` [완료], `BoardData` [완료], `TileData` [완료] |
 | **Handler** | `*Handler` / `OnMouseDown_*`| 이벤트 반응 헬퍼 | `OnMouseDown_SwitchScene` [완료] |
-

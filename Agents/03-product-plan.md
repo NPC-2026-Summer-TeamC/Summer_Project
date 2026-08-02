@@ -31,7 +31,7 @@
        │        ├─ Auto/Skip/Previous/Log 기능
        │        └─ 스크립트 전용 설정 탭
        │
-       ├───► [아이템 상호작용 (퍼즐 3개 클리어 시 활성화)] ──► [아이템 리스트 팝업 (ItemListScene/Modal)]
+       ├───► [아이템 상호작용 (퍼즐 3개 클리어 시 활성화)] ──► [아이템 리스트 팝업 (ItemPhotoScene/Modal)]
        │
        └─► [환경설정 (SettingModal_PF)] ──► 볼륨 조절 & 게임 진행도 초기화
 ```
@@ -45,20 +45,19 @@
 | **MainMenuScene.unity** | 게임 스타트, 최근 진행 위치 맵 이동, 환경설정 팝업 | `UserDataManager`, `SettingModalController` | ✅ 씬 에셋 배치완료 |
 | **Map01~05Scene.unity** | 맵 탐색, 1~3번 퍼즐 버튼 해금, 이전/다음 맵 이동 | `MapNavigationController`, `StageSelectController` | ✅ 씬 에셋 배치완료 |
 | **StageEntryScene.unity**| 챕터별 3개 스테이지 중 해금된 퍼즐 단계 선택 | `StageSelectController`, `UserDataManager` | ✅ 씬 에셋 배치완료 |
-| **StageScene.unity** | 15개 타일 퍼즐 판정, 챕터별 기믹 전략 연동 및 클리어 저장 | `PuzzleBoardController`, `StageManager` | ✅ 씬 에셋 배치완료 |
-| **ItemListScene.unity** | 획득한 수집 아이템 리스트 조회 | `UserDataManager.HasCollectedItem()` | ✅ 씬 에셋 배치완료 |
+| **StageScene.unity** | 15개 타일 퍼즐 판정, 챕터별 기믹 전략 연동 및 클리어 저장 | `BoardManager`, `DragInputManager`, `StageManager` | ⏳ 진행중 (#67, #73) |
+| **ItemPhotoScene.unity** | 획득한 수집 아이템 리스트 조회 | `UserDataManager.HasCollectedItem()` | ✅ 씬 에셋 배치완료 |
 | **CreditsScene.unity** | 게임 엔딩 후 크레딧 연출 출력 | `SceneFlowManager` | ✅ 씬 에셋 배치완료 |
-| **PF_DialogModalScene.unity**| 스토리 대사 팝업 모달 독립 연출 테스트 | `DialogUIManager`, `DialogManager` | ✅ 씬 에셋 배치완료 |
-| **DialogModal_PF.prefab** | 캐릭터 일러스트/대사 연출 팝업 (Auto/Skip/Log) | `DialogUIManager` | ✅ 프리팹 완성 |
-| **LogModal_PF.prefab** | 지나간 대사 기록 조회 모달 | `DialogUIManager.OpenLogModal()` | ✅ 프리팹 완성 |
-| **SettingModal_PF.prefab** | 볼륨 조절 & 게임 진행도 초기화 (`PlayerPrefs` 리셋) | `DialogUIManager.OpenSettingModal()`, `UserDataManager` | ✅ 프리팹 완성 |
+| **PF_DialogModalScene.unity**| 스토리 대사 팝업 모달 독립 연출 테스트 | `DialogUIManager`, `DialogueManager` | ✅ 씬 에셋 배치완료 |
+| **DialogModal_PF.prefab** | 캐릭터 일러스트/대사 연출 팝업 (Auto/Skip/Log) | `DialogueManager`, `DialogUIManager` | ⏳ 진행중 (#68, #71) |
+| **LogModal_PF.prefab** | 지나간 대사 기록 조회 모달 (`LogItem_PF.prefab`) | `LogModalController`, `Logitemcontroller` | ✅ 프리팹 완성 |
+| **SettingModal_PF.prefab** | 볼륨 조절 & 게임 진행도 초기화 (`PlayerPrefs` 리셋) | `ScriptSettingController`, `UserDataManager` | ⏳ 진행중 (#68, #70) |
 
 ---
 
 ## D. 역할 기반 클래스 네이밍 가이드
 
-- **System Managers**: `UserDataManager` [완료], `DialogUIManager` [완료], `GameManager` [예정], `SceneFlowManager` [예정], `StageManager` [예정]
-- **Component Controllers**: `MapNavigationController` [예정], `StageSelectController` [예정], `PuzzleBoardController` [예정], `SettingModalController` [예정]
-- **Services & Data Models**: `UserData` [완료], `DialogueParser` [예정], `StageData` [예정]
+- **System Managers**: `UserDataManager` [완료], `DialogUIManager` [완료], `BoardManager` [진행중], `SoundManager` [진행중], `StageManager` [진행중]
+- **Component Controllers**: `MapNavigationController` [완료], `StageSelectController` [예정], `ScriptSettingController` [진행중], `TileController` [진행중]
+- **Services & Data Models**: `UserData` [완료], `DialogueParser` [완료], `BoardData` [완료], `TileData` [완료]
 - **Utils & Helpers**: `OnMouseDown_SwitchScene` [완료], `UserDataTest` [완료]
-
