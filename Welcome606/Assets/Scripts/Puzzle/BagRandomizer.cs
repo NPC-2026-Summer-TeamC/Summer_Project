@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class BagRandomizer
 {
@@ -32,13 +33,46 @@ public class BagRandomizer
         InitializeBag();
     }
 
-    // Bag 생성 및 초기화
+    // Bag 초기화
     private void InitializeBag()
     {
         colorBag.Clear();
 
         colorBag.AddRange(allColors);
 
-        // TODO : Bag 셔플
+        ShuffleBag();
+    }
+
+    // Bag 셔플
+    private void ShuffleBag()
+    {
+        for (int i = colorBag.Count - 1; i > 0; i--)
+        {
+            int randomIndex = Random.Range(0, i + 1);
+
+            (colorBag[i], colorBag[randomIndex]) =
+                (colorBag[randomIndex], colorBag[i]);
+        }
+    }
+
+    // Bag 재생성
+    private void RefillBag()
+    {
+        InitializeBag();
+    }
+
+    // 다음 색상 반환
+    public TileColor GetNextColor()
+    {
+        if (colorBag.Count == 0)
+        {
+            RefillBag();
+        }
+
+        TileColor nextColor = colorBag[0];
+
+        colorBag.RemoveAt(0);
+
+        return nextColor;
     }
 }
