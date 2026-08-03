@@ -3,16 +3,14 @@ using UnityEngine;
 
 public class DragInputManager : MonoBehaviour
 {
-    // TODO : RuntimeState 갱신 시 사용
     [SerializeField] private BoardManager boardManager;
 
     private bool isDragging;
-    private List<TileData> dragTileList = new();
+    private readonly List<TileData> dragTileList = new();
 
     private TileColor currentColor;
     private Camera mainCamera;
 
-    // TODO : BagRandomizer 관리 방식 개선
     private readonly BagRandomizer bagRandomizer = new();
 
     private void Awake()
@@ -28,7 +26,8 @@ public class DragInputManager : MonoBehaviour
 
         SelectTile(startTile);
 
-        RuntimeState runtimeState = boardManager.GetRuntimeState(startTile.x, startTile.y);
+        RuntimeState runtimeState =
+            boardManager.GetRuntimeState(startTile.x, startTile.y);
 
         if (runtimeState.isColored)
         {
@@ -55,7 +54,13 @@ public class DragInputManager : MonoBehaviour
     {
         foreach (TileData tile in dragTileList)
         {
-            // TODO : RuntimeState 갱신
+            RuntimeState runtimeState =
+                boardManager.GetRuntimeState(tile.x, tile.y);
+
+            runtimeState.color = currentColor;
+            runtimeState.isColored = true;
+
+            boardManager.SetRuntimeState(tile.x, tile.y, runtimeState);
         }
     }
 
@@ -81,20 +86,7 @@ public class DragInputManager : MonoBehaviour
     // 드래그 시작 시도
     private void TryStartDrag()
     {
-        // 마우스 위치를 월드 좌표로 변환
-        Vector2 worldPosition =
-            mainCamera.ScreenToWorldPoint(Input.mousePosition);
-
-        // 현재 마우스 위치의 Tile 탐색
-        RaycastHit2D hit =
-            Physics2D.Raycast(worldPosition, Vector2.zero);
-
-        if (!hit)
-        {
-            return;
-        }
-
-        TileController tileController = hit.collider.GetComponent<TileController>();
+        TileController tileController = GetCurrentTileController();
 
         if (tileController == null)
         {
@@ -107,6 +99,19 @@ public class DragInputManager : MonoBehaviour
     // 드래그 진행
     private void UpdateDrag()
     {
+        TileController tileController = GetCurrentTileController();
+
+        if (tileController == null)
+        {
+            return;
+        }
+
+        SelectTile(tileController.TileData);
+    }
+
+    // 현재 마우스 위치의 TileController 반환
+    private TileController GetCurrentTileController()
+    {
         // 마우스 위치를 월드 좌표로 변환
         Vector2 worldPosition =
             mainCamera.ScreenToWorldPoint(Input.mousePosition);
@@ -117,17 +122,10 @@ public class DragInputManager : MonoBehaviour
 
         if (!hit)
         {
-            return;
+            return null;
         }
 
-        TileController tileController = hit.collider.GetComponent<TileController>();
-
-        if (tileController == null)
-        {
-            return;
-        }
-
-        SelectTile(tileController.TileData);
+        return hit.collider.GetComponent<TileController>();
     }
 
     // 타일 선택
