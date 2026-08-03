@@ -21,9 +21,22 @@ namespace Welcome606.UI
 
         private Button[] StageButtons => new Button[] { stage1Button, stage2Button, stage3Button };
 
+        private UnityEngine.Events.UnityAction[] stageButtonActions;
+
         private void Awake()
         {
+            stageButtonActions = new UnityEngine.Events.UnityAction[]
+            {
+                OnClickStage1,
+                OnClickStage2,
+                OnClickStage3
+            };
             SetupButtonListeners();
+        }
+
+        private void OnDestroy()
+        {
+            RemoveButtonListeners();
         }
 
         private void OnEnable()
@@ -48,14 +61,29 @@ namespace Welcome606.UI
             Button[] buttons = StageButtons;
             for (int i = 0; i < buttons.Length; i++)
             {
-                int stageIndex = i + 1; // 1-based stage index (1~3)
-                if (buttons[i] != null)
+                if (buttons[i] != null && stageButtonActions != null && i < stageButtonActions.Length)
                 {
-                    buttons[i].onClick.RemoveAllListeners();
-                    buttons[i].onClick.AddListener(() => OnClickStageButton(stageIndex));
+                    buttons[i].onClick.RemoveListener(stageButtonActions[i]);
+                    buttons[i].onClick.AddListener(stageButtonActions[i]);
                 }
             }
         }
+
+        private void RemoveButtonListeners()
+        {
+            Button[] buttons = StageButtons;
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                if (buttons[i] != null && stageButtonActions != null && i < stageButtonActions.Length)
+                {
+                    buttons[i].onClick.RemoveListener(stageButtonActions[i]);
+                }
+            }
+        }
+
+        private void OnClickStage1() => OnClickStageButton(1);
+        private void OnClickStage2() => OnClickStageButton(2);
+        private void OnClickStage3() => OnClickStageButton(3);
 
         /// <summary>
         /// GameManager.Instance.SelectedChapter와 UserData의 진행도(IsStageUnlocked)를 확인하여
