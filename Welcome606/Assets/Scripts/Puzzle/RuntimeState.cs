@@ -4,6 +4,10 @@ using System;
 public class RuntimeState
 {
     public TileData tile;
-    public string color;
-    public bool warning;
+
+    public TileColor color;
+
+    public bool isColored;
+
+    public bool isWarning;
 }
