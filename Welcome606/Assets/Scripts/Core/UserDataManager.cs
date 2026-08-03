@@ -79,6 +79,9 @@ public class UserDataManager : MonoBehaviour
         }
     }
 
+    public int MaxUnlockChapter => userData != null ? userData.maxUnlockChapter : 1;
+    public int MaxUnlockStage => userData != null ? userData.maxUnlockStage : 1;
+
     public void UserDataLog()
     {
         Debug.Log($"Chapter=[{userData.maxUnlockChapter}], Stage=[{userData.maxUnlockStage}], " +
