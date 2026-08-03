@@ -81,6 +81,13 @@ public class UserDataManager : MonoBehaviour
 
     public int MaxUnlockChapter => userData != null ? userData.maxUnlockChapter : 1;
     public int MaxUnlockStage => userData != null ? userData.maxUnlockStage : 1;
+    public int MaxCollectionItem => userData != null ? userData.maxCollectionItem : 0;
+
+    public bool HasCollectedItem(int chapter)
+    {
+        if (chapter < 1 || chapter > UserDataConst.CHAPTER) return false;
+        return chapter <= MaxCollectionItem;
+    }
 
     public void UserDataLog()
     {
