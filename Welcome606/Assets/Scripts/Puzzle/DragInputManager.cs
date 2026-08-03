@@ -93,6 +93,11 @@ public class DragInputManager : MonoBehaviour
             return;
         }
 
+        if (tileController.TileData.type == TileType.Disable)
+        {
+            return;
+        }
+
         StartDrag(tileController.TileData);
     }
 
