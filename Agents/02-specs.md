@@ -18,43 +18,64 @@
 
 ## B. Core 아키텍처 패턴 & 구현 현황
 
-### 1) Persistence Architecture (`UserDataManager`) — [✅ 구현 완료]
-- `UserData` 데이터 직렬화 모델: `StageProgress[] chapters` (5개 챕터 × 3개 스테이지 `bool[]`), `bool[] collectedItems`
+### 1) Persistence Architecture (`UserDataManager`) — 🟢
+- `UserData` 데이터 직렬화 모델: `maxUnlockChapter`, `maxUnlockStage` 기반 간소화 진행도 체계 및 `collectedItems` 배열 (1~5 챕터 수집품 관리).
 - `UserDataManager` 싱글톤:
-  - Lazy Singleton (`Instance`) 및 `DontDestroyOnLoad` 처리 완료.
+  - Lazy Singleton (`Instance`) 및 `DontDestroyOnLoad` 세이프가드 처리 완료.
   - JSON 기반 세이브/로드 (`PlayerPrefs.SetString("UserDataJson", json)`).
-  - `ClearStage(chapter, stage)`: 특정 챕터/스테이지 클리어 여부 반영 및 자동 저장.
-  - `CollectItem(chapter)` & `HasCollectedItem(chapter)`: 수집품 획득 상태 반영.
+  - `ClearStage(chapter, stage)`: 특정 챕터/스테이지 클리어 반영, 최고 진척도 자동 갱신 및 `OnUserDataChanged` 이벤트 발송.
+  - `CollectItem(chapter)` & `HasCollectedItem(chapter)`: 1~5 챕터 수집품 해금 여부 판별.
   - 앱 일시정지(`OnApplicationPause`) 및 종료(`OnApplicationQuit`) 시 자동 저장 연동.
-- ⏳ **리팩토링 계획 (브랜치 `map-unlock`)**:
-  - `maxUnlockChapter`, `maxUnlockStage` 2개 진행 변수 체계로 간소화.
-  - UI 실시간 알림을 위한 `event Action OnUserDataChanged` 발송 로직 도입.
 
-### 2) Scene & Context Management — [⏳ 진행 예정 (브랜치 `scene-flow`)]
+### 2) Scene & Context Management — 🟢
 - **용어 정의**: **챕터 = 맵** (Map01~05), **스테이지 = 실제 퍼즐 단계** (맵별 1~3번 퍼즐).
-- `GameManager` 싱글톤: 최상위 씬 전이 컨텍스트(`selectedChapter`, `selectedStage`) 유지.
-- `SceneFlowManager`: Overlay Canvas (`CanvasGroup`) 기반 페이드 비동기 씬 전이 및 광클 입력 차단 (`blocksRaycasts = true`).
-- `MapNavigationController`: 유저 진행도(`IsChapterUnlocked`) 기반 이전/다음 맵 씬 이동 화살표 제어.
-- `StageSelectController`: 현재 맵 내 1~3번 스테이지 진입 버튼 해금/숨김(`SetActive`) 및 퍼즐 씬 진입.
+- `GameManager` 싱글톤: 최상위 씬 전이 컨텍스트(`SelectedChapter`, `SelectedStage`) 보존 및 멀티 씬 전환 상태 제어.
+- `SceneFlowManager` 싱글톤: CanvasGroup Overlay 기반 비동기 페이드 In/Out 씬 전이 및 로딩 중 입력 차단 (`blocksRaycasts = true`).
+- `MapNavigationController`: `UserDataManager.Instance.MaxUnlockChapter` 기반 이전/다음 맵 이동 화살표 비활성화/해금 처리 및 페이드 씬 전환 연동.
+- `StageSelectController`: 현재 선택된 챕터(`GameManager.Instance.SelectedChapter`)의 1~3번 퍼즐 버튼 해금/숨김(`SetActive`) 및 퍼즐 씬 진입 제어.
+- `StageManager`: 퍼즐 씬 라이프사이클 관할, 퍼즐 완료 시 `UserDataManager.Instance.ClearStage` 자동 연동, 클리어 팝업 연출 및 맵 화면 비동기 복귀.
 
-### 3) Puzzle Strategy Pattern (`PuzzleBoardController`) — [⏳ 진행 예정]
-- `PuzzleBoardController`는 슬라이딩 퍼즐 그리드 생성 및 타일 이동 판정 담당.
-- `StageData` (ScriptableObject) 퍼즐 설정 로드 및 `IPuzzleRule` 전략 인터페이스를 통한 챕터별 기믹 연동.
+### 3) Sound Architecture (`SoundManager` & `SoundSettingModalController`) — 🟢
+- `SoundManager`: Master/BGM/SFX 음량 제어(`MasterVolume`, `BGMVolume`, `SFXVolume`), `PlaySFX` 및 PlayerPrefs 저장 연동.
+- `SoundSettingModalController`: 마스터, 효과음, 배경음악 3종 슬라이더 및 퍼센트(`80%`) 실시간 동기화, PlayerPrefs 저장 & 진행도 초기화(`OnResetProgressClicked`) 기능 연동.
+
+### 4) Collection Item Architecture (`ItemPhotoController`) — 🟢
+- `ItemPhotoController`: `UserDataManager.HasCollectedItem(chapter)` 기반 1~5 챕터 수집 아이템 슬롯 해금/잠금 제어 (`RefreshUI`).
+- 아이템 클릭 시 스토리 대사 모달(`DialogModal_PF`) 연동 및 대사 종료 시 모달 자동 비활성화, 닫기 클릭 시 페이드 비동기 맵 복귀.
+
+### 5) Puzzle Strategy Pattern (`PuzzleBoardController`) — 🔴
+- `PuzzleBoardController`: 슬라이딩 퍼즐 그리드 생성, 타일 선택/드래그 입력 및 BagRandomizer 색상 배치 연동 완료.
+> [!TODO]
+> BFS 모양 판정 알고리즘(`DetectShapes`), 2챕터 자르기/쓰레기 타일 기믹, ActionLog 기반 Undo/Redo 구현 예정.
 
 ---
 
 ## C. C# 코딩 컨벤션 & Naming Rule
 
 > [!IMPORTANT]
-> - 모든 UI 텍스트는 Legacy `UnityEngine.UI.Text` 사용 금지 → 반드시 `TMPro.TextMeshProUGUI` 사용.
+> - 모든 UI 텍스트는 Legacy `UnityEngine.UI.Text` 사용 금지 ➔ 반드시 `TMPro.TextMeshProUGUI` 사용.
 > - `Manager` 클래스 비대화(God Object) 방지: Pure C# 데이터는 `Data`, 파서/서비스는 `Service`, UI 및 개별 동작은 `Controller`로 책임 분할.
 
-| 역할 분류 | 클래스 명명 접미사 | 주요 책임 및 특징 | 프로젝트 예시 |
-| :--- | :--- | :--- | :--- |
-| **Manager** | `*Manager` | 전역 도메인/시스템 총괄 싱글톤 | `UserDataManager` [완료], `DialogUIManager` [완료], `GameManager` [예정] |
-| **Controller** | `*Controller` | 개별 GameObject 행동/입력 제어 (`MonoBehaviour`) | `MapNavigationController` [예정], `StageSelectController` [예정] |
-| **Director** | `*Director` | 상위 흐름 및 연출 지휘 | `CutsceneDirector` [예정] |
-| **Service / Parser**| `*Service` / `*Parser` | Pure C# 비-MonoBehaviour 로직/파싱 | `DialogueParser` [예정], `SaveService` [예정] |
-| **Data / Config**| `*Data` / `*Config` | 데이터 직렬화 모델 & ScriptableObject | `UserData` [완료], `StageData` [예정] |
-| **Handler** | `*Handler` / `OnMouseDown_*`| 이벤트 반응 헬퍼 | `OnMouseDown_SwitchScene` [완료] |
+- **Manager** (`*Manager`)
+  - 전역 도메인/시스템 총괄 싱글톤
+  - `UserDataManager` 🟢, `DialogUIManager` 🟢, `GameManager` 🟢, `SceneFlowManager` 🟢, `StageManager` 🟡, `SoundManager` 🟡
 
+- **Controller** (`*Controller`)
+  - 개별 GameObject/UI 행동 및 사용자 입력 제어 (`MonoBehaviour`)
+  - `MapNavigationController` 🟡, `StageSelectController` 🟢, `SoundSettingModalController` 🟢, `ItemPhotoController` 🟡, `PuzzleBoardController` 🔴
+
+- **Director** (`*Director`)
+  - 상위 흐름 및 컷씬 연출 지휘
+  - `CutsceneDirector` 🔴
+
+- **Service / Parser** (`*Service`, `*Parser`)
+  - Pure C# 비-MonoBehaviour 데이터 파싱 및 로직 처리
+  - `DialogueParser` 🟢, `SaveService` 🔴
+
+- **Data / Config** (`*Data`, `*Config`)
+  - 데이터 직렬화 모델 & ScriptableObject
+  - `UserData` 🟢, `StageData` 🔴
+
+- **Helper / Listener** (`*Helper`, `OnMouseDown_*`)
+  - 이벤트 반응 및 런타임/에디터 테스트 헬퍼
+  - `MapUnlockDebugHelper` 🟢, `StageManagerDebugHelper` 🟢, `OnMouseDown_SwitchScene` 🟢
