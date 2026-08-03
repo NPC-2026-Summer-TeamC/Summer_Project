@@ -3,15 +3,15 @@ using UnityEngine;
 
 public class DragInputManager : MonoBehaviour
 {
-    // TODO : RuntimeState 갱신 시 사용
     [SerializeField] private BoardManager boardManager;
 
     private bool isDragging;
-    private List<TileData> dragTileList = new();
+    private readonly List<TileData> dragTileList = new();
 
-    // TODO : BagRandomizer 구현 시 TileColor enum으로 변경
-    private string currentColor;
+    private TileColor currentColor;
     private Camera mainCamera;
+
+    private readonly BagRandomizer bagRandomizer = new();
 
     private void Awake()
     {
@@ -19,12 +19,24 @@ public class DragInputManager : MonoBehaviour
     }
 
     // 드래그 시작
-    private void StartDrag()
+    private void StartDrag(TileData startTile)
     {
         isDragging = true;
         dragTileList.Clear();
 
-        // TODO : Bag Randomizer를 통해 현재 색상 결정
+        SelectTile(startTile);
+
+        RuntimeState runtimeState =
+            boardManager.GetRuntimeState(startTile.x, startTile.y);
+
+        if (runtimeState.isColored)
+        {
+            currentColor = runtimeState.color;
+        }
+        else
+        {
+            currentColor = bagRandomizer.GetNextColor();
+        }
     }
 
     // 드래그 종료
@@ -40,11 +52,15 @@ public class DragInputManager : MonoBehaviour
     // 선택된 타일에 현재 색상 적용
     private void ApplyColor()
     {
-        // TODO : BagRandomizer에서 현재 색상 가져오기
-
         foreach (TileData tile in dragTileList)
         {
-            // TODO : RuntimeState 갱신
+            RuntimeState runtimeState =
+                boardManager.GetRuntimeState(tile.x, tile.y);
+
+            runtimeState.color = currentColor;
+            runtimeState.isColored = true;
+
+            boardManager.SetRuntimeState(tile.x, tile.y, runtimeState);
         }
     }
 
@@ -53,7 +69,7 @@ public class DragInputManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            StartDrag();
+            TryStartDrag();
         }
 
         if (isDragging)
@@ -67,8 +83,39 @@ public class DragInputManager : MonoBehaviour
         }
     }
 
+    // 드래그 시작 시도
+    private void TryStartDrag()
+    {
+        TileController tileController = GetCurrentTileController();
+
+        if (tileController == null)
+        {
+            return;
+        }
+
+        if (tileController.TileData.type == TileType.Disable)
+        {
+            return;
+        }
+
+        StartDrag(tileController.TileData);
+    }
+
     // 드래그 진행
     private void UpdateDrag()
+    {
+        TileController tileController = GetCurrentTileController();
+
+        if (tileController == null)
+        {
+            return;
+        }
+
+        SelectTile(tileController.TileData);
+    }
+
+    // 현재 마우스 위치의 TileController 반환
+    private TileController GetCurrentTileController()
     {
         // 마우스 위치를 월드 좌표로 변환
         Vector2 worldPosition =
@@ -80,17 +127,10 @@ public class DragInputManager : MonoBehaviour
 
         if (!hit)
         {
-            return;
+            return null;
         }
 
-        TileController tileController = hit.collider.GetComponent<TileController>();
-
-        if (tileController == null)
-        {
-            return;
-        }
-
-        SelectTile(tileController.TileData);
+        return hit.collider.GetComponent<TileController>();
     }
 
     // 타일 선택
