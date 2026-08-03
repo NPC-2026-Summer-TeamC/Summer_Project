@@ -44,9 +44,16 @@ namespace Welcome606.UI
 
         private void Start()
         {
+            // 씬 시작 시 Dialog 모달 기본 비활성화(숨김)
+            if (dialogModal != null)
+            {
+                dialogModal.SetActive(false);
+            }
+
             BindEventListeners();
             RefreshUI();
         }
+
 
         private void BindEventListeners()
         {
@@ -118,6 +125,8 @@ namespace Welcome606.UI
                 string eventId = $"ItemPhoto_Chapter{chapterIndex}";
                 dialogueManager.StartDialogue(eventId);
             }
+
+
         }
 
         /// <summary>
