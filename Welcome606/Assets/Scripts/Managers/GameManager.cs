@@ -55,6 +55,37 @@ namespace Welcome606.Managers
             isQuitting = true;
         }
 
+        private void Start()
+        {
+            SyncContextFromUserData();
+            if (UserDataManager.Instance != null)
+            {
+                UserDataManager.Instance.OnUserDataChanged += SyncContextFromUserData;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (UserDataManager.Instance != null)
+            {
+                UserDataManager.Instance.OnUserDataChanged -= SyncContextFromUserData;
+            }
+        }
+
+        /// <summary>
+        /// UserDataManager의 최근 해금/진행 챕터 및 스테이지 정보를 읽어와 선택 컨텍스트를 자동 동기화합니다.
+        /// </summary>
+        public void SyncContextFromUserData()
+        {
+            if (UserDataManager.Instance != null)
+            {
+                int chapter = UserDataManager.Instance.MaxUnlockChapter;
+                int stage = UserDataManager.Instance.MaxUnlockStage;
+                SetSelectedContext(chapter, stage);
+                Debug.Log($"[GameManager] SyncContextFromUserData - Chapter: {chapter}, Stage: {stage}");
+            }
+        }
+
         /// <summary>
         /// 선택된 챕터(맵) 번호를 설정합니다. (1~5)
         /// </summary>
