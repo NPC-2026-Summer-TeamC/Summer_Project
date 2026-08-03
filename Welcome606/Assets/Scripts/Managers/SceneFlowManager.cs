@@ -123,7 +123,16 @@ namespace Welcome606.Managers
             yield return CoFade(0f, 1f, duration);
 
             // 비동기 씬 로딩
-            AsyncOperation asyncOp = SceneManager.LoadSceneAsync(sceneName);
+            AsyncOperation asyncOp = null;
+            try
+            {
+                asyncOp = SceneManager.LoadSceneAsync(sceneName);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[SceneFlowManager] 씬 로드 예외 발생: {sceneName}, Error: {ex.Message}");
+            }
+
             if (asyncOp != null)
             {
                 asyncOp.allowSceneActivation = false;
@@ -146,11 +155,19 @@ namespace Welcome606.Managers
                 Debug.LogError($"[SceneFlowManager] 씬을 찾을 수 없거나 로드에 실패했습니다: {sceneName}");
             }
 
-            // Fade In (화면 다시 밝게)
+            // 로드 실패 시에도 화면이 검게 마비되는 현상을 방지하기 위해 Fade In 및 입력 상태 복구 보장
             yield return CoFade(1f, 0f, duration);
 
-            fadeCanvasGroup.blocksRaycasts = false;
-            fadeCanvasGroup.interactable = false;
+            RestoreFadeCanvasState();
+        }
+
+        private void RestoreFadeCanvasState()
+        {
+            if (fadeCanvasGroup != null)
+            {
+                fadeCanvasGroup.blocksRaycasts = false;
+                fadeCanvasGroup.interactable = false;
+            }
             isTransitioning = false;
         }
 
