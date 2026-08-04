@@ -11,7 +11,10 @@ public class ShapeFinder
     };
 
     private readonly BoardManager boardManager;
+
     private bool[,] visited;
+    private int[,] shapeIdMap;
+
     private int nextShapeId;
 
     public ShapeFinder(BoardManager boardManager)
@@ -27,6 +30,16 @@ public class ShapeFinder
         int boardSize = boardManager.GetBoardSize();
 
         visited = new bool[boardSize, boardSize];
+
+        shapeIdMap = new int[boardSize, boardSize];
+
+        for (int y = 0; y < boardSize; y++)
+        {
+            for (int x = 0; x < boardSize; x++)
+            {
+                shapeIdMap[x, y] = -1;
+            }
+        }
 
         for (int y = 0; y < boardSize; y++)
         {
@@ -75,6 +88,8 @@ public class ShapeFinder
 
             shape.tiles.Add(boardManager.GetTile(current.x, current.y));
 
+            shapeIdMap[current.x, current.y] = shape.shapeId;
+
             foreach (Coordinate direction in Directions)
             {
                 int nextX = current.x + direction.x;
@@ -108,6 +123,27 @@ public class ShapeFinder
                 queue.Enqueue(new Coordinate(nextX, nextY));
             }
         }
+
+        shape.tiles.Sort((a, b) =>
+        {
+            if (a.y == b.y)
+            {
+                return a.x.CompareTo(b.x);
+            }
+
+            return a.y.CompareTo(b.y);
+        });
+
+        TileData origin = shape.tiles[0];
+
+        foreach (TileData tile in shape.tiles)
+        {
+            shape.relativeTiles.Add(
+                new Coordinate(
+                    tile.x - origin.x,
+                    tile.y - origin.y));
+        }
+
 
         return shape;
     }
