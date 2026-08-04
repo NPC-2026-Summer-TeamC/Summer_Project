@@ -119,28 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!114 &53467249 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3415745403258923656, guid: 12a3c03e50d0f104895c486a4ee3082d, type: 3}
-  m_PrefabInstance: {fileID: 2702738652365838940}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &275349544 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5374324007886123909, guid: 708f750eff8f31f448ab7fa2e25b2ceb, type: 3}
-  m_PrefabInstance: {fileID: 6076277856152507187}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!224 &305275951 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3034944619530884918, guid: 708f750eff8f31f448ab7fa2e25b2ceb, type: 3}
@@ -535,17 +513,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &1636642186 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5432659903007661150, guid: 12a3c03e50d0f104895c486a4ee3082d, type: 3}
-  m_PrefabInstance: {fileID: 2702738652365838940}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &1786356227
 GameObject:
   m_ObjectHideFlags: 0
