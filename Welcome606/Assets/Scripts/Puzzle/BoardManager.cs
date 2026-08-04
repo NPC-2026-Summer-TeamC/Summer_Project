@@ -51,4 +51,10 @@ public class BoardManager : MonoBehaviour
                y >= 0 &&
                y < boardData.size;
     }
+
+    // 보드 크기 반환
+    public int GetBoardSize()
+    {
+        return boardData.size;
+    }
 }
