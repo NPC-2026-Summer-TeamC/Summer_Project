@@ -55,6 +55,7 @@ public class ShapeFinder
 
                 if (!runtimeState.isColored)
                 {
+                    visited[x, y] = true;
                     continue;
                 }
 
