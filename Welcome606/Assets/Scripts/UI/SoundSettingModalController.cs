@@ -25,6 +25,10 @@ namespace Welcome606.UI
         [SerializeField] private Button confirmButton;
         [SerializeField] private Button closeButton;
 
+        private float cachedMasterVolume = 1.0f;
+        private float cachedSFXVolume = 1.0f;
+        private float cachedBGMVolume = 1.0f;
+
         public Slider MasterSlider => masterSlider;
         public Slider SFXSlider => sfxSlider;
         public Slider BGMSlider => bgmSlider;
@@ -46,7 +50,21 @@ namespace Welcome606.UI
         private void OnEnable()
         {
             AutoFindUIComponents();
+            CacheCurrentSettings();
             SyncUIWithSettings();
+        }
+
+        /// <summary>
+        /// 모달이 열릴 때의 현재 사운드 설정을 캐싱합니다.
+        /// </summary>
+        private void CacheCurrentSettings()
+        {
+            if (SoundManager.Instance != null)
+            {
+                cachedMasterVolume = SoundManager.Instance.MasterVolume;
+                cachedSFXVolume = SoundManager.Instance.SFXVolume;
+                cachedBGMVolume = SoundManager.Instance.BGMVolume;
+            }
         }
 
         /// <summary>
@@ -142,8 +160,8 @@ namespace Welcome606.UI
 
             if (confirmButton != null)
             {
-                confirmButton.onClick.RemoveListener(OnCloseButtonClicked);
-                confirmButton.onClick.AddListener(OnCloseButtonClicked);
+                confirmButton.onClick.RemoveListener(OnConfirmButtonClicked);
+                confirmButton.onClick.AddListener(OnConfirmButtonClicked);
             }
 
             if (closeButton != null)
@@ -237,8 +255,29 @@ namespace Welcome606.UI
             }
         }
 
+        /// <summary>
+        /// 확인 버튼 클릭 시: 변경된 설정을 저장 및 적용 확정하고 모달을 닫습니다.
+        /// </summary>
+        public void OnConfirmButtonClicked()
+        {
+            CacheCurrentSettings();
+            Debug.Log("[SoundSettingModalController] 변경된 사운드 설정이 저장 및 적용되었습니다.");
+            gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// 닫기(취소) 버튼 클릭 시: 모달이 열릴 당시의 설정으로 원상복구(저장하지 않고 되돌림)하고 모달을 닫습니다.
+        /// </summary>
         public void OnCloseButtonClicked()
         {
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.SetMasterVolume(cachedMasterVolume);
+                SoundManager.Instance.SetSFXVolume(cachedSFXVolume);
+                SoundManager.Instance.SetBGMVolume(cachedBGMVolume);
+            }
+            SyncUIWithSettings();
+            Debug.Log("[SoundSettingModalController] 사운드 설정 변경사항이 취소되고 원래 값으로 복구되었습니다.");
             gameObject.SetActive(false);
         }
     }
