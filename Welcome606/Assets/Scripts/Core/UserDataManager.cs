@@ -114,20 +114,15 @@ public class UserDataManager : MonoBehaviour
         if (stage < UserDataConst.STAGE) {
             userData.maxUnlockStage = stage + 1;
         }
-        // 해당 챕터의 마지막 스테이지를 클리어한 경우 (다음 챕터 1스테이지 해금)
-        else if (chapter < UserDataConst.CHAPTER) {
+        // 해당 챕터의 마지막 스테이지를 클리어한 경우 (다음 챕터 해금)
+        else if (chapter <= UserDataConst.CHAPTER) {
             CollectItem(chapter);
-            userData.maxUnlockChapter = chapter + 1;
+            userData.maxUnlockChapter = chapter + 1; // 5챕터 클리어 시 6챕터(엔딩 퀘스트) 해금
             userData.maxUnlockStage = 1;
-        }
-        // 5챕터 3스테이지(마지막)를 클리어한 경우
-        else {
-            CollectItem(chapter);
-            userData.isEndingClear = true;
         }
 
         Save();
-        OnUserDataChanged?.Invoke(); // UI 알림
+        OnUserDataChanged?.Invoke();
         return true;
     }
 
