@@ -124,13 +124,19 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    // 🔴 대화 종료 처리(텍스트 비우기)를 한 곳에서 관리 + 이 시점에 읽음 기록을 디스크에 저장
+    public event System.Action OnDialogueEnd;
+
+    // 🔴 대화 종료 처리(텍스트 비우기 & 모달 닫기)를 한 곳에서 관리 + 이 시점에 읽음 기록을 디스크에 저장
     private void EndDialogueDisplay()
     {
         dialogText.text = "";
         nameText.text = "";
         SaveReadProgress(); // 🔴 대화가 끝나는 시점 = 디스크 저장 트리거 포인트
+
+        OnDialogueEnd?.Invoke();
+        gameObject.SetActive(false); // 대사 완료 시 모달창 자동 비활성화(닫기)
     }
+
 
     private void TryLogDialogue(DialogueData data)
     {
