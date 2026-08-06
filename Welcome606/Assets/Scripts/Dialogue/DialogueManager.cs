@@ -1,11 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events; // 🔴 대화 종료 이벤트(UnityEvent) 사용을 위해 추가
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 
 public class DialogueManager : MonoBehaviour
 {
+    // 🔴 씬 단위 싱글턴. 같은 씬 안에서는 DialogueManager.Instance로 어디서든 바로 접근 가능.
+    // (씬마다 프리팹을 개별 배치하는 구조라서 DontDestroyOnLoad는 쓰지 않음 - 씬이 바뀌면
+    // 그 씬의 새 DialogueManager가 Awake에서 자기 자신을 Instance로 등록함)
+    public static DialogueManager Instance { get; private set; }
+
     public enum SkipMode { ReadOnly, AllText }
 
     [Header("UI 연결")]
@@ -21,6 +27,11 @@ public class DialogueManager : MonoBehaviour
 
     [Header("로그창 연동")]
     public LogModalController logController;
+
+    // 🔴 대화가 끝났을 때 외부(퀘스트 시스템, 상호작용 오브젝트 등)로 신호를 보내는 이벤트.
+    // 인스펙터에서 On Dialogue Ended (+) 눌러서 원하는 함수를 등록해서 쓸 수 있음.
+    [Header("대화 종료 이벤트")]
+    public UnityEvent OnDialogueFinished;
 
     [HideInInspector] public float typingSpeed = 0.05f;
     [HideInInspector] public float autoSpeed = 3f;
@@ -49,9 +60,25 @@ public class DialogueManager : MonoBehaviour
 
     private void Awake()
     {
+        // 🔴 같은 씬에 DialogueManager가 실수로 두 개 이상 있는 경우를 대비한 안전장치
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning($"[DialogueManager] 씬에 DialogueManager가 이미 존재합니다. ({gameObject.name})은(는) 중복이라 비활성화합니다.");
+            enabled = false;
+            return;
+        }
+
+        Instance = this;
+
         parser = new DialogueParser();
         LoadDialogueDatabase();
         LoadReadKeys();
+    }
+
+    private void OnDestroy()
+    {
+        // 🔴 씬이 바뀌거나 이 오브젝트가 파괴될 때, 내가 등록해둔 Instance였다면 정리
+        if (Instance == this) Instance = null;
     }
 
     private void Start()
@@ -82,6 +109,9 @@ public class DialogueManager : MonoBehaviour
 
     public void StartDialogue(string eventID)
     {
+        // 🔴 대화 시작 시 스스로 자기 오브젝트를 켬 (모달을 여는 쪽에서 따로 SetActive(true) 안 해줘도 되게)
+        gameObject.SetActive(true);
+
         if (dialogueDatabase != null && dialogueDatabase.ContainsKey(eventID))
         {
             currentEventID = eventID;
@@ -124,19 +154,15 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    public event System.Action OnDialogueEnd;
-
-    // 🔴 대화 종료 처리(텍스트 비우기 & 모달 닫기)를 한 곳에서 관리 + 이 시점에 읽음 기록을 디스크에 저장
+    // 🔴 대화 종료 처리(텍스트 비우기)를 한 곳에서 관리 + 이 시점에 읽음 기록을 디스크에 저장 + 외부에 종료 신호 + 모달 자동 비활성화
     private void EndDialogueDisplay()
     {
         dialogText.text = "";
         nameText.text = "";
         SaveReadProgress(); // 🔴 대화가 끝나는 시점 = 디스크 저장 트리거 포인트
-
-        OnDialogueEnd?.Invoke();
-        gameObject.SetActive(false); // 대사 완료 시 모달창 자동 비활성화(닫기)
+        OnDialogueFinished?.Invoke(); // 🔴 외부 시스템에 "대화 끝났다" 신호 전달
+        gameObject.SetActive(false); // 🔴 대화창 자동으로 끄기 (다음 StartDialogue 호출 시 스스로 다시 켜짐)
     }
-
 
     private void TryLogDialogue(DialogueData data)
     {
