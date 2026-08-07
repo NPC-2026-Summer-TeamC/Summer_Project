@@ -29,13 +29,19 @@ namespace Welcome606.Tests
                 }
             }
 
-            // Keypad 0 / Alpha 0: 데이터 초기화
-            if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0))
+            // Keypad 6 / Alpha 6: 챕터 6 강제 진입 (1~5 챕터 전 스테이지 클리어)
+            if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6))
             {
-                Debug.Log("[DebugHelper] Alpha0 pressed -> Reset Data");
+                Debug.Log("[DebugHelper] Alpha6 pressed -> Unlock Chapter 6");
                 if (UserDataManager.Instance != null)
                 {
-                    UserDataManager.Instance.Reset();
+                    for (int c = 1; c <= 5; c++)
+                    {
+                        for (int s = 1; s <= 3; s++)
+                        {
+                            UserDataManager.Instance.ClearStage(c, s);
+                        }
+                    }
                     UserDataManager.Instance.UserDataLog();
                 }
             }
@@ -47,6 +53,22 @@ namespace Welcome606.Tests
             if (UserDataManager.Instance != null)
             {
                 UserDataManager.Instance.ClearStage(testChapter, testStage);
+                UserDataManager.Instance.UserDataLog();
+            }
+        }
+
+        [ContextMenu("Unlock All Chapters (Chapter 6 Ready)")]
+        public void UnlockAllChapters()
+        {
+            if (UserDataManager.Instance != null)
+            {
+                for (int c = 1; c <= 5; c++)
+                {
+                    for (int s = 1; s <= 3; s++)
+                    {
+                        UserDataManager.Instance.ClearStage(c, s);
+                    }
+                }
                 UserDataManager.Instance.UserDataLog();
             }
         }
