@@ -930,6 +930,18 @@ PrefabInstance:
       propertyPath: currentChapter
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 7968918791520533591, guid: 25a06c05f7bf0ae4f96effdcc54ed0bf, type: 3}
+      propertyPath: testStage
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7968918791520533591, guid: 25a06c05f7bf0ae4f96effdcc54ed0bf, type: 3}
+      propertyPath: testChapter
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7968918791520533591, guid: 25a06c05f7bf0ae4f96effdcc54ed0bf, type: 3}
+      propertyPath: enableKeyControls
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1156,6 +1168,10 @@ PrefabInstance:
       propertyPath: dialogModal
       value: 
       objectReference: {fileID: 1638635960}
+    - target: {fileID: 3259983098790842231, guid: defab3f46e4b7294180b981aba9410b0, type: 3}
+      propertyPath: forceEnableEndingQuest
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5191295843822294498, guid: defab3f46e4b7294180b981aba9410b0, type: 3}
       propertyPath: dialogModal
       value: 
