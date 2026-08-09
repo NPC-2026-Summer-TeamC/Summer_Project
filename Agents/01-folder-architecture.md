@@ -81,9 +81,11 @@ Summer_Project
 > [!TODO]
 > 15개 스테이지 SO 작성 및 챕터별 특수 기믹 전략 구현
 
-### `Scripts/Ending`: 🟢 100%
+### `Scripts/Ending`: 🟢 90%
 - `EndingQuestController.cs`, `EndingCollectibleItem.cs`, `EndingTodoUIController.cs`
-- 챕터 6 Todo 4단계 수집 퀘스트, 단일 Todo 순차 노출 UI, `isEnding` 상태 세이브/로드, EndingEvent 자동 연출 및 크레딧 씬 페이드 전환 제어 완료
+- 챕터 6 Todo 4단계 수집 퀘스트, 엔딩 연출 및 크레딧 씬 페이드 전환 제어
+> [!TODO]
+> 세부 거울 컷씬 일러스트 다이얼로그 가독성 폴리싱
 
 ### `Scripts/Dialogue`: 🟢 85%
 - `DialogueManager.cs`, `DialogueParser.cs`

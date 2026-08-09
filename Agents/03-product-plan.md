@@ -201,9 +201,11 @@
 > [!TODO]
 > Validation 엔진 완료 (PR #91), 15개 스테이지 SO 데이터 및 챕터별 기믹 전략 구현
 
-### `EndingQuestController.cs`: 🟢 100%
+### `EndingQuestController.cs`: 🟢 90%
 - `EndingCollectibleItem`, `EndingTodoUIController`, `UserDataManager`
-- 챕터 6 (`isEnding = true`) Todo 4단계 수집 퀘스트, 단일 Todo 순차 노출 UI, 수집 완료 시 자동 `EndingEvent` 연출 및 `CreditsScene` 페이드 전이 완료
+- 챕터 6 Todo 4단계 수집 퀘스트, 엔딩 BGM 전환 및 `CreditsScene` 페이드 전이
+> [!TODO]
+> 연출 텍스트 다이얼로그 가독성 보완
 
 #### Services & Data Models (`Scripts/Core`, `Scripts/Dialogue`, `Scripts/Puzzle`)
 

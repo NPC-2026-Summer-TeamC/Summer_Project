@@ -51,7 +51,7 @@
 - 15개 스테이지 `StageData` SO 구축, 챕터별 기믹(`IPuzzleRule`), ActionLog 기반 Undo/Redo 연동 예정.
 
 ### 6) Chapter 6 Ending Quest Architecture (`EndingQuestController`) — 🟢
-- `EndingQuestController`, `EndingCollectibleItem`, `EndingTodoUIController`: 5개 챕터 클리어 후 해금되는 챕터 6 (`isEnding = true`), Todo 1개 순차 노출 UI, 엔딩 수집 완료 시 자동 `EndingEvent` (고정속도 Cutscene 연출) 및 `CreditsScene` 페이드 비동기 전환 완료.
+- `EndingQuestController`, `EndingCollectibleItem`, `EndingTodoUIController`: 5개 챕터 클리어 후 해금되는 챕터 6 Todo 4단계 수집 퀘스트, 엔딩 BGM 전환, 거울 연출 및 `CreditsScene` 페이드 비동기 전환 완료 (PR #94).
 ---
 
 ## C. C# 코딩 컨벤션 & Naming Rule
