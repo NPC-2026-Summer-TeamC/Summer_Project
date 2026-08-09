@@ -11,11 +11,13 @@ public class DragInputManager : MonoBehaviour
     private TileColor currentColor;
     private Camera mainCamera;
 
-    private readonly BagRandomizer bagRandomizer = new();
+    private BagRandomizer bagRandomizer;
 
     private void Awake()
     {
         mainCamera = Camera.main;
+
+        bagRandomizer = new BagRandomizer();
     }
 
     // 드래그 시작
@@ -60,7 +62,15 @@ public class DragInputManager : MonoBehaviour
             runtimeState.color = currentColor;
             runtimeState.isColored = true;
 
+            Debug.Log(
+                $"({tile.x}, {tile.y}) -> {currentColor}");
+
             boardManager.SetRuntimeState(tile.x, tile.y, runtimeState);
+
+            TileController tileController =
+                boardManager.GetTileController(tile.x, tile.y);
+
+            tileController.Refresh(runtimeState);
         }
     }
 
