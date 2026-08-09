@@ -39,6 +39,8 @@ Summer_Project
       │  ├─ Managers                      # 전역 싱글톤 (GameManager.cs, SceneFlowManager.cs, StageManager.cs 🟢/🟡)
       │  ├─ Sound                         # 사운드 관리 (SoundManager.cs 🟡)
       │  ├─ UI                            # UI 컨트롤러 (MapNavigationController.cs, StageSelectController.cs 🟢/🟡)
+      │  ├─ Puzzle                        # 퍼즐 코어 엔진 (Board, Input, Shape, Validation 🟡)
+      │  ├─ Ending                        # 챕터 6 엔딩 퀘스트 시스템 (EndingQuestController.cs 🟢)
       │  └─ Tests                         # 단위/런타임 디버그 헬퍼 (MapUnlockDebugHelper.cs 🟢)
       │
       ├─ Settings / Sprites / Audio       # URP 설정, 스프라이트, 오디오 리소스
@@ -73,11 +75,17 @@ Summer_Project
 > [!TODO]
 > 맵 클리어 후 맵 배경 더러움 ➔ 깨끗함 visual switch 연동
 
-### `Scripts/Puzzle`: 🔴 30%
-- `PuzzleBoardController.cs`, `StageData.cs`
-- 퍼즐 타일 선택/슬라이딩 매칭 및 15개 퍼즐 보드 ScriptableObject 데이터
+### `Scripts/Puzzle`: 🟡 60%
+- `BoardManager.cs`, `RuntimeState.cs`, `DragInputManager.cs`, `ShapeFinder.cs`, `ValidationManager.cs`, `StageData.cs`
+- 퍼즐 타일 선택/슬라이딩 매칭, BFS 모양 탐색, 판정 검증 엔진(`IValidator`) 및 15개 퍼즐 보드 ScriptableObject 데이터
 > [!TODO]
-> BFS 기반 모양/클리어 판정 및 챕터별 기믹 전략 구현
+> 15개 스테이지 SO 작성 및 챕터별 특수 기믹 전략 구현
+
+### `Scripts/Ending`: 🟢 90%
+- `EndingQuestController.cs`, `EndingCollectibleItem.cs`, `EndingTodoUIController.cs`
+- 챕터 6 Todo 4단계 수집 퀘스트, 엔딩 연출 및 크레딧 씬 페이드 전환 제어
+> [!TODO]
+> 세부 거울 컷씬 일러스트 다이얼로그 가독성 폴리싱
 
 ### `Scripts/Dialogue`: 🟢 85%
 - `DialogueManager.cs`, `DialogueParser.cs`
@@ -86,7 +94,7 @@ Summer_Project
 > 컷씬 전용 대사 모드 및 예외 처리 보완
 
 ### `Scripts/Tests`: 🟢 90%
-- `MapUnlockDebugHelper.cs`, `StageManagerDebugHelper.cs`, `OnMouseDown_SwitchScene.cs`
+- `MapUnlockDebugHelper.cs`, `StageManagerDebugHelper.cs`, `PuzzleTest.cs`, `OnMouseDown_SwitchScene.cs`
 - 실시간 런타임/에디터 테스트 헬퍼 및 씬 전환 반응 스크립트
 > [!TODO]
 > 디버그 단축키 정리 및 효과음 연결

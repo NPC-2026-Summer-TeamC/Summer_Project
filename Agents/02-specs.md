@@ -43,11 +43,15 @@
 - `ItemPhotoController`: `UserDataManager.HasCollectedItem(chapter)` 기반 1~5 챕터 수집 아이템 슬롯 해금/잠금 제어 (`RefreshUI`).
 - 아이템 클릭 시 스토리 대사 모달(`DialogModal_PF`) 연동 및 대사 종료 시 모달 자동 비활성화, 닫기 클릭 시 페이드 비동기 맵 복귀.
 
-### 5) Puzzle Strategy Pattern (`PuzzleBoardController`) — 🔴
-- `PuzzleBoardController`: 슬라이딩 퍼즐 그리드 생성, 타일 선택/드래그 입력 및 BagRandomizer 색상 배치 연동 완료.
+### 5) Puzzle Core & Validation Architecture (`BoardManager` & `ValidationManager`) — 🟡
+- `BoardManager`, `TileController`, `DragInputManager`, `BagRandomizer`: 슬라이딩 퍼즐 그리드 생성, 타일 선택/드래그 입력 및 BagRandomizer 색상 배치 연동 완료.
+- `ShapeFinder`: BFS 기반 연결된 타일 클러스터/모양 탐색 알고리즘 완료.
+- `ValidationManager`, `AllColoredValidator`, `TargetShapeValidator`: 전략적 퍼즐 조건 판정 엔진 구축 완료 (PR #91).
 > [!TODO]
-> BFS 모양 판정 알고리즘(`DetectShapes`), 2챕터 자르기/쓰레기 타일 기믹, ActionLog 기반 Undo/Redo 구현 예정.
+- 15개 스테이지 `StageData` SO 구축, 챕터별 기믹(`IPuzzleRule`), ActionLog 기반 Undo/Redo 연동 예정.
 
+### 6) Chapter 6 Ending Quest Architecture (`EndingQuestController`) — 🟢
+- `EndingQuestController`, `EndingCollectibleItem`, `EndingTodoUIController`: 5개 챕터 클리어 후 해금되는 챕터 6 Todo 4단계 수집 퀘스트, 엔딩 BGM 전환, 거울 연출 및 `CreditsScene` 페이드 비동기 전환 완료 (PR #94).
 ---
 
 ## C. C# 코딩 컨벤션 & Naming Rule
