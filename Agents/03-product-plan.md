@@ -58,11 +58,11 @@
 > [!TODO]
 > 버튼 해금 완료, 디스플레이 연출 보완 필요
 
-### `StageScene.unity`: 🔴 30%
-- `PuzzleBoardController`, `StageManager`
-- 15개 타일 퍼즐 판정, 챕터별 기믹 전략 연동 및 클리어 저장
+### `StageScene.unity`: 🟡 60%
+- `BoardManager`, `ValidationManager`, `StageManager`
+- 15개 타일 퍼즐 판정, 검증 엔진 연동, 챕터별 기믹 전략 연동 및 클리어 저장
 > [!TODO]
-> 씬 흐름/저장 연동 완료, 핵심 알고리즘/기믹 대기
+> Validation 엔진 완료 (PR #91), 15개 스테이지 SO 데이터 작성 및 기믹 룰셋 구현 대기
 
 ### `ItemPhotoScene.unity`: 🟢 80%
 - `ItemPhotoController`, `DialogueManager`, `UserDataManager`
@@ -70,11 +70,11 @@
 > [!TODO]
 > 대사 연동 완료, 에셋 매핑 마무리 필요
 
-### `CreditsScene.unity`: 🔴 40%
-- `SceneFlowManager`
-- 게임 엔딩 후 크레딧 연출 출력
+### `CreditsScene.unity`: 🟢 80%
+- `SceneFlowManager`, `EndingQuestController`
+- 챕터 6 엔딩 퀘스트 완료 후 크레딧 연출 씬 전이 및 출력
 > [!TODO]
-> 씬 에셋 배치 완료, 6챕터 엔딩 연출 대기
+> 씬 에셋 및 엔딩 퀘스트 연동 완료, 크레딧 연출 polish 대기
 
 ### `PF_DialogModalScene.unity`: 🟢 85%
 - `DialogUIManager`, `DialogueManager`
@@ -195,11 +195,17 @@
 > [!TODO]
 > 수집품 상세 이미지 에셋 매핑 마무리
 
-### `PuzzleBoardController.cs`: 🔴 30%
-- `StageData`, `IPuzzleRule`
-- 퍼즐 타일 선택/슬라이딩 매칭 및 BagRandomizer 배치
+### `BoardManager.cs` / `ValidationManager.cs`: 🟡 60%
+- `StageData`, `IPuzzleRule`, `IValidator`
+- 퍼즐 타일 선택/슬라이딩 매칭, BagRandomizer 배치, BFS 모양 탐색 및 `ValidationManager` 조건 검증 엔진
 > [!TODO]
-> BFS 기반 모양/클리어 판정 및 챕터별 기믹 전략 구현
+> Validation 엔진 완료 (PR #91), 15개 스테이지 SO 데이터 및 챕터별 기믹 전략 구현
+
+### `EndingQuestController.cs`: 🟢 90%
+- `EndingCollectibleItem`, `EndingTodoUIController`, `UserDataManager`
+- 챕터 6 Todo 4단계 수집 퀘스트, 엔딩 BGM 전환 및 `CreditsScene` 페이드 전이
+> [!TODO]
+> 연출 텍스트 다이얼로그 가독성 보완
 
 #### Services & Data Models (`Scripts/Core`, `Scripts/Dialogue`, `Scripts/Puzzle`)
 

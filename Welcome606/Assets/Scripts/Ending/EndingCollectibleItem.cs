@@ -74,7 +74,7 @@ namespace Welcome606.Ending
 
             if (UserDataManager.Instance != null)
             {
-                return UserDataManager.Instance.MaxUnlockChapter >= 6;
+                return UserDataManager.Instance.IsEnding || UserDataManager.Instance.MaxUnlockChapter >= 6;
             }
             return false;
         }

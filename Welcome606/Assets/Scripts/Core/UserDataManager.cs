@@ -81,11 +81,27 @@ public class UserDataManager : MonoBehaviour
 
     public int MaxUnlockChapter => userData != null ? userData.maxUnlockChapter : 1;
     public int MaxUnlockStage => userData != null ? userData.maxUnlockStage : 1;
+    public int MaxCollectionItem => userData != null ? userData.maxCollectionItem : 0;
+    public bool IsEnding => userData != null ? userData.isEnding : false;
+
+    public void SetEnding(bool isEnding = true)
+    {
+        if (userData == null) return;
+        userData.isEnding = isEnding;
+        Save();
+        OnUserDataChanged?.Invoke();
+    }
+
+    public bool HasCollectedItem(int chapter)
+    {
+        if (chapter < 1 || chapter > UserDataConst.CHAPTER) return false;
+        return chapter <= MaxCollectionItem;
+    }
 
     public void UserDataLog()
     {
         Debug.Log($"Chapter=[{userData.maxUnlockChapter}], Stage=[{userData.maxUnlockStage}], " +
-            $"CollectedItem=[{userData.maxCollectionItem}], Ending=[{userData.isEndingClear}]");
+            $"CollectedItem=[{userData.maxCollectionItem}], IsEnding=[{userData.isEnding}]");
     }
 
     public void Reset()
@@ -119,6 +135,7 @@ public class UserDataManager : MonoBehaviour
             CollectItem(chapter);
             userData.maxUnlockChapter = chapter + 1; // 5챕터 클리어 시 6챕터(엔딩 퀘스트) 해금
             userData.maxUnlockStage = 1;
+            userData.isEnding = true; // 6챕터 진입 == isEnding = true
         }
 
         Save();
