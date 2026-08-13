@@ -22,8 +22,8 @@ public class DialogueManager : MonoBehaviour
     [Space(15)]
     [Header("데이터 설정")]
     public TextAsset dialogueFile;
-    [Tooltip("게임 시작 시 자동 실행할 EventID (예: Prologue_01)")]
-    public string defaultEventID = "Prologue_01";
+    [Tooltip("씬 시작 시 자동 실행할 EventID (예: Prologue_01). 반드시 씬마다 인스펙터에서 직접 지정해야 함 - 비워두면 자동 실행 안 됨(정상 동작).")]
+    public string defaultEventID = "";
 
     [Header("로그창 연동")]
     public LogModalController logController;
