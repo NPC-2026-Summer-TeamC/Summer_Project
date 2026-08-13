@@ -79,6 +79,12 @@ public class DragInputManager : MonoBehaviour
         {
             Undo();
         }
+
+        // TEST : R 입력 시 Redo 테스트
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Redo();
+        }
     }
 
     // 드래그 시작 시도
@@ -256,5 +262,39 @@ public class DragInputManager : MonoBehaviour
         }
 
         RestorePreviousState(action);
+    }
+
+    // 취소한 Action을 다시 적용
+    private void RestoreCurrentState(PuzzleAction action)
+    {
+        foreach (TileAction tileAction in action.tileActions)
+        {
+            TileData tile = tileAction.tile;
+
+            RuntimeState currentState =
+                tileAction.currentState.Clone();
+
+            boardManager.SetRuntimeState(
+                tile.x, tile.y, currentState);
+
+            TileController tileController =
+                boardManager.GetTileController(
+                    tile.x, tile.y);
+
+            tileController.Refresh(currentState);
+        }
+    }
+
+    // 가장 최근에 Undo한 Action을 다시 적용
+    public void Redo()
+    {
+        PuzzleAction action = actionLog.Redo();
+
+        if (action == null)
+        {
+            return;
+        }
+
+        RestoreCurrentState(action);
     }
 }
