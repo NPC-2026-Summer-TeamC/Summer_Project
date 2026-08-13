@@ -12,8 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453ae1b1d0ea119438aced2bbcc6252b, type: 3}
   m_Name: Stage_TEST
   m_EditorClassIdentifier: Assembly-CSharp::StageData
-  stageId: 
-  size: 0
-  tileTypes: 
+  stageId: TEST
+  size: 5
+  tileTypes: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   ruleSet: []
-  targetShapes: []
+  targetShapes:
+  - color: 0
+    relativeTiles:
+    - x: 0
+      y: 0
