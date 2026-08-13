@@ -7,27 +7,29 @@ using Welcome606.Managers;
 namespace Welcome606.Ending
 {
     /// <summary>
-    /// 씬 내의 6챕터 엔딩 퀘스트 흐름 및 메시지/컷씬 연출을 제어하는 씬 배치 컨트롤러 컴포넌트.
-    /// (01-folder-architecture.md 컨벤션 준수: Controller는 싱글톤이 아닌 씬 내 GameObject 부착 컴포넌트)
+    /// 씬 내의 6챕터 엔딩 퀘스트 흐름 및 메시지/EndingEvent 연출을 제어하는 씬 배치 컨트롤러 컴포넌트.
+    /// (DialogModal_PF 프리팹 / DialogueManager 전용 연동)
     /// </summary>
     public class EndingQuestController : MonoBehaviour
     {
         [Header("UI & 컴포넌트 연결")]
         public EndingTodoUIController todoUIController;
 
-        [Tooltip("안내/대사 메시지 팝업 패널")]
-        public GameObject messagePopupPanel;
+        [Header("DialogModal 모달 연동 (DialogModal_PF 프리팹)")]
+        [Tooltip("대사 스토리 연출 DialogModal 모달창 GameObject (DialogModal_PF)")]
+        public GameObject dialogModal;
 
-        [Tooltip("안내/대사 텍스트")]
-        public TextMeshProUGUI messageText;
+        [HideInInspector]
+        public DialogueManager dialogueManager;
 
+        [Header("엔딩 연출 에셋")]
         [Tooltip("엔딩 거울 일러스트 연출 컷씬 패널")]
         public GameObject mirrorCutscenePanel;
 
         [Tooltip("거울 일러스트 이미지")]
         public Image mirrorImage;
 
-        [Header("오디오 에셋")]
+        [Tooltip("엔딩 BGM 클립")]
         public AudioClip endingBgmClip;
 
         [Header("테스트/디버그")]
@@ -59,6 +61,11 @@ namespace Welcome606.Ending
                 todoUIController = FindFirstObjectByType<EndingTodoUIController>(FindObjectsInactive.Include);
             }
 
+            if (dialogueManager == null)
+            {
+                dialogueManager = DialogueManager.Instance != null ? DialogueManager.Instance : FindFirstObjectByType<DialogueManager>(FindObjectsInactive.Include);
+            }
+
             if (isChapter6 && todoUIController != null)
             {
                 todoUIController.UpdateTodoProgress(currentStep);
@@ -71,8 +78,8 @@ namespace Welcome606.Ending
                 if (item != null) item.RefreshVisibility();
             }
 
-            if (messagePopupPanel != null) messagePopupPanel.SetActive(false);
             if (mirrorCutscenePanel != null) mirrorCutscenePanel.SetActive(false);
+            if (dialogModal != null && dialogModal.activeSelf) dialogModal.SetActive(false);
         }
 
         public bool IsChapter6Unlocked()
@@ -81,7 +88,7 @@ namespace Welcome606.Ending
 
             if (UserDataManager.Instance != null)
             {
-                return UserDataManager.Instance.MaxUnlockChapter >= 6;
+                return UserDataManager.Instance.IsEnding || UserDataManager.Instance.MaxUnlockChapter >= 6;
             }
             return false;
         }
@@ -121,7 +128,7 @@ namespace Welcome606.Ending
         {
             isEventProcessing = true;
 
-            // 1. 성공 메시지 출력
+            // 1. 성공 대사 연출 출력
             yield return StartCoroutine(CoShowMessageAsync(stepSuccessMessages[step], 2.0f));
 
             // 2. 단계 상승
@@ -132,7 +139,7 @@ namespace Welcome606.Ending
                 todoUIController.UpdateTodoProgress(currentStep);
             }
 
-            // 3. 마지막 신발 단계 완료 시 엔딩 연출 트리거
+            // 3. 마지막 신발 단계 완료 시 자동으로 EndingEvent (고정 속도 Cutscene 연출) 실행
             if (currentStep >= 4)
             {
                 yield return StartCoroutine(CoTriggerEndingCutscene());
@@ -141,15 +148,24 @@ namespace Welcome606.Ending
             isEventProcessing = false;
         }
 
+        /// <summary>
+        /// 모든 Todo 퀘스트 완료 시 자동으로 실행되는 EndingEvent 연출 코루틴.
+        /// (BGM 재생, 스크립트 속도/Auto 모드 고정 연출 후 CreditsScene 전환)
+        /// </summary>
         private IEnumerator CoTriggerEndingCutscene()
         {
-            // BGM 전환
+            if (UserDataManager.Instance != null)
+            {
+                UserDataManager.Instance.SetEnding(true);
+            }
+
+            // 1. 엔딩 BGM 전환
             if (SoundManager.Instance != null && endingBgmClip != null)
             {
                 SoundManager.Instance.PlayBGM(endingBgmClip);
             }
 
-            // 거울 일러스트 연출 활성화
+            // 2. 거울 일러스트 컷씬 패널 페이드 인
             if (mirrorCutscenePanel != null)
             {
                 mirrorCutscenePanel.SetActive(true);
@@ -171,10 +187,12 @@ namespace Welcome606.Ending
 
             yield return new WaitForSeconds(1.0f);
 
-            // 최종 대사 연출
+            // 3. 음악과 타이밍에 맞춘 대사 연출 (DialogModal / DialogueManager 자동 고정속도 연출)
+            yield return StartCoroutine(CoShowMessageAsync("거울 속 나의 모습을 바라보았다.", 2.5f));
+            yield return StartCoroutine(CoShowMessageAsync("모든 준비가 끝났다.", 2.5f));
             yield return StartCoroutine(CoShowMessageAsync("미희는 현관문을 열고 나갔다.", 3.0f));
 
-            // CreditsScene 비동기 씬 전이
+            // 4. CreditsScene 비동기 씬 페이드 전환
             if (SceneFlowManager.Instance != null)
             {
                 SceneFlowManager.Instance.LoadScene("CreditsScene", 1.5f);
@@ -187,25 +205,30 @@ namespace Welcome606.Ending
 
         public void ShowMessage(string msg)
         {
-            if (messagePopupPanel != null && messageText != null)
-            {
-                StopAllCoroutines();
-                StartCoroutine(CoShowMessageAsync(msg, 2.0f));
-            }
-            else
-            {
-                Debug.Log($"[EndingQuestController] 메시지: {msg}");
-            }
+            StopAllCoroutines();
+            StartCoroutine(CoShowMessageAsync(msg, 2.0f));
         }
 
         private IEnumerator CoShowMessageAsync(string msg, float duration)
         {
-            if (messagePopupPanel != null && messageText != null)
+            var dm = dialogueManager != null ? dialogueManager : DialogueManager.Instance;
+            if (dm == null)
             {
-                messageText.text = msg;
-                messagePopupPanel.SetActive(true);
+                dm = FindFirstObjectByType<DialogueManager>(FindObjectsInactive.Include);
+            }
+
+            if (dm != null && dm.dialogText != null)
+            {
+                if (dialogModal != null) dialogModal.SetActive(true);
+                else dm.gameObject.SetActive(true);
+
+                if (dm.nameText != null) dm.nameText.text = "";
+                dm.dialogText.text = msg;
+
                 yield return new WaitForSeconds(duration);
-                messagePopupPanel.SetActive(false);
+
+                if (dialogModal != null) dialogModal.SetActive(false);
+                else dm.gameObject.SetActive(false);
             }
             else
             {
@@ -223,6 +246,10 @@ namespace Welcome606.Ending
             if (todoUIController != null)
             {
                 todoUIController.UpdateTodoProgress(currentStep);
+            }
+            if (currentStep >= 4 && !isEventProcessing)
+            {
+                StartCoroutine(CoTriggerEndingCutscene());
             }
         }
     }
