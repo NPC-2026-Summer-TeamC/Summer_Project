@@ -9,6 +9,8 @@ public class DragInputManager : MonoBehaviour
     private readonly List<TileData> dragTileList = new();
     private readonly Dictionary<TileData, RuntimeState> previousStates = new();
 
+    private readonly ActionLog actionLog = new();
+
     private TileColor currentColor;
     private Camera mainCamera;
 
@@ -48,6 +50,8 @@ public class DragInputManager : MonoBehaviour
     {
         isDragging = false;
 
+        RecordCurrentAction();
+
         dragTileList.Clear();
         previousStates.Clear();
     }
@@ -68,6 +72,12 @@ public class DragInputManager : MonoBehaviour
         if (isDragging && Input.GetMouseButtonUp(0))
         {
             EndDrag();
+        }
+
+        // TEST : Space 입력 시 Undo 테스트
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Undo();
         }
     }
 
@@ -183,5 +193,68 @@ public class DragInputManager : MonoBehaviour
                 tile.x, tile.y);
 
         tileController.Refresh(runtimeState);
+    }
+
+    // 현재 드래그를 하나의 Action으로 기록
+    private void RecordCurrentAction()
+    {
+        if (dragTileList.Count == 0)
+        {
+            return;
+        }
+
+        PuzzleAction action = new();
+
+        foreach (TileData tile in dragTileList)
+        {
+            RuntimeState previousState =
+                previousStates[tile].Clone();
+
+            RuntimeState currentState =
+                boardManager.GetRuntimeState(
+                    tile.x, tile.y).Clone();
+
+            action.AddTileAction(
+                new TileAction(
+                    tile,
+                    previousState,
+                    currentState));
+        }
+
+        actionLog.Record(action);
+    }
+
+    // Action의 모든 타일을 이전 상태로 복원
+    private void RestorePreviousState(PuzzleAction action)
+    {
+        foreach (TileAction tileAction in action.tileActions)
+        {
+            TileData tile = tileAction.tile;
+
+            RuntimeState previousState =
+                tileAction.previousState.Clone();
+
+            boardManager.SetRuntimeState(
+                tile.x, tile.y, previousState);
+
+            TileController tileController =
+                boardManager.GetTileController(
+                    tile.x, tile.y);
+
+            tileController.Refresh(previousState);
+        }
+    }
+
+    // 가장 최근 Action을 취소
+    public void Undo()
+    {
+        PuzzleAction action = actionLog.Undo();
+
+        if (action == null)
+        {
+            return;
+        }
+
+        RestorePreviousState(action);
     }
 }
