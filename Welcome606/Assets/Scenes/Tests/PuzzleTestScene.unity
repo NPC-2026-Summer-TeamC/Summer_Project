@@ -256,6 +256,37 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &969652019
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 969652020}
+  m_Layer: 0
+  m_Name: BoardRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &969652020
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969652019}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 445.40002, y: 217.70001, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1447616550
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,7 +322,7 @@ MonoBehaviour:
   boardManager: {fileID: 1447616554}
   tilePrefab: {fileID: 1385857434435798882, guid: 94a9eaa96b7da674dbec083351f603eb, type: 3}
   tileSize: 1
-  boardRoot: {fileID: 0}
+  boardRoot: {fileID: 969652020}
 --- !u!114 &1447616552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -352,3 +383,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 890269104}
   - {fileID: 1447616555}
+  - {fileID: 969652020}

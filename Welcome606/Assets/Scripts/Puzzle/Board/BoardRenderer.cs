@@ -34,7 +34,7 @@ public class BoardRenderer : MonoBehaviour
                     0f);
 
                 GameObject tileObject =
-                    Instantiate(tilePrefab, position, Quaternion.identity);
+                    Instantiate(tilePrefab, position, Quaternion.identity, boardRoot);
 
                 TileController tileController =
                     tileObject.GetComponent<TileController>();
