@@ -7,15 +7,18 @@ public class DragInputManager : MonoBehaviour
 
     private bool isDragging;
     private readonly List<TileData> dragTileList = new();
+    private readonly Dictionary<TileData, RuntimeState> previousStates = new();
 
     private TileColor currentColor;
     private Camera mainCamera;
 
-    private readonly BagRandomizer bagRandomizer = new();
+    private BagRandomizer bagRandomizer;
 
     private void Awake()
     {
         mainCamera = Camera.main;
+
+        bagRandomizer = new BagRandomizer();
     }
 
     // 드래그 시작
@@ -23,8 +26,7 @@ public class DragInputManager : MonoBehaviour
     {
         isDragging = true;
         dragTileList.Clear();
-
-        SelectTile(startTile);
+        previousStates.Clear();
 
         RuntimeState runtimeState =
             boardManager.GetRuntimeState(startTile.x, startTile.y);
@@ -37,6 +39,8 @@ public class DragInputManager : MonoBehaviour
         {
             currentColor = bagRandomizer.GetNextColor();
         }
+
+        SelectTile(startTile);
     }
 
     // 드래그 종료
@@ -44,24 +48,8 @@ public class DragInputManager : MonoBehaviour
     {
         isDragging = false;
 
-        ApplyColor();
-
         dragTileList.Clear();
-    }
-
-    // 선택된 타일에 현재 색상 적용
-    private void ApplyColor()
-    {
-        foreach (TileData tile in dragTileList)
-        {
-            RuntimeState runtimeState =
-                boardManager.GetRuntimeState(tile.x, tile.y);
-
-            runtimeState.color = currentColor;
-            runtimeState.isColored = true;
-
-            boardManager.SetRuntimeState(tile.x, tile.y, runtimeState);
-        }
+        previousStates.Clear();
     }
 
     // 드래그 입력 처리
@@ -141,11 +129,59 @@ public class DragInputManager : MonoBehaviour
             return;
         }
 
-        if (dragTileList.Contains(tile))
+        // 이미 지나간 타일이면 해당 타일까지 되돌린 것으로 처리
+        int previousIndex = dragTileList.IndexOf(tile);
+
+        if (previousIndex >= 0)
         {
+            for (int i = dragTileList.Count - 1; i > previousIndex; i--)
+            {
+                TileData removeTile = dragTileList[i];
+
+                RuntimeState previousState =
+                    previousStates[removeTile];
+
+                boardManager.SetRuntimeState(
+                    removeTile.x, removeTile.y, previousState);
+
+                TileController restoreTileController =
+                    boardManager.GetTileController(
+                        removeTile.x, removeTile.y);
+
+                restoreTileController.Refresh(previousState);
+
+                previousStates.Remove(removeTile);
+                dragTileList.RemoveAt(i);
+            }
+
             return;
         }
 
+        // 처음 지나가는 타일이면 기존 상태를 복사해서 저장
+        RuntimeState runtimeState =
+            boardManager.GetRuntimeState(tile.x, tile.y);
+
+        previousStates[tile] = new RuntimeState
+        {
+            tile = runtimeState.tile,
+            color = runtimeState.color,
+            isColored = runtimeState.isColored,
+            isWarning = runtimeState.isWarning
+        };
+
         dragTileList.Add(tile);
+
+        // 현재 드래그 색상으로 즉시 색칠
+        runtimeState.color = currentColor;
+        runtimeState.isColored = true;
+
+        boardManager.SetRuntimeState(
+            tile.x, tile.y, runtimeState);
+
+        TileController tileController =
+            boardManager.GetTileController(
+                tile.x, tile.y);
+
+        tileController.Refresh(runtimeState);
     }
 }

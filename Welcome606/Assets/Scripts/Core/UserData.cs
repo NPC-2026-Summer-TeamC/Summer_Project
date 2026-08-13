@@ -13,6 +13,6 @@ public class UserData
     // 0챕터 = 메인메뉴 ~ 프롤로그, 0스테이지 = 해당 챕터의 퍼즐을 깨기 전 상태
     public int maxUnlockChapter = 1;
     public int maxUnlockStage = 1;
-    public bool isEndingClear = false;
+    public bool isEnding = false;
     public int maxCollectionItem = 0;
 }

@@ -4,6 +4,7 @@ public class BoardManager : MonoBehaviour
 {
     private BoardData boardData;
     private RuntimeState[,] runtimeStates;
+    private TileController[,] tileControllers;
 
     // TODO: StageData 구현 후 StageData를 기반으로 BoardData 생성
     public void InitializeBoard(BoardData boardData)
@@ -11,6 +12,7 @@ public class BoardManager : MonoBehaviour
         this.boardData = boardData;
 
         runtimeStates = new RuntimeState[boardData.size, boardData.size];
+        tileControllers = new TileController[boardData.size, boardData.size];
 
         // 각 타일의 런타임 상태 초기화
         for (int y = 0; y < boardData.size; y++)
@@ -23,6 +25,8 @@ public class BoardManager : MonoBehaviour
                 };
             }
         }
+
+        Debug.Log("Board Initialize Complete");
     }
 
     // 해당 좌표의 타일 정보 반환
@@ -56,5 +60,15 @@ public class BoardManager : MonoBehaviour
     public int GetBoardSize()
     {
         return boardData.size;
+    }
+
+    public void RegisterTileController(int x, int y, TileController tileController)
+    {
+        tileControllers[x, y] = tileController;
+    }
+
+    public TileController GetTileController(int x, int y)
+    {
+        return tileControllers[x, y];
     }
 }
