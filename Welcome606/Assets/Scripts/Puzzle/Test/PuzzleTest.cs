@@ -91,9 +91,13 @@ public class PuzzleTest : MonoBehaviour
                 
             }
             // TEST : Validation 결과 출력
-            ValidationManager validationManager = new ValidationManager(boardManager);
+            ValidationManager validationManager =
+                new ValidationManager(
+                    boardManager,
+                    stageData.targetShapes);
 
-            ValidationResult result = validationManager.Validate();
+            ValidationResult result =
+                validationManager.Validate();
 
             Debug.Log($"Validation Success : {result.isSuccess}");
 
