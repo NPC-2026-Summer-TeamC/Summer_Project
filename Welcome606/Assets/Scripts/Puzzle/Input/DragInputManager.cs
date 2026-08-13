@@ -73,18 +73,6 @@ public class DragInputManager : MonoBehaviour
         {
             EndDrag();
         }
-
-        // TEST : Space 입력 시 Undo 테스트
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Undo();
-        }
-
-        // TEST : R 입력 시 Redo 테스트
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            Redo();
-        }
     }
 
     // 드래그 시작 시도
@@ -296,5 +284,17 @@ public class DragInputManager : MonoBehaviour
         }
 
         RestoreCurrentState(action);
+    }
+
+    // Undo 가능 여부 반환
+    public bool CanUndo()
+    {
+        return actionLog.CanUndo();
+    }
+
+    // Redo 가능 여부 반환
+    public bool CanRedo()
+    {
+        return actionLog.CanRedo();
     }
 }
