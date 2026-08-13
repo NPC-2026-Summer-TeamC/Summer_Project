@@ -22,8 +22,8 @@ public class DialogueManager : MonoBehaviour
     [Space(15)]
     [Header("데이터 설정")]
     public TextAsset dialogueFile;
-    [Tooltip("게임 시작 시 자동 실행할 EventID (예: Prologue_01)")]
-    public string defaultEventID = "Prologue_01";
+    [Tooltip("씬 시작 시 자동 실행할 EventID (예: Prologue_01). 반드시 씬마다 인스펙터에서 직접 지정해야 함 - 비워두면 자동 실행 안 됨(정상 동작).")]
+    public string defaultEventID = "";
 
     [Header("로그창 연동")]
     public LogModalController logController;
@@ -83,6 +83,16 @@ public class DialogueManager : MonoBehaviour
 
     private void Start()
     {
+        // 🔴 이전 실행에서 대화 도중 비정상 종료(크래시/강제 종료)된 기록이 있으면,
+        // defaultEventID보다 우선해서 그 대사를 강제로 다시 실행함
+        string inProgressEventID = PlayerPrefs.GetString(InProgressEventIDKey, "");
+        if (!string.IsNullOrEmpty(inProgressEventID))
+        {
+            Debug.Log($"[DialogueManager] 이전에 비정상 종료된 대화를 감지하여 재실행합니다: {inProgressEventID}");
+            StartDialogue(inProgressEventID);
+            return;
+        }
+
         if (!string.IsNullOrEmpty(defaultEventID))
         {
             StartDialogue(defaultEventID);
@@ -107,6 +117,12 @@ public class DialogueManager : MonoBehaviour
         dialogueDatabase = parser.ParseTextAsset(dialogueFile);
     }
 
+    // 🔴 지금 대사가 재생 중인지 외부에서 확인할 수 있는 프로퍼티 (중복 실행 방지용)
+    public bool IsDialogueActive { get; private set; } = false;
+
+    // 🔴 "재생 중이던 대사" 크래시 복구용 PlayerPrefs 키
+    private const string InProgressEventIDKey = "DialogueInProgressEventID";
+
     public void StartDialogue(string eventID)
     {
         // 🔴 대화 시작 시 스스로 자기 오브젝트를 켬 (모달을 여는 쪽에서 따로 SetActive(true) 안 해줘도 되게)
@@ -114,9 +130,16 @@ public class DialogueManager : MonoBehaviour
 
         if (dialogueDatabase != null && dialogueDatabase.ContainsKey(eventID))
         {
+            IsDialogueActive = true; // 🔴 대사 재생 시작
             currentEventID = eventID;
             currentDialogueList = dialogueDatabase[eventID];
             currentIndex = 0;
+
+            // 🔴 재생 시작한 EventID를 즉시 디스크에 저장 (크래시 복구용이라 지연 저장하면 의미 없음.
+            // 대사 "시작" 시점에만 한 번 호출되는 거라 자주 발생하는 이벤트가 아니라 성능 부담도 적음)
+            PlayerPrefs.SetString(InProgressEventIDKey, eventID);
+            PlayerPrefs.Save();
+
             DisplayCurrentDialogue();
         }
         else
@@ -159,6 +182,12 @@ public class DialogueManager : MonoBehaviour
     {
         dialogText.text = "";
         nameText.text = "";
+        IsDialogueActive = false; // 🔴 대사 재생 종료
+
+        // 🔴 정상적으로 끝났으니 "재생 중이던 대사" 기록을 지움 (다음 실행 때 강제 재실행 안 되도록)
+        PlayerPrefs.DeleteKey(InProgressEventIDKey);
+        PlayerPrefs.Save();
+
         SaveReadProgress(); // 🔴 대화가 끝나는 시점 = 디스크 저장 트리거 포인트
         OnDialogueFinished?.Invoke(); // 🔴 외부 시스템에 "대화 끝났다" 신호 전달
         gameObject.SetActive(false); // 🔴 대화창 자동으로 끄기 (다음 StartDialogue 호출 시 스스로 다시 켜짐)
