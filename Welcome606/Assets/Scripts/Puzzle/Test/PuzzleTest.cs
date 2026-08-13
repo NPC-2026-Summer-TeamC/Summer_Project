@@ -5,11 +5,12 @@ public class PuzzleTest : MonoBehaviour
 {
     [SerializeField] private BoardManager boardManager;
     [SerializeField] private BoardRenderer boardRenderer;
+    [SerializeField] private StageData stageData;
 
     private void Start()
     {
-        // TEST : 테스트용 보드 생성 및 초기화
-        BoardData boardData = CreateTestBoard();
+        // TEST : StageData를 기반으로 보드 생성 및 초기화
+        BoardData boardData = stageData.CreateBoardData();
 
         boardManager.InitializeBoard(boardData);
 
