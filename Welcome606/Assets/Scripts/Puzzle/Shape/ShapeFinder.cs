@@ -148,4 +148,9 @@ public class ShapeFinder
 
         return shape;
     }
+
+    public int[,] GetShapeIdMap()
+    {
+        return shapeIdMap;
+    }
 }
