@@ -20,20 +20,17 @@ public class StageData : ScriptableObject
     public BoardData CreateBoardData()
     {
         BoardData boardData = new BoardData();
-
         boardData.stageId = stageId;
         boardData.size = size;
         boardData.ruleSet = ruleSet;
+        boardData.targetShapes = targetShapes;
 
-        boardData.tileList =
-            new TileData[size, size];
-
+        boardData.tileList = new TileData[size, size];
         for (int y = 0; y < size; y++)
         {
             for (int x = 0; x < size; x++)
             {
                 int index = y * size + x;
-
                 boardData.tileList[x, y] = new TileData
                 {
                     tileId = $"TILE_{x}_{y}",
@@ -43,7 +40,6 @@ public class StageData : ScriptableObject
                 };
             }
         }
-
         return boardData;
     }
 }

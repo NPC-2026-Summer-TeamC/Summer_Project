@@ -25,33 +25,6 @@ public class PuzzleTest : MonoBehaviour
         Debug.Log($"Shape Count : {shapes.Count}");
     }
 
-    // TEST : 테스트용 BoardData 생성
-    private BoardData CreateTestBoard()
-    {
-        BoardData boardData = new();
-
-        boardData.stageId = "TEST";
-        boardData.size = 5;
-
-        boardData.tileList = new TileData[5, 5];
-
-        for (int y = 0; y < boardData.size; y++)
-        {
-            for (int x = 0; x < boardData.size; x++)
-            {
-                boardData.tileList[x, y] = new TileData
-                {
-                    tileId = $"TILE_{x}_{y}",
-                    x = x,
-                    y = y,
-                    type = TileType.Normal
-                };
-            }
-        }
-
-        return boardData;
-    }
-
     private void Update()
     {
         // TEST : Space 입력 시 ShapeFinder 및 Validation 테스트
@@ -63,7 +36,6 @@ public class PuzzleTest : MonoBehaviour
 
             int[,] shapeIdMap = shapeFinder.GetShapeIdMap();
 
-            // TEST : ShapeIdMap 출력
             Debug.Log($"Shape Count : {shapes.Count}");
 
             foreach (Shape shape in shapes)
@@ -88,19 +60,20 @@ public class PuzzleTest : MonoBehaviour
 
                     Debug.Log(row);
                 }
-                
             }
-            // TEST : Validation 결과 출력
+
+            // TEST : Validation 결과 출력 (생성된 boardData를 통해 targetShapes 전달)
+            BoardData currentBoardData = stageData.CreateBoardData();
+
             ValidationManager validationManager =
                 new ValidationManager(
                     boardManager,
-                    stageData.targetShapes);
+                    currentBoardData.targetShapes);
 
             ValidationResult result =
                 validationManager.Validate();
 
             Debug.Log($"Validation Success : {result.isSuccess}");
-
             Debug.Log($"Validation Message : {result.message}");
         }
     }

@@ -16,26 +16,18 @@ public class TargetShapeValidator : IValidator
 
     public ValidationResult Validate()
     {
-        ShapeFinder shapeFinder =
-            new ShapeFinder(boardManager);
-
-        List<Shape> currentShapes =
-            shapeFinder.FindAllShapes();
+        ShapeFinder shapeFinder = new ShapeFinder(boardManager);
+        List<Shape> currentShapes = shapeFinder.FindAllShapes();
 
         if (currentShapes.Count != targetShapes.Length)
         {
-            return new ValidationResult
-            {
-                isSuccess = false,
-                message = "목표 Shape와 현재 Shape의 개수가 다릅니다."
-            };
+            return new ValidationResult { isSuccess = false, message = "개수 불일치" };
         }
 
-        foreach (TargetShapeData targetShape in targetShapes)
+        foreach (Shape currentShape in currentShapes)
         {
             bool matched = false;
-
-            foreach (Shape currentShape in currentShapes)
+            foreach (TargetShapeData targetShape in targetShapes)
             {
                 if (IsSameShape(currentShape, targetShape))
                 {
@@ -43,34 +35,19 @@ public class TargetShapeValidator : IValidator
                     break;
                 }
             }
-
             if (!matched)
             {
-                return new ValidationResult
-                {
-                    isSuccess = false,
-                    message = "목표 Shape와 일치하지 않는 Shape가 존재합니다."
-                };
+                return new ValidationResult { isSuccess = false, message = "모양 불일치" };
             }
         }
 
-        return new ValidationResult
-        {
-            isSuccess = true
-        };
+        return new ValidationResult { isSuccess = true };
     }
 
-    // 현재 Shape와 목표 Shape가 같은지 비교
     private bool IsSameShape(
         Shape currentShape,
         TargetShapeData targetShape)
     {
-
-        if (currentShape.color != targetShape.color)
-        {
-            return false;
-        }
-
         if (currentShape.relativeTiles.Count !=
             targetShape.relativeTiles.Length)
         {
@@ -79,11 +56,8 @@ public class TargetShapeValidator : IValidator
 
         for (int i = 0; i < currentShape.relativeTiles.Count; i++)
         {
-            Coordinate current =
-                currentShape.relativeTiles[i];
-
-            Coordinate target =
-                targetShape.relativeTiles[i];
+            Coordinate current = currentShape.relativeTiles[i];
+            Coordinate target = targetShape.relativeTiles[i];
 
             if (current.x != target.x ||
                 current.y != target.y)
