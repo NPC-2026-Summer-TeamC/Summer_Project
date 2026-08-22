@@ -337,6 +337,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PuzzleTest
   boardManager: {fileID: 1447616554}
   boardRenderer: {fileID: 1447616551}
+  stageData: {fileID: 11400000, guid: 9c770d2deae78244e953c7773d67294f, type: 2}
 --- !u!114 &1447616553
 MonoBehaviour:
   m_ObjectHideFlags: 0

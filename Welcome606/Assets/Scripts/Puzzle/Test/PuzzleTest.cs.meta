@@ -1,2 +1,14 @@
 fileFormatVersion: 2
 guid: aac638063832f3f49b53fc6502799a08
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - boardManager: {instanceID: 0}
+  - boardRenderer: {instanceID: 0}
+  - stageData: {fileID: 11400000, guid: 9c770d2deae78244e953c7773d67294f, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

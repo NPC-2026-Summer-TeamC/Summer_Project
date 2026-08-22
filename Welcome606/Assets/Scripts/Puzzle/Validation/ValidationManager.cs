@@ -5,11 +5,16 @@ public class ValidationManager
     // 실행할 Validator 목록
     private readonly List<IValidator> validators = new();
 
-    public ValidationManager(BoardManager boardManager)
+    public ValidationManager(
+        BoardManager boardManager,
+        TargetShapeData[] targetShapes)
     {
         validators.Add(new AllColoredValidator(boardManager));
 
-        // TODO : StageData 구현 후 TargetShapeValidator 등록
+        validators.Add(
+            new TargetShapeValidator(
+                boardManager,
+                targetShapes));
     }
 
     // 등록된 Validator를 순서대로 실행

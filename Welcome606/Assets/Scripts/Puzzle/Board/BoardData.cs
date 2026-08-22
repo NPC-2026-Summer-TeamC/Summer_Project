@@ -9,4 +9,6 @@ public class BoardData
     public TileData[,] tileList;
 
     public string[] ruleSet;
+
+    public TargetShapeData[] targetShapes;
 }
