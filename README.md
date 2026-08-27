@@ -37,4 +37,3 @@
 | **[CONTRIBUTING.md](CONTRIBUTING.md)** | **기여 가이드**: 브랜치 전략, 커밋/PR 규칙, 네이밍/코드 컨벤션, 폴더 구조 |
 | **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** | **협업 수칙**: 씬 동시 수정 방지, 작업 전후 동기화(Fetch/Pull/Push) 원칙 |
 | **[SUPPORT.md](SUPPORT.md)** | **개발 환경 및 지원**: Git LFS 세팅, FAQ & 트러블슈팅, 문의 채널 |
-| **[AGENTS.md](AGENTS.md)** | **AI 에이전트 가이드**: 아키텍처 규칙, 스킬 가이드, 프로젝트 규격 |
