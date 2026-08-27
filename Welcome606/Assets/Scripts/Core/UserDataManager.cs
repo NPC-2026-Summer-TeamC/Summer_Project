@@ -79,14 +79,13 @@ public class UserDataManager : MonoBehaviour
         }
     }
 
-    public int MaxUnlockChapter => userData != null ? userData.maxUnlockChapter : 1;
-    public int MaxUnlockStage => userData != null ? userData.maxUnlockStage : 1;
-    public int MaxCollectionItem => userData != null ? userData.maxCollectionItem : 0;
-    public bool IsEnding => userData != null ? userData.isEnding : false;
+    public int MaxUnlockChapter => userData.maxUnlockChapter;
+    public int MaxUnlockStage => userData.maxUnlockStage;
+    public int MaxCollectionItem => userData.maxCollectionItem;
+    public bool IsEnding => userData.isEnding;
 
     public void SetEnding(bool isEnding = true)
     {
-        if (userData == null) return;
         userData.isEnding = isEnding;
         Save();
         OnUserDataChanged?.Invoke();
