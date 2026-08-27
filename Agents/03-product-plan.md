@@ -71,10 +71,10 @@
 > 대사 연동 완료, 에셋 매핑 마무리 필요
 
 ### `CreditsScene.unity`: 🟢 80%
-- `SceneFlowManager`, `EndingQuestController`
-- 챕터 6 엔딩 퀘스트 완료 후 크레딧 연출 씬 전이 및 출력
+- `SceneFlowManager`, `EndingCreditsDirector`
+- 챕터 6 엔딩 퀘스트 완료 후 크레딧 연출 씬 전이 및 1~5 페이즈 시퀀스 지휘
 > [!TODO]
-> 씬 에셋 및 엔딩 퀘스트 연동 완료, 크레딧 연출 polish 대기
+> 씬 에셋 배치 및 EndingCreditsDirector 시퀀서 연동 대기
 
 ### `PF_DialogModalScene.unity`: 🟢 85%
 - `DialogUIManager`, `DialogueManager`
@@ -120,9 +120,9 @@
 > 본 프로젝트의 모든 C# 스크립트는 단일 책임 원칙(SRP)과 역할 기반 접미사(Suffix) 규격을 엄격히 준수하며, 특정 매니저에 로직이 비대해지는 **God Object** 작성을 금지합니다.
 
 ### 1. 역할 분류 접미사 (Naming Rules)
-- **Manager** (`*Manager`): 전역 도메인/시스템 총괄 싱글톤
-- **Controller** (`*Controller`): 개별 GameObject/UI 행동 및 사용자 입력 제어
-- **Director** (`*Director`): 컷씬 및 상위 스크립트 연출 지휘
+- **Manager** (`*Manager`): 게임 전역(Global) 도메인/시스템/데이터 총괄 싱글톤 (`UserDataManager`, `SoundManager`, `SceneFlowManager`)
+- **Director** (`*Director`): 씬(Scene) 단위 전체 흐름, 컷씬, 크레딧, 타임라인 시퀀스 총괄 지휘자 (`EndingCreditsDirector`, `CutsceneDirector`)
+- **Controller** (`*Controller`): 개별 GameObject/UI 컴포넌트 단위 행동 및 사용자 입력 제어 (`MapNavigationController`, `StageSelectController`, `EndingTodoUIController`)
 - **Service / Parser** (`*Service`, `*Parser`): 비-MonoBehaviour 데이터 파싱 및 순수 로직
 - **Data / Config** (`*Data`, `*Config`): 데이터 직렬화 모델 및 ScriptableObject
 - **Helper / Listener** (`*Helper`, `OnMouseDown_*`): 이벤트 반응 및 런타임/에디터 테스트 헬퍼

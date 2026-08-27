@@ -106,9 +106,9 @@ Summer_Project
 > [!TIP]
 > 유니티 클래스는 역할에 맞는 접미사를 사용하고 Manager 하나에 로직이 비대해지지 않도록 **God Object**를 방지합니다.
 
-- **Manager**: 전역 도메인/시스템 총괄 싱글톤 (`UserDataManager`, `GameManager`, `DialogUIManager`)
-- **Controller**: 개별 GameObject 행동/입력 제어 (`MapNavigationController`, `StageSelectController`, `SettingModalController`)
-- **Director**: 상위 연출 및 흐름 지휘 (`CutsceneDirector`)
+- **Manager**: 게임 전역(Global) 도메인/시스템/데이터 총괄 싱글톤 (`UserDataManager`, `GameManager`, `SoundManager`, `SceneFlowManager`)
+- **Director**: 씬(Scene) 단위 전체 흐름, 컷씬, 크레딧, 타임라인 시퀀스 총괄 지휘자 (`EndingCreditsDirector`, `CutsceneDirector`)
+- **Controller**: 개별 GameObject/UI 컴포넌트 단위 행동 및 사용자 입력 제어 (`MapNavigationController`, `StageSelectController`, `EndingTodoUIController`, `SoundSettingModalController`)
 - **Service / Parser**: 비-MonoBehaviour 순수 로직/파서 (`DialogueParser`, `SaveService`)
 - **Data / Config**: 데이터 직렬화 모델 및 ScriptableObject (`UserData`, `StageData`)
 - **Handler / Listener**: 이벤트 반응 헬퍼 (`OnMouseDown_SwitchScene`)
