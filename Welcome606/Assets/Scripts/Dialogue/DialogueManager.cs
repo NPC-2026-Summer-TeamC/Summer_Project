@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events; // 🔴 대화 종료 이벤트(UnityEvent) 사용을 위해 추가
+using UnityEngine.SceneManagement; // 🔴 강제종료 복구 시 "어느 씬이었는지" 확인하기 위해 추가
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
