@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using TMPro;
 using Welcome606.Managers;
@@ -26,7 +27,8 @@ namespace Welcome606.Ending
         [SerializeField] private GameObject cut3Panel;
         [SerializeField] private CanvasGroup cut3CanvasGroup;
         [Tooltip("EndingCredit01~05.png를 순서대로 배치한 5개의 Image 자식을 담은 스크롤 컨테이너(빈 오브젝트)의 RectTransform")]
-        [SerializeField] private RectTransform cut3TiltTarget;
+        [FormerlySerializedAs("cut3TiltTarget")]
+        [SerializeField] private RectTransform cut3ScrollTarget;
 
         [Header("Cut4 - 스테이지별 dirty↔clean 크로스페이드")]
         [SerializeField] private GameObject cut4Panel;
@@ -43,7 +45,8 @@ namespace Welcome606.Ending
         [SerializeField] private Sprite[] cut5PropSprites;
         [SerializeField] private TextMeshProUGUI[] cut5CreditTexts;
         [Tooltip("cut5CreditTexts 4블록을 세로로 담은 스크롤 컨테이너(빈 오브젝트)의 RectTransform")]
-        [SerializeField] private RectTransform cut5CreditsScrollTarget;
+        [FormerlySerializedAs("cut5CreditsScrollTarget")]
+        [SerializeField] private RectTransform cut5ScrollTarget;
 
         [Header("Cut6 - 엔딩 문구, 클릭 대기 후 복귀")]
         [SerializeField] private GameObject cut6Panel;
@@ -74,21 +77,22 @@ namespace Welcome606.Ending
             "음악\n박시온"
         };
 
+        // 스토리보드(Agents/documents/ending_storybd1.png, 2.png) 타임코드(총 2:59=179초) 기준 재조정.
+        // Cut1: 0:00-0:20(20s) / Cut2: 0:20-0:40(20s=틸트15s+화이트아웃5s) / Cut3: 0:40-1:20(40s)
+        // Cut4: 1:20-2:00(40s) / Cut5: 2:00-2:46(46s) / Cut6: 2:46-2:59(13s, 클릭대기라 소프트 예산)
         private const float CutFadeDuration = 1.0f;
-        private const float Cut1LineDisplayDuration = 3.0f;
-        private const float Cut2TiltDuration = 2.5f;
+        private const float Cut1LineDisplayDuration = 4.5f;
+        private const float Cut2TiltDuration = 14.0f;
         private const float Cut2TiltDistance = 200f;
-        private const float Cut2HoldAfterTilt = 1.0f;
-        private const int Cut3ComicPanelCount = 5;
-        private const float Cut3PanelSpacing = 400f;
-        private const float Cut3TiltDuration = 1.5f;
-        private const float Cut3HoldPerImage = 5.0f;
+        private const float Cut2WhiteOutFadeDuration = 5.0f;
+        private const float Cut3ScrollDuration = 38.0f;
         private const float Cut4StageCrossfadeDuration = 1.2f;
-        private const float Cut4HoldPerStage = 3.5f;
+        private const float Cut4LoopBudgetSeconds = 38.0f;
         private const int Cut5CreditBlockCount = 4;
         private const float Cut5CreditBlockSpacing = 200f;
-        private const float Cut5ScrollDuration = 1.5f;
-        private const float Cut5HoldPerBeat = 5.5f;
+        private const float Cut5ScrollDuration = 45.0f;
+        // Cut6 진입 전 페이드 합(fade-in 1s + Cut6TextFadeDuration 2s = 3s, Cut5→Cut6 전환 fade 1s 포함 총 4s)이
+        // 13초 소프트 예산 안에 들어간다. 클릭 대기 구조이므로 이 상수들은 변경하지 않는다.
         private const float Cut6TextFadeDuration = 2.0f;
         private const string MainMenuSceneName = "MainMenuScene";
 
@@ -188,29 +192,38 @@ namespace Welcome606.Ending
 
             yield return StartCoroutine(CoPanTiltDown(cut2TiltTarget, Cut2TiltDistance, Cut2TiltDuration));
 
-            yield return new WaitForSeconds(Cut2HoldAfterTilt);
-
             // White-Out: 다음 Cut3의 흰 배경으로 자연스럽게 이어지도록 페이드 아웃만 수행한다.
-            yield return StartCoroutine(CoFadeCanvasGroup(cut2CanvasGroup, 1f, 0f, CutFadeDuration));
+            yield return StartCoroutine(CoFadeCanvasGroup(cut2CanvasGroup, 1f, 0f, Cut2WhiteOutFadeDuration));
         }
 
         private IEnumerator CoCut3_ComicSequence()
         {
             yield return StartCoroutine(CoFadeCanvasGroup(cut3CanvasGroup, 0f, 1f, CutFadeDuration));
 
-            // 씬에 세로로 쌓아둔 5장의 코믹 패널(EndingCredit01~05.png)을 스크롤 컨테이너(cut3TiltTarget)를
-            // 한 칸씩 위로 Pan하며 순서대로 훑고 지나가는 연출. 첫 장은 이미 화면에 보이므로 대기부터 시작한다.
-            // (아래쪽에 쌓인 다음 패널을 끌어올려야 하므로 CoPanTiltDown에 음수 거리를 넘겨 방향을 반대로 쓴다)
-            yield return new WaitForSeconds(Cut3HoldPerImage);
+            // 씬에 세로로 쌓아둔 5장의 코믹 패널(EndingCredit01~05.png)을 스크롤 컨테이너(cut3ScrollTarget)가
+            // 정지-이동 반복 없이 한 번의 연속 등속 스크롤로 위로 훑고 지나가는 연출.
+            // 총 이동거리는 씬에 실제 배치된 첫/마지막 자식의 anchoredPosition 차이로 런타임 계산한다.
+            float totalDistance = ComputeCut3ScrollDistance();
 
-            for (int i = 1; i < Cut3ComicPanelCount; i++)
-            {
-                yield return StartCoroutine(CoPanTiltDown(cut3TiltTarget, -Cut3PanelSpacing, Cut3TiltDuration));
-
-                yield return new WaitForSeconds(Cut3HoldPerImage);
-            }
+            yield return StartCoroutine(CoScrollUpContinuous(cut3ScrollTarget, totalDistance, Cut3ScrollDuration));
 
             yield return StartCoroutine(CoFadeCanvasGroup(cut3CanvasGroup, 1f, 0f, CutFadeDuration));
+        }
+
+        /// <summary>
+        /// cut3ScrollTarget의 첫 번째/마지막 자식 anchoredPosition.y 차이의 절댓값으로 Cut3 총 스크롤 거리를 계산한다.
+        /// 자식이 없거나 1개 이하인 경우 0을 반환해 스크롤이 발생하지 않도록 방어한다.
+        /// </summary>
+        private float ComputeCut3ScrollDistance()
+        {
+            if (cut3ScrollTarget == null || cut3ScrollTarget.childCount < 2) return 0f;
+
+            RectTransform first = cut3ScrollTarget.GetChild(0) as RectTransform;
+            RectTransform last = cut3ScrollTarget.GetChild(cut3ScrollTarget.childCount - 1) as RectTransform;
+
+            if (first == null || last == null) return 0f;
+
+            return Mathf.Abs(last.anchoredPosition.y - first.anchoredPosition.y);
         }
 
         private IEnumerator CoCut4_StageCrossfade()
@@ -218,6 +231,17 @@ namespace Welcome606.Ending
             yield return StartCoroutine(CoFadeCanvasGroup(cut4CanvasGroup, 0f, 1f, CutFadeDuration));
 
             int stageCount = dirtyStageSprites != null ? dirtyStageSprites.Length : 0;
+            float dynamicHoldPerStage = 0f;
+
+            if (stageCount > 0)
+            {
+                dynamicHoldPerStage = Mathf.Max(0f, (Cut4LoopBudgetSeconds / stageCount) - Cut4StageCrossfadeDuration);
+
+                if ((Cut4StageCrossfadeDuration * stageCount) > Cut4LoopBudgetSeconds)
+                {
+                    Debug.LogWarning($"[EndingCreditsDirector] Cut4 stageCount={stageCount}가 너무 많아 크로스페이드만으로 {Cut4LoopBudgetSeconds}초 예산을 초과합니다. 대기시간이 0으로 클램프됩니다.");
+                }
+            }
 
             for (int i = 0; i < stageCount; i++)
             {
@@ -238,7 +262,7 @@ namespace Welcome606.Ending
 
                 yield return StartCoroutine(CoFadeGraphicAlpha(cut4CrossfadeImageB, 0f, 1f, Cut4StageCrossfadeDuration));
 
-                yield return new WaitForSeconds(Cut4HoldPerStage);
+                yield return new WaitForSeconds(dynamicHoldPerStage);
 
                 SetGraphicAlpha(cut4CrossfadeImageB, 0f);
             }
@@ -261,20 +285,34 @@ namespace Welcome606.Ending
                 }
             }
 
-            // Cut3와 동일하게, 세로로 쌓아둔 4블록을 스크롤 컨테이너(cut5CreditsScrollTarget)로
-            // 한 칸씩 아래에서 위로 Pan하며 훑고 지나가는 크레딧 롤 연출. 소품 이미지는 매 블록 전환에 맞춰 교체한다.
-            // (아래쪽에 쌓인 다음 블록을 끌어올려야 하므로 CoPanTiltDown에 음수 거리를 넘겨 방향을 반대로 쓴다)
+            // Cut3와 동일하게, 세로로 쌓아둔 4블록을 스크롤 컨테이너(cut5ScrollTarget)를
+            // 정지-이동 반복 없이 한 번의 연속 등속 스크롤로 위로 훑고 지나가는 크레딧 롤 연출.
+            // 소품 교체는 스크롤과 별개의 병렬 코루틴(CoCut5SchedulePropSwaps)에서 타이밍을 맞춰 처리한다.
             UpdateCut5PropSprite(0);
 
-            yield return new WaitForSeconds(Cut5HoldPerBeat);
+            StartCoroutine(CoCut5SchedulePropSwaps());
+
+            yield return StartCoroutine(CoScrollUpContinuous(cut5ScrollTarget, Cut5CreditBlockSpacing * (Cut5CreditBlockCount - 1), Cut5ScrollDuration));
+
+            // Cut5는 원래도 자체 종료 페이드가 없다 — CoCut6_Dedication이 cut5CanvasGroup을 페이드아웃한다.
+            // 46초 예산 계산(1s fade-in + 45s 스크롤=46s)이 이 구조를 전제로 하므로 여기서 fade-out을 추가하지 않는다.
+        }
+
+        /// <summary>
+        /// Cut5 소품 이미지를 스크롤과 병렬로 일정 간격마다 교체하는 스케줄러 코루틴.
+        /// 이 코루틴은 스크롤과 병렬로 실행되며(StartCoroutine만 하고 yield하지 않음),
+        /// 이 파일의 다른 모든 코루틴과 달리 CoPlayEndingSequence 흐름에서 직접 yield되지 않는다.
+        /// OnSkipClicked()의 StopAllCoroutines()가 이 코루틴도 함께 정지시키므로 별도 정리 처리는 불필요하다.
+        /// </summary>
+        private IEnumerator CoCut5SchedulePropSwaps()
+        {
+            float perBlockInterval = Cut5ScrollDuration / (Cut5CreditBlockCount - 1);
 
             for (int i = 1; i < Cut5CreditBlockCount; i++)
             {
+                yield return new WaitForSeconds(perBlockInterval);
+
                 UpdateCut5PropSprite(i);
-
-                yield return StartCoroutine(CoPanTiltDown(cut5CreditsScrollTarget, -Cut5CreditBlockSpacing, Cut5ScrollDuration));
-
-                yield return new WaitForSeconds(Cut5HoldPerBeat);
             }
         }
 
@@ -375,6 +413,28 @@ namespace Welcome606.Ending
 
             Vector2 startPos = target.anchoredPosition;
             Vector2 endPos = startPos + new Vector2(0f, -distance);
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                target.anchoredPosition = Vector2.Lerp(startPos, endPos, elapsed / duration);
+                yield return null;
+            }
+
+            target.anchoredPosition = endPos;
+        }
+
+        /// <summary>
+        /// 대상 RectTransform의 anchoredPosition.y를 정지-이동 반복 없이 한 번의 등속으로 위로 스크롤하는 코루틴.
+        /// (Cut3 코믹 시퀀스, Cut5 팀 크레딧 스크롤에서 공용으로 사용)
+        /// </summary>
+        private IEnumerator CoScrollUpContinuous(RectTransform target, float distance, float duration)
+        {
+            if (target == null) yield break;
+
+            Vector2 startPos = target.anchoredPosition;
+            Vector2 endPos = startPos + new Vector2(0f, distance); // 위로 이동 (양수 = 위)
             float elapsed = 0f;
 
             while (elapsed < duration)
