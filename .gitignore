@@ -1,8 +1,21 @@
-/Agents/todo/
-/Agents/reports/
-/Agents/documents/
+# Agent directories (Keep directory structure with .gitkeep, ignore contents)
+/Agents/todo/*
+!/Agents/todo/.gitkeep
+
+/Agents/reports/*
+!/Agents/reports/.gitkeep
+
+/Agents/documents/*
+!/Agents/documents/.gitkeep
+
+/Agents/guides/*
+!/Agents/guides/.gitkeep
+
+/.agents/*
+!/.agents/.gitkeep
+
+/.claude/*
+!/.claude/.gitkeep
+
+# Root files
 /AGENTS.md
-/.agents
-/plugins
-/.claude
-/Agents/guides
