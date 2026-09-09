@@ -97,6 +97,15 @@ namespace Welcome606.Ending
         private const string MainMenuSceneName = "MainMenuScene";
 
         private bool isWaitingForFinalClick = false;
+        private Vector2 cut3ScrollTargetInitialPos;
+
+        private void Awake()
+        {
+            if (cut3ScrollTarget != null)
+            {
+                cut3ScrollTargetInitialPos = cut3ScrollTarget.anchoredPosition;
+            }
+        }
 
         private void Start()
         {
@@ -134,6 +143,11 @@ namespace Welcome606.Ending
             SetCanvasGroupState(cut4CanvasGroup, 0f, false, false);
             SetCanvasGroupState(cut5CanvasGroup, 0f, false, false);
             SetCanvasGroupState(cut6CanvasGroup, 0f, false, false);
+
+            if (cut3ScrollTarget != null)
+            {
+                cut3ScrollTarget.anchoredPosition = cut3ScrollTargetInitialPos;
+            }
         }
 
         private void ActivatePanel(GameObject panel)
@@ -200,14 +214,44 @@ namespace Welcome606.Ending
         {
             yield return StartCoroutine(CoFadeCanvasGroup(cut3CanvasGroup, 0f, 1f, CutFadeDuration));
 
-            // 씬에 세로로 쌓아둔 5장의 코믹 패널(EndingCredit01~05.png)을 스크롤 컨테이너(cut3ScrollTarget)가
-            // 정지-이동 반복 없이 한 번의 연속 등속 스크롤로 위로 훑고 지나가는 연출.
-            // 총 이동거리는 씬에 실제 배치된 첫/마지막 자식의 anchoredPosition 차이로 런타임 계산한다.
+            PrepareCut3PanelPositionsForDownwardScroll();
+
+            // 씬에 배치된 5장의 코믹 패널(EndingCredit01~05.png)을 스크롤 컨테이너(cut3ScrollTarget)가
+            // 화면 위에서 아래로 내려오는 방향(Tilt-Down 연출)으로 1번➔5번 순서대로 한 번의 연속 등속 스크롤.
             float totalDistance = ComputeCut3ScrollDistance();
 
-            yield return StartCoroutine(CoScrollUpContinuous(cut3ScrollTarget, totalDistance, Cut3ScrollDuration));
+            yield return StartCoroutine(CoScrollDownContinuous(cut3ScrollTarget, totalDistance, Cut3ScrollDuration));
 
             yield return StartCoroutine(CoFadeCanvasGroup(cut3CanvasGroup, 1f, 0f, CutFadeDuration));
+        }
+
+        /// <summary>
+        /// 씬에서 1번(상단)부터 5번(하단)으로 배치된 코믹 패널들을,
+        /// 화면 위에서 아래로 내려오는 방향(Tilt-Down)으로 1번➔5번 순서대로 보여주기 위해
+        /// 런타임 시작 시 2~5번 패널의 Y 오프셋을 1번 패널 상단(+Y)으로 재정렬합니다.
+        /// (사용자의 기존 씬 수동 배치를 유지하면서 위에서 아래로 스크롤 가능하도록 자동 보정)
+        /// </summary>
+        private void PrepareCut3PanelPositionsForDownwardScroll()
+        {
+            if (cut3ScrollTarget == null || cut3ScrollTarget.childCount < 2) return;
+
+            RectTransform first = cut3ScrollTarget.GetChild(0) as RectTransform;
+            RectTransform last = cut3ScrollTarget.GetChild(cut3ScrollTarget.childCount - 1) as RectTransform;
+            if (first == null || last == null) return;
+
+            // 이미 자식들이 상단(+Y) 방향으로 배치되어 있다면 재정렬 불필요
+            if (last.anchoredPosition.y > first.anchoredPosition.y) return;
+
+            float firstY = first.anchoredPosition.y;
+
+            for (int i = 1; i < cut3ScrollTarget.childCount; i++)
+            {
+                RectTransform child = cut3ScrollTarget.GetChild(i) as RectTransform;
+                if (child == null) continue;
+
+                float distanceFromFirst = Mathf.Abs(child.anchoredPosition.y - firstY);
+                child.anchoredPosition = new Vector2(child.anchoredPosition.x, firstY + distanceFromFirst);
+            }
         }
 
         /// <summary>
@@ -427,7 +471,7 @@ namespace Welcome606.Ending
 
         /// <summary>
         /// 대상 RectTransform의 anchoredPosition.y를 정지-이동 반복 없이 한 번의 등속으로 위로 스크롤하는 코루틴.
-        /// (Cut3 코믹 시퀀스, Cut5 팀 크레딧 스크롤에서 공용으로 사용)
+        /// (Cut5 팀 크레딧 스크롤에서 사용)
         /// </summary>
         private IEnumerator CoScrollUpContinuous(RectTransform target, float distance, float duration)
         {
@@ -435,6 +479,28 @@ namespace Welcome606.Ending
 
             Vector2 startPos = target.anchoredPosition;
             Vector2 endPos = startPos + new Vector2(0f, distance); // 위로 이동 (양수 = 위)
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                target.anchoredPosition = Vector2.Lerp(startPos, endPos, elapsed / duration);
+                yield return null;
+            }
+
+            target.anchoredPosition = endPos;
+        }
+
+        /// <summary>
+        /// 대상 RectTransform의 anchoredPosition.y를 정지-이동 반복 없이 한 번의 등속으로 아래로 스크롤하는 코루틴.
+        /// (Cut3 코믹 시퀀스 위에서 아래로 내려오는 Tilt-Down 연출용)
+        /// </summary>
+        private IEnumerator CoScrollDownContinuous(RectTransform target, float distance, float duration)
+        {
+            if (target == null) yield break;
+
+            Vector2 startPos = target.anchoredPosition;
+            Vector2 endPos = startPos + new Vector2(0f, -distance); // 아래로 이동 (음수 = 아래)
             float elapsed = 0f;
 
             while (elapsed < duration)
