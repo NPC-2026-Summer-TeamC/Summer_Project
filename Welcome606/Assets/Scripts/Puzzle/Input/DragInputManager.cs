@@ -4,6 +4,7 @@ using UnityEngine;
 public class DragInputManager : MonoBehaviour
 {
     [SerializeField] private BoardManager boardManager;
+    [SerializeField] private PuzzleStageController puzzleStageController;
 
     private bool isDragging;
     private readonly List<TileData> dragTileList = new();
@@ -21,6 +22,11 @@ public class DragInputManager : MonoBehaviour
         mainCamera = Camera.main;
 
         bagRandomizer = new BagRandomizer();
+
+        if (puzzleStageController == null)
+        {
+            puzzleStageController = FindFirstObjectByType<PuzzleStageController>();
+        }
     }
 
     // 드래그 시작
@@ -51,6 +57,8 @@ public class DragInputManager : MonoBehaviour
         isDragging = false;
 
         RecordCurrentAction();
+
+        puzzleStageController?.ValidatePuzzle();
 
         dragTileList.Clear();
         previousStates.Clear();
