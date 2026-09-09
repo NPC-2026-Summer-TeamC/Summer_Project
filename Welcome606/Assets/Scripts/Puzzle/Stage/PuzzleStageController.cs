@@ -11,7 +11,6 @@ public class PuzzleStageController : MonoBehaviour
     [SerializeField] private BoardRenderer boardRenderer;
     [SerializeField] private StageData stageData;
 
-    private BoardData boardData;
     private ValidationManager validationManager;
     private bool isInitialized;
 
@@ -22,18 +21,15 @@ public class PuzzleStageController : MonoBehaviour
 
     public void InitializePuzzle()
     {
-        if (isInitialized)
-        {
-            return;
-        }
+        if (isInitialized) return;
 
         if (boardManager == null || boardRenderer == null || stageData == null)
         {
-            Debug.LogError("[PuzzleStageController] BoardManager, BoardRenderer, StageData를 모두 연결해야 합니다.");
+            Debug.LogError("[PuzzleStageController] 인스펙터 참조를 확인해주세요.");
             return;
         }
 
-        boardData = stageData.CreateBoardData();
+        BoardData boardData = stageData.CreateBoardData();
         boardManager.InitializeBoard(boardData);
         boardRenderer.CreateBoard();
         validationManager = new ValidationManager(boardManager, boardData.targetShapes);
@@ -45,18 +41,11 @@ public class PuzzleStageController : MonoBehaviour
     /// </summary>
     public void ValidatePuzzle()
     {
-        if (!isInitialized)
-        {
-            InitializePuzzle();
-        }
-
-        if (!isInitialized || validationManager == null)
-        {
-            return;
-        }
+        if (!isInitialized) InitializePuzzle();
+        if (validationManager == null) return;
 
         ValidationResult result = validationManager.Validate();
-        Debug.Log($"[PuzzleStageController] Validation Success: {result.isSuccess}, Message: {result.message}");
+        Debug.Log($"[PuzzleStageController] Validation Success: {result.isSuccess}");
 
         if (result.isSuccess)
         {
