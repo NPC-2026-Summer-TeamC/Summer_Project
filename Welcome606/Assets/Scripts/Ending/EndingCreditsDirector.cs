@@ -59,6 +59,20 @@ namespace Welcome606.Ending
         [SerializeField] private AudioClip doorOpenSfx;
         [SerializeField] private AudioClip endingBgmClip;
 
+        // [디버그 배속 사용법]
+        // - [3] 키: 1배속 ↔ 3배속 토글
+        // - [Tab] 키: 누르고 있는 동안 임시 3배속 유지
+        // - 씬 이탈/Skip 시 Time.timeScale은 1.0f로 자동 복구됨
+        [Header("디버그 - 3배속 기능")]
+        [Tooltip("테스트용 배속 디버그 기능 활성화 여부")]
+        [SerializeField] private bool enableDebugSpeed = true;
+        [Tooltip("디버그 배속 비율 (기본 3배속)")]
+        [SerializeField] private float debugSpeedMultiplier = 3.0f;
+        [Tooltip("3배속 토글 단축키 (기본: 숫자 3)")]
+        [SerializeField] private KeyCode toggleSpeedKey = KeyCode.Alpha3;
+        [Tooltip("누르고 있는 동안 임시 3배속 단축키 (기본: Tab)")]
+        [SerializeField] private KeyCode holdSpeedKey = KeyCode.Tab;
+
         // Cut1 임시 대사(스토리 담당자 확정 전). 추후 문구 교체 시 이 배열 값만 수정하면 된다.
         private readonly string[] cut1ScriptLines = new string[]
         {
@@ -98,6 +112,7 @@ namespace Welcome606.Ending
 
         private bool isWaitingForFinalClick = false;
         private Vector2 cut3ScrollTargetInitialPos;
+        private bool isSpeedBoosted = false;
 
         private void Awake()
         {
@@ -122,6 +137,61 @@ namespace Welcome606.Ending
             }
 
             StartCoroutine(CoPlayEndingSequence());
+        }
+
+        /// <summary>
+        /// 디버그 배속 단축키 처리 ([3]: 토글, [Tab]: 홀드).
+        /// </summary>
+        private void Update()
+        {
+            if (!enableDebugSpeed) {
+                if (isSpeedBoosted) {
+                    ResetTimeScale();
+                }
+                return;
+            }
+
+            // [3] 키 또는 [키패드 3] 키 입력 시 1배속 <-> 3배속 토글
+            if (Input.GetKeyDown(toggleSpeedKey) || Input.GetKeyDown(KeyCode.Keypad3)) {
+                ToggleDebugSpeed();
+            }
+
+            // [Tab] 키를 누르고 있는 동안 임시 3배속 적용
+            if (holdSpeedKey != KeyCode.None) {
+                if (Input.GetKeyDown(holdSpeedKey)) {
+                    SetTimeScale(debugSpeedMultiplier);
+                } else if (Input.GetKeyUp(holdSpeedKey)) {
+                    SetTimeScale(isSpeedBoosted ? debugSpeedMultiplier : 1.0f);
+                }
+            }
+        }
+
+        private void OnDisable()
+        {
+            ResetTimeScale();
+        }
+
+        private void OnDestroy()
+        {
+            ResetTimeScale();
+        }
+
+        private void ToggleDebugSpeed()
+        {
+            isSpeedBoosted = !isSpeedBoosted;
+            SetTimeScale(isSpeedBoosted ? debugSpeedMultiplier : 1.0f);
+            Debug.Log($"[EndingCreditsDirector] 디버그 배속 전환: {(isSpeedBoosted ? $"{debugSpeedMultiplier}x" : "1.0x")}");
+        }
+
+        private void SetTimeScale(float scale)
+        {
+            Time.timeScale = Mathf.Max(0.1f, scale);
+        }
+
+        private void ResetTimeScale()
+        {
+            Time.timeScale = 1.0f;
+            isSpeedBoosted = false;
         }
 
         /// <summary>
@@ -402,6 +472,7 @@ namespace Welcome606.Ending
             if (!isWaitingForFinalClick) return;
 
             isWaitingForFinalClick = false;
+            ResetTimeScale();
 
             if (SceneFlowManager.Instance != null)
             {
@@ -415,6 +486,7 @@ namespace Welcome606.Ending
         /// </summary>
         public void OnSkipClicked()
         {
+            ResetTimeScale();
             StopAllCoroutines();
 
             if (SceneFlowManager.Instance != null)
