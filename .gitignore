@@ -1,6 +1,7 @@
-/Agents/todo/
-/Agents/reports/
-/Agents/documents/
-/AGENTS.md
-/.agents
-/plugins
+# Local Personal & Agent Working Directories (Ignored from Team GitHub)
+/TODO.md
+/documents/
+/guides/
+/reports/
+/.agents/
+/.claude/
