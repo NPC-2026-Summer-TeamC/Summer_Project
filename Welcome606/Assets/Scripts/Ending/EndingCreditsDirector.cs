@@ -1,6 +1,7 @@
+using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 using Welcome606.Managers;
@@ -14,42 +15,36 @@ namespace Welcome606.Ending
     public class EndingCreditsDirector : MonoBehaviour
     {
         [Header("Cut1 - 문/신발, 대사 자동 진행")]
-        [SerializeField] private GameObject cut1Panel;
         [SerializeField] private CanvasGroup cut1CanvasGroup;
         [SerializeField] private TextMeshProUGUI cut1ScriptText;
 
         [Header("Cut2 - 거울, Tilt-Down, White-Out")]
-        [SerializeField] private GameObject cut2Panel;
         [SerializeField] private CanvasGroup cut2CanvasGroup;
         [SerializeField] private RectTransform cut2TiltTarget;
 
         [Header("Cut3 - 코믹 5컷 스크롤 시퀀스")]
-        [SerializeField] private GameObject cut3Panel;
         [SerializeField] private CanvasGroup cut3CanvasGroup;
-        [Tooltip("EndingCredit01~05.png를 순서대로 배치한 5개의 Image 자식을 담은 스크롤 컨테이너(빈 오브젝트)의 RectTransform")]
-        [FormerlySerializedAs("cut3TiltTarget")]
+        [Tooltip("EndingCredit01~05.png를 순서대로 배치한 스크롤 컨테이너(빈 오브젝트)의 RectTransform. " +
+                 "RectMask2D가 붙은 Cut3Panel의 직계 자식이어야 한다(부모를 뷰포트로 사용).")]
         [SerializeField] private RectTransform cut3ScrollTarget;
 
-        [Header("Cut4 - 스테이지별 dirty↔clean 크로스페이드")]
-        [SerializeField] private GameObject cut4Panel;
+        [Header("Cut4 - 스테이지별 dirty→clean 전환 스크롤")]
         [SerializeField] private CanvasGroup cut4CanvasGroup;
-        [SerializeField] private Image cut4CrossfadeImageA;
-        [SerializeField] private Image cut4CrossfadeImageB;
-        [SerializeField] private Sprite[] dirtyStageSprites;
-        [SerializeField] private Sprite[] cleanStageSprites;
+        [Tooltip("Before(dirty)/After(clean) 이미지 쌍을 세로로 배치한 스크롤 컨테이너의 RectTransform. " +
+                 "RectMask2D가 붙은 Cut4Panel의 직계 자식이어야 한다(부모를 뷰포트로 사용).")]
+        [SerializeField] private RectTransform cut4ScrollTarget;
+        [Tooltip("더러운 방(Before) 이미지 배열. cut4CleanImages와 같은 인덱스가 같은 위치에 겹쳐 배치된 한 쌍이다.")]
+        [SerializeField] private Image[] cut4DirtyImages;
+        [Tooltip("깨끗한 방(After) 이미지 배열. cut4DirtyImages와 인덱스로 1:1 매칭된다.")]
+        [SerializeField] private Image[] cut4CleanImages;
 
-        [Header("Cut5 - 소품 교차 삽입 + 팀 크레딧 스크롤")]
-        [SerializeField] private GameObject cut5Panel;
+        [Header("Cut5 - 수집요소 + 기여 크레딧 스크롤")]
         [SerializeField] private CanvasGroup cut5CanvasGroup;
-        [SerializeField] private Image cut5PropImage;
-        [SerializeField] private Sprite[] cut5PropSprites;
-        [SerializeField] private TextMeshProUGUI[] cut5CreditTexts;
-        [Tooltip("cut5CreditTexts 4블록을 세로로 담은 스크롤 컨테이너(빈 오브젝트)의 RectTransform")]
-        [FormerlySerializedAs("cut5CreditsScrollTarget")]
+        [Tooltip("소품 이미지와 팀 크레딧 텍스트 블록을 세로로 배치한 스크롤 컨테이너의 RectTransform. " +
+                 "RectMask2D가 붙은 Cut5Panel의 직계 자식이어야 한다(부모를 뷰포트로 사용).")]
         [SerializeField] private RectTransform cut5ScrollTarget;
 
-        [Header("Cut6 - 엔딩 문구, 클릭 대기 후 복귀")]
-        [SerializeField] private GameObject cut6Panel;
+        [Header("Cut6 - 엔딩 문구, BGM 종료/클릭 대기 후 복귀")]
         [SerializeField] private CanvasGroup cut6CanvasGroup;
         [SerializeField] private TextMeshProUGUI cut6DedicationText;
         [SerializeField] private Button cut6FinalClickButton;
@@ -58,20 +53,6 @@ namespace Welcome606.Ending
         [SerializeField] private Button skipButton;
         [SerializeField] private AudioClip doorOpenSfx;
         [SerializeField] private AudioClip endingBgmClip;
-
-        // [디버그 배속 사용법]
-        // - [3] 키: 1배속 ↔ 3배속 토글
-        // - [Tab] 키: 누르고 있는 동안 임시 3배속 유지
-        // - 씬 이탈/Skip 시 Time.timeScale은 1.0f로 자동 복구됨
-        [Header("디버그 - 3배속 기능")]
-        [Tooltip("테스트용 배속 디버그 기능 활성화 여부")]
-        [SerializeField] private bool enableDebugSpeed = true;
-        [Tooltip("디버그 배속 비율 (기본 3배속)")]
-        [SerializeField] private float debugSpeedMultiplier = 3.0f;
-        [Tooltip("3배속 토글 단축키 (기본: 숫자 3)")]
-        [SerializeField] private KeyCode toggleSpeedKey = KeyCode.Alpha3;
-        [Tooltip("누르고 있는 동안 임시 3배속 단축키 (기본: Tab)")]
-        [SerializeField] private KeyCode holdSpeedKey = KeyCode.Tab;
 
         // Cut1 임시 대사(스토리 담당자 확정 전). 추후 문구 교체 시 이 배열 값만 수정하면 된다.
         private readonly string[] cut1ScriptLines = new string[]
@@ -82,117 +63,137 @@ namespace Welcome606.Ending
             "미희는 조용히 신발을 신었다."
         };
 
-        // Cut5 팀 크레딧 4블록(기획/개발/아트/음악). 기획서 원문 그대로 하드코딩.
-        private readonly string[] cut5TeamCreditBlocks = new string[]
-        {
-            "기획\n박재희, 신려진, 한지언",
-            "개발\n이지민, 윤정하, 진서",
-            "아트\n송채언, 윤채빈",
-            "음악\n박시온"
-        };
+        // Cut5 팀 크레딧 / Cut6 헌사 문구는 씬(TextMeshProUGUI)이 직접 소유한다.
+        // 코드는 페이드 등 연출만 담당하고 문자열을 덮어쓰지 않는다.
 
-        // 스토리보드(Agents/documents/ending_storybd1.png, 2.png) 타임코드(총 2:59=179초) 기준 재조정.
-        // Cut1: 0:00-0:20(20s) / Cut2: 0:20-0:40(20s=틸트15s+화이트아웃5s) / Cut3: 0:40-1:20(40s)
-        // Cut4: 1:20-2:00(40s) / Cut5: 2:00-2:46(46s) / Cut6: 2:46-2:59(13s, 클릭대기라 소프트 예산)
         private const float CutFadeDuration = 1.0f;
         private const float Cut1LineDisplayDuration = 4.5f;
         private const float Cut2TiltDuration = 14.0f;
         private const float Cut2TiltDistance = 200f;
         private const float Cut2WhiteOutFadeDuration = 5.0f;
-        private const float Cut3ScrollDuration = 38.0f;
-        private const float Cut4StageCrossfadeDuration = 1.2f;
-        private const float Cut4LoopBudgetSeconds = 38.0f;
-        private const int Cut5CreditBlockCount = 4;
-        private const float Cut5CreditBlockSpacing = 200f;
-        private const float Cut5ScrollDuration = 45.0f;
-        // Cut6 진입 전 페이드 합(fade-in 1s + Cut6TextFadeDuration 2s = 3s, Cut5→Cut6 전환 fade 1s 포함 총 4s)이
-        // 13초 소프트 예산 안에 들어간다. 클릭 대기 구조이므로 이 상수들은 변경하지 않는다.
+
+        // 기획서 "크레딧 올라가는 속도는 세 연출 모두 100px 속도로"에 맞춰 Cut3/Cut4/Cut5는
+        // 전부 이 속도의 등속 스크롤이다. 재생 시간은 씬 ScrollContent에 선언된 Height(디자이너가
+        // 직접 정한 콘텐츠 길이)에서 BuildScrollPlan이 산출하며, 아래 예산 상수는 시간을 강제하는
+        // 값이 아니라 스토리보드 타임코드 대비 편차가 크면 경고만 띄우는 참고값이다.
+        private const float ScrollSpeedPixelsPerSecond = 100f;
+        private const float Cut3BudgetSeconds = 40.0f;
+        private const float Cut4BudgetSeconds = 40.0f;
+        private const float Cut5BudgetSeconds = 46.0f;
+        private const float BudgetWarningToleranceSeconds = 1.0f;
+
+        // ScrollContent 자식들의 실측 높이가 선언된 Height를 이 값(px) 이상 넘으면, 마지막 항목이
+        // 박스 밖으로 잘릴 위험이 있다는 경고를 띄운다(연출 자체는 선언 Height 기준으로 그대로 진행).
+        private const float ContentOverflowTolerancePixels = 2f;
+
+        // Cut3~Cut5는 하나의 연속된 크레딧 롤로 이어붙인다(CoCreditRoll). 모든 컷이 화면 위로
+        // 완전히 빠져나간 뒤 Cut6로 넘어가기 전 이 시간만큼 빈 화면을 유지한다.
+        private const float RollEndHoldSeconds = 2.0f;
+
+        // Cut2 화이트아웃 페이드와 Cut3 진입(아래→위)은 기본적으로 동시에 시작해 자연스럽게 이어지도록
+        // 한다. 겹침이 지저분해 보이면 이 값을 0보다 크게 늘려 Cut3 시작을 그만큼 늦출 수 있다.
+        private const float Cut3EntryDelaySeconds = 5.0f;
+
+        // Cut4 dirty→clean 전환 트리거 지점(0=화면 하단, 1=화면 상단, 0.5=화면 중앙)과 전환 페이드 길이.
+        // 튜닝이 필요할 일이 거의 없는 고정 연출값이라 Inspector로 노출하지 않는다.
+        private const float Cut4TriggerViewportRatio = 0.5f;
+        private const float Cut4DirtyFadeDuration = 1.0f;
+
         private const float Cut6TextFadeDuration = 2.0f;
+        // Cut6은 헌사 문구를 띄운 뒤 엔딩 BGM이 끝날 때까지 대기하다 자동으로 복귀한다.
+        // BGM이 이미 이 시점에 끝나 있거나 대사 직후 끝나더라도 최소 이 시간만큼은 화면을 유지한다.
+        private const float Cut6MinHoldSeconds = 5.0f;
         private const string MainMenuSceneName = "MainMenuScene";
 
-        private bool isWaitingForFinalClick = false;
-        private Vector2 cut3ScrollTargetInitialPos;
-        private bool isSpeedBoosted = false;
+        private bool isReturningToMainMenu = false;
+        private bool isCut6ClickRequested = false;
+        private float bgmStartTime;
+        private CanvasGroup[] cutGroups;
+
+        /// <summary>
+        /// 스크롤 1회 재생에 필요한 시작 위치/이동 거리/소요 시간을 담는 값 타입.
+        /// BuildScrollPlan이 ScrollContent의 선언 Height로부터 계산해 반환한다.
+        /// 콘텐츠는 화면 아래에서 완전히 진입해(StartAnchoredY) 화면 위로 완전히 이탈할 때까지
+        /// (Distance) 이동하며, HandoffDistance는 그중 "콘텐츠 하단이 뷰포트 하단에 닿는" 지점으로
+        /// 다음 컷을 이 지점에서 시작시키면 이음매 없이 이어붙일 수 있다.
+        /// </summary>
+        private readonly struct ScrollPlan
+        {
+            public readonly float StartAnchoredY;
+            public readonly float Distance;
+            public readonly float Duration;
+            public readonly float HandoffDistance;
+            public readonly bool IsValid;
+
+            public ScrollPlan(float startAnchoredY, float distance, float duration, float handoffDistance, bool isValid)
+            {
+                StartAnchoredY = startAnchoredY;
+                Distance = distance;
+                Duration = duration;
+                HandoffDistance = handoffDistance;
+                IsValid = isValid;
+            }
+        }
+
+        /// <summary>
+        /// Cut4 dirty→clean 전환이 발화되는 scrollTarget.anchoredPosition.y 임계값과,
+        /// 그 임계값에 대응하는 cut4DirtyImages 인덱스를 함께 담는 값 타입.
+        /// </summary>
+        private readonly struct Cut4Trigger
+        {
+            public readonly float TriggerAnchoredY;
+            public readonly int DirtyIndex;
+
+            public Cut4Trigger(float triggerAnchoredY, int dirtyIndex)
+            {
+                TriggerAnchoredY = triggerAnchoredY;
+                DirtyIndex = dirtyIndex;
+            }
+        }
 
         private void Awake()
         {
-            if (cut3ScrollTarget != null)
+            cutGroups = new[]
             {
-                cut3ScrollTargetInitialPos = cut3ScrollTarget.anchoredPosition;
-            }
+                cut1CanvasGroup, cut2CanvasGroup, cut3CanvasGroup,
+                cut4CanvasGroup, cut5CanvasGroup, cut6CanvasGroup
+            };
         }
 
         private void Start()
         {
             InitializeCutPanels();
 
-            if (skipButton != null)
-            {
+            if (skipButton != null) {
                 skipButton.onClick.AddListener(OnSkipClicked);
             }
 
-            if (cut6FinalClickButton != null)
-            {
+            if (cut6FinalClickButton != null) {
                 cut6FinalClickButton.onClick.AddListener(OnFinalClickToMainMenu);
             }
 
             StartCoroutine(CoPlayEndingSequence());
         }
 
-        /// <summary>
-        /// 디버그 배속 단축키 처리 ([3]: 토글, [Tab]: 홀드).
-        /// </summary>
+#if UNITY_EDITOR
+        // [디버그] Tab을 누르고 있는 동안만 8배속. 씬 이탈 시 OnDisable에서 1.0으로 복구된다.
+        private const float DebugSpeedMultiplier = 8f;
+        private const KeyCode HoldSpeedKey = KeyCode.Tab;
+
         private void Update()
         {
-            if (!enableDebugSpeed) {
-                if (isSpeedBoosted) {
-                    ResetTimeScale();
-                }
-                return;
-            }
-
-            // [3] 키 또는 [키패드 3] 키 입력 시 1배속 <-> 3배속 토글
-            if (Input.GetKeyDown(toggleSpeedKey) || Input.GetKeyDown(KeyCode.Keypad3)) {
-                ToggleDebugSpeed();
-            }
-
-            // [Tab] 키를 누르고 있는 동안 임시 3배속 적용
-            if (holdSpeedKey != KeyCode.None) {
-                if (Input.GetKeyDown(holdSpeedKey)) {
-                    SetTimeScale(debugSpeedMultiplier);
-                } else if (Input.GetKeyUp(holdSpeedKey)) {
-                    SetTimeScale(isSpeedBoosted ? debugSpeedMultiplier : 1.0f);
-                }
+            if (Input.GetKeyDown(HoldSpeedKey)) {
+                Time.timeScale = DebugSpeedMultiplier;
+            } else if (Input.GetKeyUp(HoldSpeedKey)) {
+                Time.timeScale = 1f;
             }
         }
 
         private void OnDisable()
         {
-            ResetTimeScale();
+            Time.timeScale = 1f;
         }
-
-        private void OnDestroy()
-        {
-            ResetTimeScale();
-        }
-
-        private void ToggleDebugSpeed()
-        {
-            isSpeedBoosted = !isSpeedBoosted;
-            SetTimeScale(isSpeedBoosted ? debugSpeedMultiplier : 1.0f);
-            Debug.Log($"[EndingCreditsDirector] 디버그 배속 전환: {(isSpeedBoosted ? $"{debugSpeedMultiplier}x" : "1.0x")}");
-        }
-
-        private void SetTimeScale(float scale)
-        {
-            Time.timeScale = Mathf.Max(0.1f, scale);
-        }
-
-        private void ResetTimeScale()
-        {
-            Time.timeScale = 1.0f;
-            isSpeedBoosted = false;
-        }
+#endif
 
         /// <summary>
         /// 모든 Cut 패널을 alpha 0 / 입력 차단 상태로 강제 초기화한다.
@@ -200,31 +201,14 @@ namespace Welcome606.Ending
         /// </summary>
         private void InitializeCutPanels()
         {
-            ActivatePanel(cut1Panel);
-            ActivatePanel(cut2Panel);
-            ActivatePanel(cut3Panel);
-            ActivatePanel(cut4Panel);
-            ActivatePanel(cut5Panel);
-            ActivatePanel(cut6Panel);
+            foreach (CanvasGroup cg in cutGroups) {
+                if (cg == null) continue;
 
-            SetCanvasGroupState(cut1CanvasGroup, 0f, false, false);
-            SetCanvasGroupState(cut2CanvasGroup, 0f, false, false);
-            SetCanvasGroupState(cut3CanvasGroup, 0f, false, false);
-            SetCanvasGroupState(cut4CanvasGroup, 0f, false, false);
-            SetCanvasGroupState(cut5CanvasGroup, 0f, false, false);
-            SetCanvasGroupState(cut6CanvasGroup, 0f, false, false);
+                if (!cg.gameObject.activeSelf) {
+                    cg.gameObject.SetActive(true);
+                }
 
-            if (cut3ScrollTarget != null)
-            {
-                cut3ScrollTarget.anchoredPosition = cut3ScrollTargetInitialPos;
-            }
-        }
-
-        private void ActivatePanel(GameObject panel)
-        {
-            if (panel != null && !panel.activeSelf)
-            {
-                panel.SetActive(true);
+                SetCanvasGroupState(cg, 0f, false, false);
             }
         }
 
@@ -239,245 +223,280 @@ namespace Welcome606.Ending
 
         private IEnumerator CoPlayEndingSequence()
         {
-            yield return StartCoroutine(CoCut1_DoorAndShoes());
-            yield return StartCoroutine(CoCut2_MirrorTiltAndWhiteOut());
-            yield return StartCoroutine(CoCut3_ComicSequence());
-            yield return StartCoroutine(CoCut4_StageCrossfade());
-            yield return StartCoroutine(CoCut5_PropsAndCredits());
-            yield return StartCoroutine(CoCut6_Dedication());
+            yield return CoCut1_DoorAndShoes();
+            yield return CoCut2_MirrorTiltAndWhiteOut();
+
+            // Cut2 화이트아웃 페이드아웃과 Cut3 진입(아래→위)을 동시에 진행해 컷 전환이 뚝 끊기지
+            // 않고 자연스럽게 이어지도록 한다(화이트아웃 완료를 기다리지 않고 바로 시작).
+            StartCoroutine(CoCut2WhiteOut());
+
+            if (Cut3EntryDelaySeconds > 0f) {
+                yield return new WaitForSeconds(Cut3EntryDelaySeconds);
+            }
+
+            yield return CoCreditRoll();
+            yield return CoCut6_Dedication();
         }
 
         private IEnumerator CoCut1_DoorAndShoes()
         {
-            if (SoundManager.Instance != null)
-            {
+            if (SoundManager.Instance != null) {
                 SoundManager.Instance.PlaySFX(doorOpenSfx);
                 SoundManager.Instance.PlayBGM(endingBgmClip);
             }
 
-            yield return StartCoroutine(CoFadeCanvasGroup(cut1CanvasGroup, 0f, 1f, CutFadeDuration));
+            // Cut6의 "BGM 종료까지 대기" 판정 기준점. SoundManager는 재생 위치를 노출하지 않으므로
+            // 이 시작 시각과 endingBgmClip.length로 남은 시간을 역산한다.
+            bgmStartTime = Time.time;
 
-            for (int i = 0; i < cut1ScriptLines.Length; i++)
-            {
-                if (cut1ScriptText != null)
-                {
+            yield return CoFadeCanvasGroup(cut1CanvasGroup, 0f, 1f, CutFadeDuration);
+
+            for (int i = 0; i < cut1ScriptLines.Length; i++) {
+                if (cut1ScriptText != null) {
                     cut1ScriptText.text = cut1ScriptLines[i];
                 }
 
                 yield return new WaitForSeconds(Cut1LineDisplayDuration);
             }
 
-            yield return StartCoroutine(CoFadeCanvasGroup(cut1CanvasGroup, 1f, 0f, CutFadeDuration));
+            yield return CoFadeCanvasGroup(cut1CanvasGroup, 1f, 0f, CutFadeDuration);
         }
 
+        /// <summary>
+        /// Cut2 페이드인 + 거울 Tilt-Down까지만 진행한다. 화이트아웃은 <see cref="CoCut2WhiteOut"/>이
+        /// 별도로 맡아, 호출부(CoPlayEndingSequence)가 Cut3 진입과 동시에 병렬 실행할 수 있게 한다.
+        /// </summary>
         private IEnumerator CoCut2_MirrorTiltAndWhiteOut()
         {
-            yield return StartCoroutine(CoFadeCanvasGroup(cut2CanvasGroup, 0f, 1f, CutFadeDuration));
+            yield return CoFadeCanvasGroup(cut2CanvasGroup, 0f, 1f, CutFadeDuration);
 
-            yield return StartCoroutine(CoPanTiltDown(cut2TiltTarget, Cut2TiltDistance, Cut2TiltDuration));
-
-            // White-Out: 다음 Cut3의 흰 배경으로 자연스럽게 이어지도록 페이드 아웃만 수행한다.
-            yield return StartCoroutine(CoFadeCanvasGroup(cut2CanvasGroup, 1f, 0f, Cut2WhiteOutFadeDuration));
-        }
-
-        private IEnumerator CoCut3_ComicSequence()
-        {
-            yield return StartCoroutine(CoFadeCanvasGroup(cut3CanvasGroup, 0f, 1f, CutFadeDuration));
-
-            PrepareCut3PanelPositionsForDownwardScroll();
-
-            // 씬에 배치된 5장의 코믹 패널(EndingCredit01~05.png)을 스크롤 컨테이너(cut3ScrollTarget)가
-            // 화면 위에서 아래로 내려오는 방향(Tilt-Down 연출)으로 1번➔5번 순서대로 한 번의 연속 등속 스크롤.
-            float totalDistance = ComputeCut3ScrollDistance();
-
-            yield return StartCoroutine(CoScrollDownContinuous(cut3ScrollTarget, totalDistance, Cut3ScrollDuration));
-
-            yield return StartCoroutine(CoFadeCanvasGroup(cut3CanvasGroup, 1f, 0f, CutFadeDuration));
+            yield return CoScrollUp(cut2TiltTarget, Cut2TiltDistance, Cut2TiltDuration);
         }
 
         /// <summary>
-        /// 씬에서 1번(상단)부터 5번(하단)으로 배치된 코믹 패널들을,
-        /// 화면 위에서 아래로 내려오는 방향(Tilt-Down)으로 1번➔5번 순서대로 보여주기 위해
-        /// 런타임 시작 시 2~5번 패널의 Y 오프셋을 1번 패널 상단(+Y)으로 재정렬합니다.
-        /// (사용자의 기존 씬 수동 배치를 유지하면서 위에서 아래로 스크롤 가능하도록 자동 보정)
+        /// Cut2 White-Out 페이드 아웃. Cut3 진입(아래→위)과 동시에 재생되어 "거울 화면이 흐려지는
+        /// 동안 첫 코믹컷이 아래에서 떠오르는" 자연스러운 전환을 만든다.
         /// </summary>
-        private void PrepareCut3PanelPositionsForDownwardScroll()
+        private IEnumerator CoCut2WhiteOut()
         {
-            if (cut3ScrollTarget == null || cut3ScrollTarget.childCount < 2) return;
-
-            RectTransform first = cut3ScrollTarget.GetChild(0) as RectTransform;
-            RectTransform last = cut3ScrollTarget.GetChild(cut3ScrollTarget.childCount - 1) as RectTransform;
-            if (first == null || last == null) return;
-
-            // 이미 자식들이 상단(+Y) 방향으로 배치되어 있다면 재정렬 불필요
-            if (last.anchoredPosition.y > first.anchoredPosition.y) return;
-
-            float firstY = first.anchoredPosition.y;
-
-            for (int i = 1; i < cut3ScrollTarget.childCount; i++)
-            {
-                RectTransform child = cut3ScrollTarget.GetChild(i) as RectTransform;
-                if (child == null) continue;
-
-                float distanceFromFirst = Mathf.Abs(child.anchoredPosition.y - firstY);
-                child.anchoredPosition = new Vector2(child.anchoredPosition.x, firstY + distanceFromFirst);
-            }
+            yield return CoFadeCanvasGroup(cut2CanvasGroup, 1f, 0f, Cut2WhiteOutFadeDuration);
         }
 
         /// <summary>
-        /// cut3ScrollTarget의 첫 번째/마지막 자식 anchoredPosition.y 차이의 절댓값으로 Cut3 총 스크롤 거리를 계산한다.
-        /// 자식이 없거나 1개 이하인 경우 0을 반환해 스크롤이 발생하지 않도록 방어한다.
+        /// Cut3~Cut5를 하나의 연속된 크레딧 롤로 이어붙여 재생한다. 각 컷은 화면 아래에서 올라와
+        /// 화면 위로 완전히 빠져나갈 때까지 스크롤하며, 앞 컷의 콘텐츠 하단이 뷰포트 하단에 닿는
+        /// 순간(HandoffDistance)에 다음 컷이 같은 자리에서 이어받아 컷 경계가 뚝 끊기지 않는다.
         /// </summary>
-        private float ComputeCut3ScrollDistance()
+        private IEnumerator CoCreditRoll()
         {
-            if (cut3ScrollTarget == null || cut3ScrollTarget.childCount < 2) return 0f;
+            bool cut3HandoffReady = false;
+            bool cut4HandoffReady = false;
 
-            RectTransform first = cut3ScrollTarget.GetChild(0) as RectTransform;
-            RectTransform last = cut3ScrollTarget.GetChild(cut3ScrollTarget.childCount - 1) as RectTransform;
+            Coroutine cut3Routine = StartCoroutine(CoRunRollSegment(
+                cut3CanvasGroup, cut3ScrollTarget, Cut3BudgetSeconds, "Cut3",
+                () => cut3HandoffReady = true));
+            yield return new WaitUntil(() => cut3HandoffReady);
 
-            if (first == null || last == null) return 0f;
+            Coroutine cut4Routine = StartCoroutine(CoRunRollSegment(
+                cut4CanvasGroup, cut4ScrollTarget, Cut4BudgetSeconds, "Cut4",
+                () => cut4HandoffReady = true,
+                BuildCut4ProgressFactory()));
+            yield return new WaitUntil(() => cut4HandoffReady);
 
-            return Mathf.Abs(last.anchoredPosition.y - first.anchoredPosition.y);
+            // 마지막 컷은 다음으로 넘겨줄 대상이 없으므로 handoff 없이 끝까지(화면 밖 이탈까지) 재생한다.
+            Coroutine cut5Routine = StartCoroutine(CoRunRollSegment(
+                cut5CanvasGroup, cut5ScrollTarget, Cut5BudgetSeconds, "Cut5", null));
+
+            // 세 세그먼트가 병렬로 실행 중이므로, 모두 실제로 끝날 때까지 순서대로 대기한다
+            // (앞선 세그먼트는 handoff 시점에 이미 상당 부분 재생되었으므로 대개 즉시 반환된다).
+            yield return cut3Routine;
+            yield return cut4Routine;
+            yield return cut5Routine;
+
+            yield return new WaitForSeconds(RollEndHoldSeconds);
         }
 
-        private IEnumerator CoCut4_StageCrossfade()
+        /// <summary>
+        /// CanvasGroup 하나와 ScrollContent 하나를 "화면 아래 진입 → 등속 스크롤 → 화면 위 이탈"까지
+        /// 재생하는 크레딧 롤 세그먼트. 대상이 없거나 레이아웃을 계산할 수 없으면 즉시 handoff를
+        /// 신호하고 종료해, 오케스트레이터(CoCreditRoll)의 WaitUntil이 멈춰버리는 일을 막는다.
+        /// onProgressFactory는 시작 위치가 확정된 뒤 뷰포트/시작좌표를 받아 프레임별 진행 콜백을
+        /// 만들어 반환한다(Cut4의 dirty→clean 트리거 판정에 사용, 그 외는 null).
+        /// </summary>
+        private IEnumerator CoRunRollSegment(
+            CanvasGroup cg,
+            RectTransform scrollTarget,
+            float budgetSeconds,
+            string cutLabel,
+            Action onHandoff,
+            Func<RectTransform, float, Action<float>> onProgressFactory = null)
         {
-            yield return StartCoroutine(CoFadeCanvasGroup(cut4CanvasGroup, 0f, 1f, CutFadeDuration));
+            ScrollPlan plan = BuildScrollPlan(scrollTarget, budgetSeconds, cutLabel);
 
-            int stageCount = dirtyStageSprites != null ? dirtyStageSprites.Length : 0;
-            float dynamicHoldPerStage = 0f;
-
-            if (stageCount > 0)
-            {
-                dynamicHoldPerStage = Mathf.Max(0f, (Cut4LoopBudgetSeconds / stageCount) - Cut4StageCrossfadeDuration);
-
-                if ((Cut4StageCrossfadeDuration * stageCount) > Cut4LoopBudgetSeconds)
-                {
-                    Debug.LogWarning($"[EndingCreditsDirector] Cut4 stageCount={stageCount}가 너무 많아 크로스페이드만으로 {Cut4LoopBudgetSeconds}초 예산을 초과합니다. 대기시간이 0으로 클램프됩니다.");
-                }
+            if (!plan.IsValid || cg == null || scrollTarget == null) {
+                onHandoff?.Invoke();
+                yield break;
             }
 
-            for (int i = 0; i < stageCount; i++)
-            {
-                if (cut4CrossfadeImageA != null)
-                {
-                    cut4CrossfadeImageA.sprite = dirtyStageSprites[i];
-                    SetGraphicAlpha(cut4CrossfadeImageA, 1f);
+            SetAnchoredY(scrollTarget, plan.StartAnchoredY);
+            SetCanvasGroupState(cg, 1f, false, false);
+
+            RectTransform viewport = scrollTarget.parent as RectTransform;
+            Action<float> onProgress = onProgressFactory?.Invoke(viewport, plan.StartAnchoredY);
+
+            bool handoffFired = false;
+            float handoffProgress = plan.Distance > 0f ? Mathf.Clamp01(plan.HandoffDistance / plan.Distance) : 1f;
+
+            yield return CoScrollUp(scrollTarget, plan.Distance, plan.Duration, t => {
+                onProgress?.Invoke(t);
+
+                if (!handoffFired && t >= handoffProgress) {
+                    handoffFired = true;
+                    onHandoff?.Invoke();
                 }
+            });
 
-                bool hasCleanSprite = cleanStageSprites != null && i < cleanStageSprites.Length && cleanStageSprites[i] != null;
-
-                if (cut4CrossfadeImageB != null)
-                {
-                    // clean 아트가 아직 없으면 sprite를 비워 단색 placeholder로 표시한다.
-                    cut4CrossfadeImageB.sprite = hasCleanSprite ? cleanStageSprites[i] : null;
-                    SetGraphicAlpha(cut4CrossfadeImageB, 0f);
-                }
-
-                yield return StartCoroutine(CoFadeGraphicAlpha(cut4CrossfadeImageB, 0f, 1f, Cut4StageCrossfadeDuration));
-
-                yield return new WaitForSeconds(dynamicHoldPerStage);
-
-                SetGraphicAlpha(cut4CrossfadeImageB, 0f);
+            // 부동소수 오차 등으로 진행률이 정확히 임계값을 지나치지 못했을 경우의 안전망.
+            if (!handoffFired) {
+                onHandoff?.Invoke();
             }
 
-            yield return StartCoroutine(CoFadeCanvasGroup(cut4CanvasGroup, 1f, 0f, CutFadeDuration));
+            SetCanvasGroupState(cg, 0f, false, false);
         }
 
-        private IEnumerator CoCut5_PropsAndCredits()
+        /// <summary>
+        /// Cut4 세그먼트 전용 onProgress 팩토리. dirty/clean 레이어를 재생 시작 상태로 되돌리고,
+        /// 확정된 시작 좌표로 트리거 지점을 계산한 뒤, 스크롤 진행에 따라 트리거를 순회하는
+        /// 콜백을 반환한다(기존 dirty→clean 크로스페이드 트리거 판정 로직을 그대로 옮긴 것).
+        /// </summary>
+        private Func<RectTransform, float, Action<float>> BuildCut4ProgressFactory()
         {
-            yield return StartCoroutine(CoFadeCanvasGroup(cut5CanvasGroup, 0f, 1f, CutFadeDuration));
+            return (viewport, startAnchoredY) => {
+                PrepareCut4Layers();
 
-            if (cut5CreditTexts != null)
-            {
-                for (int i = 0; i < cut5CreditTexts.Length; i++)
-                {
-                    if (cut5CreditTexts[i] != null)
-                    {
-                        cut5CreditTexts[i].text = i < cut5TeamCreditBlocks.Length ? cut5TeamCreditBlocks[i] : string.Empty;
+                Cut4Trigger[] triggers = BuildCut4Triggers(viewport, startAnchoredY);
+                int triggerCursor = 0;
+
+                return _ => {
+                    if (cut4ScrollTarget == null) return;
+
+                    float currentAnchoredY = cut4ScrollTarget.anchoredPosition.y;
+
+                    // 스크롤이 단조 증가이므로 커서를 되돌릴 필요 없이 한 방향으로만 전진한다.
+                    while (triggerCursor < triggers.Length && currentAnchoredY >= triggers[triggerCursor].TriggerAnchoredY) {
+                        int dirtyIndex = triggers[triggerCursor].DirtyIndex;
+
+                        if (cut4DirtyImages != null && dirtyIndex >= 0 && dirtyIndex < cut4DirtyImages.Length && cut4DirtyImages[dirtyIndex] != null) {
+                            StartCoroutine(CoFadeGraphicAlpha(cut4DirtyImages[dirtyIndex], 1f, 0f, Cut4DirtyFadeDuration));
+                        }
+
+                        triggerCursor++;
                     }
-                }
-            }
-
-            // Cut3와 동일하게, 세로로 쌓아둔 4블록을 스크롤 컨테이너(cut5ScrollTarget)를
-            // 정지-이동 반복 없이 한 번의 연속 등속 스크롤로 위로 훑고 지나가는 크레딧 롤 연출.
-            // 소품 교체는 스크롤과 별개의 병렬 코루틴(CoCut5SchedulePropSwaps)에서 타이밍을 맞춰 처리한다.
-            UpdateCut5PropSprite(0);
-
-            StartCoroutine(CoCut5SchedulePropSwaps());
-
-            yield return StartCoroutine(CoScrollUpContinuous(cut5ScrollTarget, Cut5CreditBlockSpacing * (Cut5CreditBlockCount - 1), Cut5ScrollDuration));
-
-            // Cut5는 원래도 자체 종료 페이드가 없다 — CoCut6_Dedication이 cut5CanvasGroup을 페이드아웃한다.
-            // 46초 예산 계산(1s fade-in + 45s 스크롤=46s)이 이 구조를 전제로 하므로 여기서 fade-out을 추가하지 않는다.
+                };
+            };
         }
 
         /// <summary>
-        /// Cut5 소품 이미지를 스크롤과 병렬로 일정 간격마다 교체하는 스케줄러 코루틴.
-        /// 이 코루틴은 스크롤과 병렬로 실행되며(StartCoroutine만 하고 yield하지 않음),
-        /// 이 파일의 다른 모든 코루틴과 달리 CoPlayEndingSequence 흐름에서 직접 yield되지 않는다.
-        /// OnSkipClicked()의 StopAllCoroutines()가 이 코루틴도 함께 정지시키므로 별도 정리 처리는 불필요하다.
+        /// Cut4 dirty/clean 쌍의 알파와 렌더 순서를 재생 시작 전 상태로 되돌린다.
+        /// dirty가 clean 위에 그려지도록 sibling index를 강제해, 씬에 배치된 순서와 무관하게
+        /// "더러운 방이 서서히 투명해지며 아래 깨끗한 방이 드러나는" 연출을 보장한다.
         /// </summary>
-        private IEnumerator CoCut5SchedulePropSwaps()
+        private void PrepareCut4Layers()
         {
-            float perBlockInterval = Cut5ScrollDuration / (Cut5CreditBlockCount - 1);
+            if (cut4DirtyImages == null) return;
 
-            for (int i = 1; i < Cut5CreditBlockCount; i++)
-            {
-                yield return new WaitForSeconds(perBlockInterval);
+            for (int i = 0; i < cut4DirtyImages.Length; i++) {
+                Image clean = (cut4CleanImages != null && i < cut4CleanImages.Length) ? cut4CleanImages[i] : null;
+                Image dirty = cut4DirtyImages[i];
 
-                UpdateCut5PropSprite(i);
+                if (clean != null) {
+                    clean.transform.SetAsLastSibling();
+                    SetGraphicAlpha(clean, 1f);
+                }
+
+                if (dirty != null) {
+                    dirty.transform.SetAsLastSibling();
+                    SetGraphicAlpha(dirty, 1f);
+                }
             }
         }
 
-        private void UpdateCut5PropSprite(int index)
+        /// <summary>
+        /// 각 dirty 이미지가 화면의 Cut4TriggerViewportRatio 지점을 지나는 시점의
+        /// scrollTarget.anchoredPosition.y 값을 계산해 오름차순으로 정렬한 트리거 배열을 반환한다.
+        /// (Cut4 세그먼트의 onProgress 콜백이 프레임당 1회 비교만으로 순회할 수 있도록 사전 정렬)
+        /// </summary>
+        private Cut4Trigger[] BuildCut4Triggers(RectTransform viewport, float startAnchoredY)
         {
-            if (cut5PropImage == null || cut5PropSprites == null || cut5PropSprites.Length == 0) return;
+            int pairCount = cut4DirtyImages != null ? cut4DirtyImages.Length : 0;
+            var triggers = new Cut4Trigger[pairCount];
 
-            Sprite sprite = cut5PropSprites[index % cut5PropSprites.Length];
-            if (sprite != null)
-            {
-                cut5PropImage.sprite = sprite;
+            if (viewport == null) {
+                for (int i = 0; i < pairCount; i++) {
+                    triggers[i] = new Cut4Trigger(float.PositiveInfinity, i);
+                }
+
+                return triggers;
             }
+
+            float viewportHeight = viewport.rect.height;
+            float triggerLineViewportY = viewport.rect.yMax - viewportHeight * Cut4TriggerViewportRatio;
+
+            for (int i = 0; i < pairCount; i++) {
+                Image dirty = cut4DirtyImages[i];
+
+                if (dirty == null) {
+                    triggers[i] = new Cut4Trigger(float.PositiveInfinity, i);
+                    continue;
+                }
+
+                // 시작 위치(startAnchoredY) 기준 dirty의 뷰포트 로컬 y좌표를 구한 뒤,
+                // scrollTarget 이동량 = 목표 y좌표 - 현재 y좌표 만큼 더한 지점이 발화 시점이다.
+                float dirtyViewportYAtStart = RectTransformUtility
+                    .CalculateRelativeRectTransformBounds(viewport, dirty.rectTransform).center.y;
+                float triggerAnchoredY = startAnchoredY + (triggerLineViewportY - dirtyViewportYAtStart);
+
+                triggers[i] = new Cut4Trigger(triggerAnchoredY, i);
+            }
+
+            Array.Sort(triggers, (a, b) => a.TriggerAnchoredY.CompareTo(b.TriggerAnchoredY));
+            return triggers;
         }
 
         private IEnumerator CoCut6_Dedication()
         {
-            yield return StartCoroutine(CoFadeCanvasGroup(cut5CanvasGroup, 1f, 0f, CutFadeDuration));
+            // Cut5는 CoCreditRoll의 마지막 세그먼트로 이미 화면 위로 완전히 빠져나가며
+            // cut5CanvasGroup이 alpha 0으로 정리된 상태이므로, 여기서 별도 페이드아웃이 필요 없다.
 
-            if (cut6DedicationText != null)
-            {
-                cut6DedicationText.text = "우리 곁의 미화들에게.";
+            if (cut6DedicationText != null) {
                 SetGraphicAlpha(cut6DedicationText, 0f);
             }
 
-            yield return StartCoroutine(CoFadeCanvasGroup(cut6CanvasGroup, 0f, 1f, CutFadeDuration));
+            yield return CoFadeCanvasGroup(cut6CanvasGroup, 0f, 1f, CutFadeDuration);
 
-            if (cut6DedicationText != null)
-            {
-                yield return StartCoroutine(CoFadeGraphicAlpha(cut6DedicationText, 0f, 1f, Cut6TextFadeDuration));
+            if (cut6DedicationText != null) {
+                yield return CoFadeGraphicAlpha(cut6DedicationText, 0f, 1f, Cut6TextFadeDuration);
             }
 
-            isWaitingForFinalClick = true;
             SetCanvasGroupState(cut6CanvasGroup, 1f, true, true);
 
-            while (isWaitingForFinalClick)
-            {
+            // BGM이 끝날 때까지 자동 대기하되(SoundManager가 재생 위치를 노출하지 않아 시작 시각+길이로 역산),
+            // 최소 Cut6MinHoldSeconds는 보장한다. 버튼을 누르면 그 전에도 즉시 종료된다.
+            float bgmRemaining = endingBgmClip != null ? endingBgmClip.length - (Time.time - bgmStartTime) : 0f;
+            float holdDuration = Mathf.Max(Cut6MinHoldSeconds, bgmRemaining);
+            float holdElapsed = 0f;
+
+            while (holdElapsed < holdDuration && !isCut6ClickRequested) {
+                holdElapsed += Time.deltaTime;
                 yield return null;
             }
+
+            ReturnToMainMenu();
         }
 
         private void OnFinalClickToMainMenu()
         {
-            if (!isWaitingForFinalClick) return;
-
-            isWaitingForFinalClick = false;
-            ResetTimeScale();
-
-            if (SceneFlowManager.Instance != null)
-            {
-                SceneFlowManager.Instance.LoadScene(MainMenuSceneName);
-            }
+            isCut6ClickRequested = true;
         }
 
         /// <summary>
@@ -486,13 +505,41 @@ namespace Welcome606.Ending
         /// </summary>
         public void OnSkipClicked()
         {
-            ResetTimeScale();
             StopAllCoroutines();
+            ReturnToMainMenu();
+        }
 
-            if (SceneFlowManager.Instance != null)
-            {
+        /// <summary>
+        /// MainMenuScene 복귀를 한 곳에서 처리한다(Skip / Cut6 자동·클릭 종료 공용).
+        /// 중복 호출을 막고, 다른 씬들과 동일하게 SceneFlowManager 부재 시 SceneManager로 폴백한다.
+        /// </summary>
+        private void ReturnToMainMenu()
+        {
+            if (isReturningToMainMenu) return;
+            isReturningToMainMenu = true;
+
+            if (SceneFlowManager.Instance != null) {
                 SceneFlowManager.Instance.LoadScene(MainMenuSceneName);
+            } else {
+                SceneManager.LoadScene(MainMenuSceneName);
             }
+        }
+
+        /// <summary>
+        /// 0~1 진행률을 duration에 걸쳐 매 프레임 onStep으로 전달하는 공용 보간 코루틴.
+        /// 페이드/스크롤 등 이 파일의 모든 시간 기반 연출이 이 코루틴 위에서 동작한다.
+        /// </summary>
+        private IEnumerator CoLerp(float duration, Action<float> onStep)
+        {
+            float elapsed = 0f;
+
+            while (elapsed < duration) {
+                elapsed += Time.deltaTime;
+                onStep(Mathf.Clamp01(elapsed / duration));
+                yield return null;
+            }
+
+            onStep(1f);
         }
 
         /// <summary>
@@ -502,17 +549,7 @@ namespace Welcome606.Ending
         {
             if (cg == null) yield break;
 
-            float elapsed = 0f;
-            cg.alpha = from;
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                cg.alpha = Mathf.Lerp(from, to, elapsed / duration);
-                yield return null;
-            }
-
-            cg.alpha = to;
+            yield return CoLerp(duration, t => cg.alpha = Mathf.Lerp(from, to, t));
 
             bool isVisible = to > 0f;
             cg.interactable = isVisible;
@@ -520,90 +557,32 @@ namespace Welcome606.Ending
         }
 
         /// <summary>
-        /// 대상 RectTransform의 anchoredPosition.y를 아래로 Lerp 이동시키는 카메라 Tilt-Down 연출용 코루틴.
-        /// (뷰포트는 씬에서 RectMask2D로 감싸져 있다고 가정)
+        /// 대상 RectTransform의 anchoredPosition.y를 정지-이동 반복 없이 한 번의 등속으로
+        /// 위(+Y)로 스크롤하는 코루틴. Cut2 틸트다운, Cut3/Cut4/Cut5 크레딧 스크롤이 모두 이 방향을 공유한다.
+        /// onProgress는 매 프레임 0~1 진행률을 전달받아 Cut4의 dirty→clean 트리거 판정 등에 쓰인다.
         /// </summary>
-        private IEnumerator CoPanTiltDown(RectTransform target, float distance, float duration)
+        private IEnumerator CoScrollUp(RectTransform target, float distance, float duration, Action<float> onProgress = null)
         {
             if (target == null) yield break;
 
             Vector2 startPos = target.anchoredPosition;
-            Vector2 endPos = startPos + new Vector2(0f, -distance);
-            float elapsed = 0f;
+            Vector2 endPos = startPos + new Vector2(0f, distance);
 
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                target.anchoredPosition = Vector2.Lerp(startPos, endPos, elapsed / duration);
-                yield return null;
-            }
-
-            target.anchoredPosition = endPos;
-        }
-
-        /// <summary>
-        /// 대상 RectTransform의 anchoredPosition.y를 정지-이동 반복 없이 한 번의 등속으로 위로 스크롤하는 코루틴.
-        /// (Cut5 팀 크레딧 스크롤에서 사용)
-        /// </summary>
-        private IEnumerator CoScrollUpContinuous(RectTransform target, float distance, float duration)
-        {
-            if (target == null) yield break;
-
-            Vector2 startPos = target.anchoredPosition;
-            Vector2 endPos = startPos + new Vector2(0f, distance); // 위로 이동 (양수 = 위)
-            float elapsed = 0f;
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                target.anchoredPosition = Vector2.Lerp(startPos, endPos, elapsed / duration);
-                yield return null;
-            }
-
-            target.anchoredPosition = endPos;
-        }
-
-        /// <summary>
-        /// 대상 RectTransform의 anchoredPosition.y를 정지-이동 반복 없이 한 번의 등속으로 아래로 스크롤하는 코루틴.
-        /// (Cut3 코믹 시퀀스 위에서 아래로 내려오는 Tilt-Down 연출용)
-        /// </summary>
-        private IEnumerator CoScrollDownContinuous(RectTransform target, float distance, float duration)
-        {
-            if (target == null) yield break;
-
-            Vector2 startPos = target.anchoredPosition;
-            Vector2 endPos = startPos + new Vector2(0f, -distance); // 아래로 이동 (음수 = 아래)
-            float elapsed = 0f;
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                target.anchoredPosition = Vector2.Lerp(startPos, endPos, elapsed / duration);
-                yield return null;
-            }
-
-            target.anchoredPosition = endPos;
+            yield return CoLerp(duration, t => {
+                target.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
+                onProgress?.Invoke(t);
+            });
         }
 
         /// <summary>
         /// Image/TextMeshProUGUI 등 Graphic 공통 알파값을 Lerp로 페이드하는 내부 유틸 코루틴.
-        /// (Cut4 크로스페이드, Cut5/Cut6 텍스트 페이드에서 공용으로 사용)
+        /// (Cut4 dirty 이미지, Cut6 텍스트 페이드에서 공용으로 사용)
         /// </summary>
         private IEnumerator CoFadeGraphicAlpha(Graphic graphic, float from, float to, float duration)
         {
             if (graphic == null) yield break;
 
-            float elapsed = 0f;
-            SetGraphicAlpha(graphic, from);
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                SetGraphicAlpha(graphic, Mathf.Lerp(from, to, elapsed / duration));
-                yield return null;
-            }
-
-            SetGraphicAlpha(graphic, to);
+            yield return CoLerp(duration, t => SetGraphicAlpha(graphic, Mathf.Lerp(from, to, t)));
         }
 
         private void SetGraphicAlpha(Graphic graphic, float alpha)
@@ -613,6 +592,75 @@ namespace Welcome606.Ending
             Color color = graphic.color;
             color.a = alpha;
             graphic.color = color;
+        }
+
+        private void SetAnchoredY(RectTransform target, float y)
+        {
+            if (target == null) return;
+
+            Vector2 pos = target.anchoredPosition;
+            pos.y = y;
+            target.anchoredPosition = pos;
+        }
+
+        /// <summary>
+        /// scrollTarget(부모를 뷰포트로 삼는 스크롤 컨테이너, pivot/anchor는 top-center(0.5,1) 고정)의
+        /// 선언된 Height(sizeDelta.y)로부터 시작 위치/이동 거리/소요 시간을 계산한다.
+        /// 콘텐츠는 뷰포트 아래에서 완전히 진입해(StartAnchoredY) 뷰포트 위로 완전히 이탈할 때까지
+        /// 이동하므로 이동 거리 = 콘텐츠 Height + 뷰포트 높이이며, 속도는 ScrollSpeedPixelsPerSecond
+        /// (100px/s) 고정이다. HandoffDistance(=콘텐츠 Height)는 콘텐츠 하단이 뷰포트 하단에 닿는
+        /// 지점으로, 이 순간 다음 컷을 같은 자리에서 시작시키면 컷 사이가 끊김 없이 이어진다.
+        /// Height가 아직 설정되지 않은 placeholder(뷰포트보다 작음) 상태라면 자식 실측 높이로
+        /// 폴백하고 경고를 남긴다. 계산된 콘텐츠 통과 시간이 budgetSeconds와 BudgetWarningToleranceSeconds
+        /// 이상 차이 나면 레이아웃 Height 조정이 필요하다는 경고를 남긴다.
+        /// </summary>
+        private ScrollPlan BuildScrollPlan(RectTransform scrollTarget, float budgetSeconds, string cutLabel)
+        {
+            if (scrollTarget == null) return default;
+
+            RectTransform viewport = scrollTarget.parent as RectTransform;
+
+            if (viewport == null) {
+                Debug.LogWarning($"[EndingCreditsDirector] {cutLabel}: scrollTarget의 부모가 RectTransform이 아니라 뷰포트 크기를 알 수 없습니다. 스크롤이 발생하지 않습니다.");
+                return default;
+            }
+
+            float viewportHeight = viewport.rect.height;
+            float declaredHeight = scrollTarget.rect.height;
+
+            // 자식들이 실제로 차지하는 범위는 scrollTarget 자신을 기준(root)으로 측정해,
+            // scrollTarget의 anchoredPosition(곧 덮어쓸 값)과 무관한 "콘텐츠 자체 크기"를 얻는다.
+            float measuredHeight = RectTransformUtility
+                .CalculateRelativeRectTransformBounds(scrollTarget, scrollTarget).size.y;
+
+            float contentHeight;
+
+            if (declaredHeight < viewportHeight) {
+                // Height 미설정(기본값 100 등) placeholder 상태로 판단해 실측값으로 폴백한다.
+                contentHeight = Mathf.Max(measuredHeight, viewportHeight);
+                Debug.LogWarning($"[EndingCreditsDirector] {cutLabel}: ScrollContent의 Height({declaredHeight:F0}px)가 뷰포트 높이({viewportHeight:F0}px)보다 작습니다. 실측 콘텐츠 높이({measuredHeight:F0}px)로 대체합니다 — ScrollContent의 Height를 콘텐츠 길이에 맞게 설정하세요.");
+            } else {
+                contentHeight = declaredHeight;
+
+                if (measuredHeight > declaredHeight + ContentOverflowTolerancePixels) {
+                    Debug.LogWarning($"[EndingCreditsDirector] {cutLabel}: 콘텐츠 실측 높이({measuredHeight:F0}px)가 ScrollContent의 Height({declaredHeight:F0}px)를 초과합니다. 마지막 항목이 박스 밖으로 밀려 조기에 사라질 수 있으니 Height를 늘리세요.");
+                }
+            }
+
+            // 콘텐츠 상단이 뷰포트 하단에 걸린 위치(뷰포트 바로 아래, 완전히 가려진 상태)를 시작점으로 삼는다.
+            // pivot(0.5,1) 기준 anchoredPosition.y는 곧 콘텐츠 상단의, 뷰포트 중심 기준 오프셋이다.
+            float startAnchoredY = -viewportHeight;
+            float distance = contentHeight + viewportHeight;
+            float duration = distance / ScrollSpeedPixelsPerSecond;
+            float handoffDistance = contentHeight;
+
+            float scrollSeconds = contentHeight / ScrollSpeedPixelsPerSecond;
+            float deviation = Mathf.Abs(scrollSeconds - budgetSeconds);
+            if (deviation > BudgetWarningToleranceSeconds) {
+                Debug.LogWarning($"[EndingCreditsDirector] {cutLabel} 콘텐츠 Height={contentHeight:F0}px, 통과 시간={scrollSeconds:F1}s(100px/s 기준) — 스토리보드 예산 {budgetSeconds:F0}s과 {deviation:F1}s 차이가 납니다. ScrollContent의 Height를 조정하세요.");
+            }
+
+            return new ScrollPlan(startAnchoredY, distance, duration, handoffDistance, true);
         }
     }
 }
