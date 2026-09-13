@@ -16,7 +16,7 @@ namespace Welcome606.Ending
     /// .unity 씬에 사전에 직접 배치되어, 1~5 챕터를 모두 클리어하여 6챕터가 해금되면 
     /// 자동으로 화면에 노출(SetActive)되고 클릭 상호작용을 처리하는 컴포넌트.
     /// </summary>
-    public class EndingCollectibleItem : MonoBehaviour, IPointerClickHandler
+    public class EndingCollectibleController: MonoBehaviour, IPointerClickHandler
     {
         [Header("수집품 설정")]
         [Tooltip("해당 오브젝트의 수집품 유형")]
@@ -104,7 +104,7 @@ namespace Welcome606.Ending
             }
             else
             {
-                Debug.LogWarning($"[EndingCollectibleItem] 씬에서 EndingQuestController를 찾을 수 없습니다. (Item: {itemType})");
+                Debug.LogWarning($"[EndingCollectibleController] 씬에서 EndingQuestController를 찾을 수 없습니다. (Item: {itemType})");
             }
         }
     }

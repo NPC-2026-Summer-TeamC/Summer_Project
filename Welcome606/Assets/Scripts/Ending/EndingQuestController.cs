@@ -72,7 +72,7 @@ namespace Welcome606.Ending
             }
 
             // 씬 내 배치된 수집품 오브젝트들의 상태 갱신 알림
-            EndingCollectibleItem[] items = FindObjectsByType<EndingCollectibleItem>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            EndingCollectibleController[] items = FindObjectsByType<EndingCollectibleController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             foreach (var item in items)
             {
                 if (item != null) item.RefreshVisibility();
