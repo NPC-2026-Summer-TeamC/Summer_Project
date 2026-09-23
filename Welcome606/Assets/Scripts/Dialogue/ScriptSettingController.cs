@@ -7,6 +7,9 @@ public class ScriptSettingController : MonoBehaviour
     [Header("대사 매니저 연결")]
     public DialogueManager dialogueManager;
 
+    [Header("모달 관리자 연결")]
+    public DialogUIManager dialogUIManager;
+
     [Header("슬라이더 UI 연결")]
     public Slider textSpeedSlider;
     public Slider autoSpeedSlider;
@@ -125,6 +128,14 @@ public class ScriptSettingController : MonoBehaviour
 
     public void OnConfirmButtonClicked()
     {
-        gameObject.SetActive(false);
+        // 🔴 DialogUIManager를 거쳐서 닫도록 통일 (직접 SetActive 하지 않음)
+        if (dialogUIManager != null)
+        {
+            dialogUIManager.CloseAllModals();
+        }
+        else
+        {
+            gameObject.SetActive(false); // 연결 안 되어있을 때를 위한 안전장치
+        }
     }
 }
