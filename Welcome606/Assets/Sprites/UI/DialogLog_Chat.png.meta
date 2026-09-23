@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 46235a4c353ad89419522575ac382ad4
+guid: 6c18ced7201137c4cbadca762b3bcaf9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3519856261079359459
-    second: Bar_Thumb_0
+      213: -2057535171427179063
+    second: DialogLog_Chat_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Bar_Thumb_0
+      name: DialogLog_Chat_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 30
-        height: 30
+        width: 1542
+        height: 157
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3efd116de9a09d030800000000000000
-      internalID: 3519856261079359459
+      spriteID: 9c5e532b9aa2273e0800000000000000
+      internalID: -2057535171427179063
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Bar_Thumb_0: 3519856261079359459
+      DialogLog_Chat_0: -2057535171427179063
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
