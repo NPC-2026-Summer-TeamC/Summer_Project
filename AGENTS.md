@@ -1,6 +1,6 @@
 # Agent Working Agreement
 
-본 문서는 **"606호에 어서오세요" (Welcome606)** 저장소에서 작업하는 모든 AI 에이전트(Claude Code, Gemini Antigravity 등)를 위한 **단일 진실 원천(SSOT) 공통 작업 지침**입니다. 외부 문서 분산 참조 없이 본 문서 하나로 모든 워크플로우와 C# 개발 규칙을 완결합니다.
+본 문서는 **"606호에 어서오세요" (Welcome606)** 저장소에서 작업하는 모든 AI 에이전트(Claude Code, Gemini Antigravity 등)를 위한 **단일 진실 원천(SSOT) 공통 작업 지침**입니다. AI 작업 규칙과 Unity C# 사양은 본 문서가 원본이며, 브랜치·커밋·PR 등 팀 협업 컨벤션은 [CONTRIBUTING.md](CONTRIBUTING.md)를 따릅니다.
 
 ---
 
@@ -8,14 +8,16 @@
 
 ```text
 . (워크스페이스 루트)
-├─ AGENTS.md                  # 🌟 단일 작업 규칙 & Unity C# 사양 통합
-├─ Welcome606/                # 🎮 Unity 메인 프로젝트 (Assets, Packages, ProjectSettings)
-└─ .gitignore 파일들
+├─ AGENTS.md                  # 🌟 AI 작업 규칙 & Unity C# 사양 (SSOT)
+├─ CONTRIBUTING.md            # 팀 컨벤션 원본 (브랜치/커밋/PR/네이밍)
+├─ CODE_OF_CONDUCT.md         # Unity 협업 안전 수칙
+├─ .github/                   # 이슈/PR 템플릿, 커밋 템플릿
+└─ Welcome606/                # 🎮 Unity 메인 프로젝트 (Assets, Packages, ProjectSettings)
 ```
 
 ---
 
-## 2. Unity 씬/프리팹 민감 작업 원칙 (수동 가이드 필수)
+## 2. Unity 씬/프리팹 민감 작업 원칙 (수동 안내 필수)
 
 > [!CAUTION]
 > AI 에이전트는 `.unity` 씬 파일이나 `.prefab` 파일을 코드로 자동 조작하거나 우회 생성할 수 없습니다.
@@ -26,8 +28,9 @@
 2. **절대 금지 우회 수단**:
    - `[MenuItem]`, `EditorWindow`, `[InitializeOnLoad]`, `PrefabUtility`, `EditorSceneManager` 등을 활용한 임의 생성 스크립트 작성 금지
    - `.unity` / `.prefab` YAML 텍스트 직접 파싱/변조 금지
-3. **수동 작업 가이드 의무화 (`make-guide`)**:
-   - 씬/프리팹 조작이 필요한 경우 코드를 우회 작성하지 않고 사용자에게 안내합니다.
+3. **수동 작업 안내 의무화**:
+   - 씬/프리팹 조작이 필요한 경우 코드를 우회 작성하지 않고, 사용자가 Unity 에디터에서 그대로 따라 할 수 있도록 단계별로 안내합니다.
+   - 안내 항목: 대상 씬/프리팹 경로, 배치할 오브젝트, Hierarchy 위치, Transform/Anchor 값, Inspector 참조 연결(`컴포넌트.필드` ➔ 연결 대상), Play 모드 확인 방법
 
 ---
 
@@ -51,3 +54,13 @@
    - 함수 정의: 줄바꿈 후 여는 중괄호
    - 제어문(`if`/`while`/`for`): 같은 줄에 여는 중괄호
 6. **주석 규칙**: 자명한 변수 주석 지양, 함수의 목적과 예외 처리 배경 위주로 의미 있는 주석 작성.
+
+---
+
+## 4. Git 작업 원칙
+
+- 브랜치·커밋·PR 규칙은 [CONTRIBUTING.md](CONTRIBUTING.md)를 따릅니다 (커밋: `<이모지><태그>: <설명> (#이슈번호)`).
+- `git add`와 `git commit`은 명령 체이닝 없이 개별 명령으로 실행합니다.
+- `git add .` / `git add -A` 대신 대상 파일을 명시해 스테이징합니다.
+- Unity 에셋을 새로 만들거나 삭제·이동한 경우 짝이 되는 `.meta` 파일을 함께 스테이징합니다.
+- `Welcome606/Library/`, `Welcome606/UserSettings/` 등 Unity 자동 생성 폴더는 커밋하지 않습니다.
