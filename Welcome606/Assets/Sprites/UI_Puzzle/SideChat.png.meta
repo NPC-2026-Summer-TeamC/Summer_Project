@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: 46235a4c353ad89419522575ac382ad4
+guid: 71855cf5862c56a49b395b88cbd6e769
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3519856261079359459
-    second: Bar_Thumb_0
+      213: 728858060772481548
+    second: SideChat_0
+  - first:
+      213: 3428251008323315946
+    second: SideChat_1
+  - first:
+      213: -4505058617279833498
+    second: SideChat_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +119,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Bar_Thumb_0
+      name: SideChat_0
       rect:
         serializedVersion: 2
-        x: 0
+        x: 6
         y: 0
-        width: 30
-        height: 30
+        width: 337
+        height: 391
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +134,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3efd116de9a09d030800000000000000
-      internalID: 3519856261079359459
+      spriteID: c0a160c6b8c6d1a00800000000000000
+      internalID: 728858060772481548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SideChat_1
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 389
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae86cffd028939f20800000000000000
+      internalID: 3428251008323315946
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SideChat_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 356
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66a19b07e01da71c0800000000000000
+      internalID: -4505058617279833498
       vertices: []
       indices: 
       edges: []
@@ -148,7 +198,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Bar_Thumb_0: 3519856261079359459
+      SideChat_0: 728858060772481548
+      SideChat_1: 3428251008323315946
+      SideChat_2: -4505058617279833498
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

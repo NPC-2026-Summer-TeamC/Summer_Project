@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 46235a4c353ad89419522575ac382ad4
+guid: d4c3a31edbb5aa04c88b867ab8ceb1c9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3519856261079359459
-    second: Bar_Thumb_0
+      213: -2734685194268020417
+    second: AfterBackground03_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Bar_Thumb_0
+      name: AfterBackground03_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 30
-        height: 30
+        width: 2340
+        height: 1080
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3efd116de9a09d030800000000000000
-      internalID: 3519856261079359459
+      spriteID: f3172270e427c0ad0800000000000000
+      internalID: -2734685194268020417
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Bar_Thumb_0: 3519856261079359459
+      AfterBackground03_0: -2734685194268020417
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
