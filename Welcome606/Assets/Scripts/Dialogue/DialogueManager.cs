@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events; // 🔴 대화 종료 이벤트(UnityEvent) 사용을 위해 추가
+using UnityEngine.SceneManagement; // 🔴 강제종료 복구 시 "어느 씬이었는지" 확인하기 위해 추가
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
@@ -84,11 +85,14 @@ public class DialogueManager : MonoBehaviour
     private void Start()
     {
         // 🔴 이전 실행에서 대화 도중 비정상 종료(크래시/강제 종료)된 기록이 있으면,
-        // defaultEventID보다 우선해서 그 대사를 강제로 다시 실행함
+        // "그 대사가 시작됐던 씬"이 지금 씬이랑 같을 때만 defaultEventID보다 우선해서 강제로 다시 실행함.
         string inProgressEventID = PlayerPrefs.GetString(InProgressEventIDKey, "");
-        if (!string.IsNullOrEmpty(inProgressEventID))
+        string inProgressScene = PlayerPrefs.GetString(InProgressSceneKey, "");
+        string currentScene = SceneManager.GetActiveScene().name;
+
+        if (!string.IsNullOrEmpty(inProgressEventID) && inProgressScene == currentScene)
         {
-            Debug.Log($"[DialogueManager] 이전에 비정상 종료된 대화를 감지하여 재실행합니다: {inProgressEventID}");
+            Debug.Log($"[DialogueManager] 이 씬({currentScene})에서 비정상 종료된 대화를 감지하여 재실행합니다: {inProgressEventID}");
             StartDialogue(inProgressEventID);
             return;
         }
@@ -98,7 +102,6 @@ public class DialogueManager : MonoBehaviour
             StartDialogue(defaultEventID);
         }
     }
-
     // 🔴 앱이 백그라운드로 전환될 때(일시정지) 저장 - 모바일에서 특히 중요
     private void OnApplicationPause(bool pauseStatus)
     {
@@ -122,6 +125,7 @@ public class DialogueManager : MonoBehaviour
 
     // 🔴 "재생 중이던 대사" 크래시 복구용 PlayerPrefs 키
     private const string InProgressEventIDKey = "DialogueInProgressEventID";
+    private const string InProgressSceneKey = "DialogueInProgressScene";
 
     public void StartDialogue(string eventID)
     {
@@ -138,6 +142,7 @@ public class DialogueManager : MonoBehaviour
             // 🔴 재생 시작한 EventID를 즉시 디스크에 저장 (크래시 복구용이라 지연 저장하면 의미 없음.
             // 대사 "시작" 시점에만 한 번 호출되는 거라 자주 발생하는 이벤트가 아니라 성능 부담도 적음)
             PlayerPrefs.SetString(InProgressEventIDKey, eventID);
+                        PlayerPrefs.SetString(InProgressSceneKey, SceneManager.GetActiveScene().name);
             PlayerPrefs.Save();
 
             DisplayCurrentDialogue();
@@ -186,6 +191,7 @@ public class DialogueManager : MonoBehaviour
 
         // 🔴 정상적으로 끝났으니 "재생 중이던 대사" 기록을 지움 (다음 실행 때 강제 재실행 안 되도록)
         PlayerPrefs.DeleteKey(InProgressEventIDKey);
+        PlayerPrefs.DeleteKey(InProgressSceneKey);
         PlayerPrefs.Save();
 
         SaveReadProgress(); // 🔴 대화가 끝나는 시점 = 디스크 저장 트리거 포인트
