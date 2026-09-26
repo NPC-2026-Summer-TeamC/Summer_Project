@@ -39,13 +39,17 @@ namespace Welcome606.Managers
 
         private void Awake()
         {
-            if (instance == null)
-            {
+            if (instance == null) {
                 instance = this;
                 DontDestroyOnLoad(gameObject);
+
+                // 부팅 시 1회만 저장 진행도와 동기화 (이후 챕터 선택은 Map 씬/UI가 결정)
+                SyncContextFromUserData();
+                if (UserDataManager.Instance != null) {
+                    UserDataManager.Instance.OnUserDataChanged += HandleUserDataChanged;
+                }
             }
-            else if (instance != this)
-            {
+            else if (instance != this) {
                 Destroy(gameObject);
             }
         }
@@ -55,30 +59,35 @@ namespace Welcome606.Managers
             isQuitting = true;
         }
 
-        private void Start()
-        {
-            SyncContextFromUserData();
-            if (UserDataManager.Instance != null)
-            {
-                UserDataManager.Instance.OnUserDataChanged += SyncContextFromUserData;
-            }
-        }
-
         private void OnDestroy()
         {
-            if (UserDataManager.Instance != null)
-            {
-                UserDataManager.Instance.OnUserDataChanged -= SyncContextFromUserData;
+            // 중복 인스턴스가 파괴될 때 구독 해제하면 원본 인스턴스의 구독이 끊기지 않도록 자신일 때만 해제
+            if (instance == this && UserDataManager.Instance != null) {
+                UserDataManager.Instance.OnUserDataChanged -= HandleUserDataChanged;
             }
         }
 
         /// <summary>
-        /// UserDataManager의 최근 해금/진행 챕터 및 스테이지 정보를 읽어와 선택 컨텍스트를 자동 동기화합니다.
+        /// 데이터 변경 시 선택 챕터가 유효(해금)하면 유지하고, 진행도 초기화 등으로 잠금 상태가 되면 재동기화합니다.
+        /// 클리어로 다음 챕터가 해금될 때마다 컨텍스트를 덮어쓰면 이전 챕터 맵에서 잘못된 챕터가 열리기 때문입니다.
+        /// </summary>
+        private void HandleUserDataChanged()
+        {
+            if (UserDataManager.Instance == null) {
+                return;
+            }
+
+            if (!UserDataManager.Instance.IsChapterUnlocked(selectedChapter)) {
+                SyncContextFromUserData();
+            }
+        }
+
+        /// <summary>
+        /// UserDataManager의 최근 해금/진행 챕터 및 스테이지 정보를 읽어와 선택 컨텍스트를 동기화합니다.
         /// </summary>
         public void SyncContextFromUserData()
         {
-            if (UserDataManager.Instance != null)
-            {
+            if (UserDataManager.Instance != null) {
                 int chapter = UserDataManager.Instance.MaxUnlockChapter;
                 int stage = UserDataManager.Instance.MaxUnlockStage;
                 SetSelectedContext(chapter, stage);

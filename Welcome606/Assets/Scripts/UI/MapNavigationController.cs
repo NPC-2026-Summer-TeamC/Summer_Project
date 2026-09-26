@@ -6,6 +6,7 @@ namespace Welcome606.UI
 {
     /// <summary>
     /// 맵 간 이동 (좌/우 이전 맵 / 다음 맵 이동 화살표 버튼 제어) 컨트롤러.
+    /// 맵 씬 진입 시 GameManager의 선택 챕터를 해당 맵의 챕터로 설정합니다.
     /// </summary>
     public class MapNavigationController : MonoBehaviour
     {
@@ -19,6 +20,11 @@ namespace Welcome606.UI
 
         private void Awake()
         {
+            // 진입한 맵 기준으로 컨텍스트를 맞춰야 StageEntryScene에서 해당 챕터의 스테이지가 열림
+            if (GameManager.Instance != null) {
+                GameManager.Instance.SetSelectedChapter(currentChapter);
+            }
+
             // 버튼 클릭 이벤트 연결
             if (prevChapterButton != null)
                 prevChapterButton.onClick.AddListener(OnClickPrevChapter);
