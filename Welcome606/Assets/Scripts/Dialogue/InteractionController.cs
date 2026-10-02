@@ -10,6 +10,8 @@ public class InteractionController : MonoBehaviour
     [Tooltip("클릭 시 실행할 대사의 EventID (엑셀 A열 값과 정확히 일치해야 함)")]
     public string eventID;
 
+    public bool IsDialogueActive { get; private set; } = false;
+
     private void OnMouseDown()
     {
         // 🔴 UI(로그창/설정창/버튼 등) 위를 클릭한 거라면, 그 뒤에 깔린 이 오브젝트까지
