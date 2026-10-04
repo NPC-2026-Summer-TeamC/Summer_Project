@@ -72,17 +72,7 @@ namespace Welcome606.Ending
 
         private bool IsChapter6Unlocked()
         {
-            var questController = FindFirstObjectByType<EndingQuestController>(FindObjectsInactive.Include);
-            if (questController != null && questController.forceEnableEndingQuest)
-            {
-                return true;
-            }
-
-            if (UserDataManager.Instance != null)
-            {
-                return UserDataManager.Instance.IsEnding || UserDataManager.Instance.MaxUnlockChapter >= 6;
-            }
-            return false;
+            return UserDataManager.Instance != null && UserDataManager.Instance.IsEndingQuestUnlocked;
         }
 
         public void ShowTodoPanel(bool show)

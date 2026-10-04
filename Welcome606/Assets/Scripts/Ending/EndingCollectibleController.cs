@@ -25,8 +25,12 @@ namespace Welcome606.Ending
         [Tooltip("해당 오브젝트가 존재하는 맵 번호 (1~4)")]
         public int mapIndex = 1;
 
-        [Tooltip("true일 경우 진행도와 상관없이 무조건 씬에 노출")]
-        public bool forceShowInScene = false;
+        private EndingQuestController questController;
+
+        private void Awake()
+        {
+            questController = FindFirstObjectByType<EndingQuestController>(FindObjectsInactive.Include);
+        }
 
         private void OnEnable()
         {
@@ -55,28 +59,13 @@ namespace Welcome606.Ending
         /// </summary>
         public void RefreshVisibility()
         {
-            bool isUnlocked = forceShowInScene || IsChapter6Unlocked();
+            bool isUnlocked = UserDataManager.Instance != null && UserDataManager.Instance.IsEndingQuestUnlocked;
 
             // 6챕터 진입 전(1~5 챕터 플레이 중)에는 안 보임, 6챕터 해금 시 즉시 노출
             if (gameObject.activeSelf != isUnlocked)
             {
                 gameObject.SetActive(isUnlocked);
             }
-        }
-
-        private bool IsChapter6Unlocked()
-        {
-            var controller = FindFirstObjectByType<EndingQuestController>(FindObjectsInactive.Include);
-            if (controller != null && controller.forceEnableEndingQuest)
-            {
-                return true;
-            }
-
-            if (UserDataManager.Instance != null)
-            {
-                return UserDataManager.Instance.IsEnding || UserDataManager.Instance.MaxUnlockChapter >= 6;
-            }
-            return false;
         }
 
         /// <summary>
@@ -97,10 +86,9 @@ namespace Welcome606.Ending
 
         private void TriggerClick()
         {
-            var controller = FindFirstObjectByType<EndingQuestController>(FindObjectsInactive.Include);
-            if (controller != null)
+            if (questController != null)
             {
-                controller.OnCollectibleItemClicked(mapIndex, itemType);
+                questController.OnCollectibleItemClicked(mapIndex, itemType);
             }
             else
             {

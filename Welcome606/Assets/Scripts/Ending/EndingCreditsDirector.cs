@@ -49,8 +49,7 @@ namespace Welcome606.Ending
         [SerializeField] private TextMeshProUGUI cut6DedicationText;
         [SerializeField] private Button cut6FinalClickButton;
 
-        [Header("공통 - 스킵 / 사운드")]
-        [SerializeField] private Button skipButton;
+        [Header("공통 - 사운드")]
         [SerializeField] private AudioClip doorOpenSfx;
         [SerializeField] private AudioClip endingBgmClip;
 
@@ -163,10 +162,6 @@ namespace Welcome606.Ending
         private void Start()
         {
             InitializeCutPanels();
-
-            if (skipButton != null) {
-                skipButton.onClick.AddListener(OnSkipClicked);
-            }
 
             if (cut6FinalClickButton != null) {
                 cut6FinalClickButton.onClick.AddListener(OnFinalClickToMainMenu);
@@ -500,17 +495,7 @@ namespace Welcome606.Ending
         }
 
         /// <summary>
-        /// Skip 버튼 클릭 시 즉시 MainMenuScene으로 복귀한다.
-        /// (기존 Botton_Back의 OnMouseDown_SwitchScene을 대체)
-        /// </summary>
-        public void OnSkipClicked()
-        {
-            StopAllCoroutines();
-            ReturnToMainMenu();
-        }
-
-        /// <summary>
-        /// MainMenuScene 복귀를 한 곳에서 처리한다(Skip / Cut6 자동·클릭 종료 공용).
+        /// MainMenuScene 복귀를 한 곳에서 처리한다(Cut6 자동·클릭 종료 공용).
         /// 중복 호출을 막고, 다른 씬들과 동일하게 SceneFlowManager 부재 시 SceneManager로 폴백한다.
         /// </summary>
         private void ReturnToMainMenu()

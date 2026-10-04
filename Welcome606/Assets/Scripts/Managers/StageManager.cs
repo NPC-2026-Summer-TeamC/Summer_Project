@@ -63,6 +63,9 @@ namespace Welcome606.Managers
         public event System.Action OnStageClear;
         public event System.Action OnStageFail;
 
+        // 챕터의 마지막(3) 스테이지 클리어 시 챕터 번호와 함께 발생. 아이템 획득 알림/챕터 아웃트로 연출이 구독하는 훅.
+        public event System.Action<int> OnChapterClear;
+
         public int CurrentChapter { get; private set; }
         public int CurrentStage { get; private set; }
         public bool IsStageCleared { get; private set; }
@@ -147,6 +150,9 @@ namespace Welcome606.Managers
 
             // 2. 클리어 이벤트 트리거
             OnStageClear?.Invoke();
+            if (CurrentStage >= UserDataConst.STAGE) {
+                OnChapterClear?.Invoke(CurrentChapter);
+            }
 
             // 3. 클리어 팝업 연출 출력
             if (clearPopupObject != null)
@@ -185,7 +191,7 @@ namespace Welcome606.Managers
         }
 
         /// <summary>
-        /// 일정 시간 대기 후 맵 선택 씬(StageEntryScene)으로 돌아갑니다.
+        /// 일정 시간 대기 후 클리어 결과에 맞는 씬(ReturnToMapLobby 참고)으로 돌아갑니다.
         /// </summary>
         private IEnumerator CoReturnToMapAfterDelay(float delaySeconds)
         {
@@ -198,11 +204,13 @@ namespace Welcome606.Managers
         }
 
         /// <summary>
-        /// 맵 선택 씬(StageEntryScene)으로 부드럽게 씬전환 복귀합니다.
+        /// 스테이지 종료 후 복귀 씬으로 부드럽게 씬전환합니다.
+        /// 1~2스테이지 클리어 또는 미클리어(중도 복귀) ➔ StageEntryScene, 챕터 마지막 스테이지 클리어 ➔ 해당 챕터 맵(Map0{N}Scene).
+        /// 5챕터 클리어도 Map05Scene으로 복귀하며, 이후 엔딩 퀘스트는 맵에서 진행됩니다.
         /// </summary>
         public void ReturnToMapLobby()
         {
-            string targetScene = "StageEntryScene";
+            string targetScene = ResolveReturnSceneName();
 
             if (SceneFlowManager.Instance != null)
             {
@@ -213,6 +221,12 @@ namespace Welcome606.Managers
                 Debug.LogWarning($"[StageManager] SceneFlowManager.Instance가 존재하지 않아 기본 SceneManager로 {targetScene}을 로드합니다.");
                 SceneManager.LoadScene(targetScene);
             }
+        }
+
+        private string ResolveReturnSceneName()
+        {
+            bool isChapterCleared = IsStageCleared && CurrentStage >= UserDataConst.STAGE;
+            return isChapterCleared ? $"Map0{CurrentChapter}Scene" : "StageEntryScene";
         }
 
         /// <summary>

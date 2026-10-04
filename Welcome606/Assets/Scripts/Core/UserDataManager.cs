@@ -84,6 +84,9 @@ public class UserDataManager : MonoBehaviour
     public int MaxCollectionItem => userData.maxCollectionItem;
     public bool IsEnding => userData.isEnding;
 
+    // 6챕터 엔딩 퀘스트(맵 수집품·Todo) 활성 여부. 엔딩 관련 컨트롤러는 모두 이 값 하나로 판정한다.
+    public bool IsEndingQuestUnlocked => userData.isEnding || userData.maxUnlockChapter > UserDataConst.CHAPTER;
+
     public void SetEnding(bool isEnding = true)
     {
         userData.isEnding = isEnding;
@@ -134,7 +137,12 @@ public class UserDataManager : MonoBehaviour
             CollectItem(chapter);
             userData.maxUnlockChapter = chapter + 1; // 5챕터 클리어 시 6챕터(엔딩 퀘스트) 해금
             userData.maxUnlockStage = 1;
-            userData.isEnding = true; // 6챕터 진입 == isEnding = true
+
+            // 마지막 챕터를 클리어해 6챕터(엔딩 퀘스트)에 진입할 때만 엔딩 상태로 전환한다.
+            // (모든 챕터에서 켜면 1챕터 클리어 직후부터 엔딩 퀘스트·수집품이 노출됨)
+            if (chapter == UserDataConst.CHAPTER) {
+                userData.isEnding = true;
+            }
         }
 
         Save();
